@@ -70,102 +70,82 @@
         "basic": {
           "fitness": {
             "value": 0,
-            "talent": 0,
             "attribute": "physique"
           },
           "deflection": {
             "value": 0,
-            "talent": 0,
             "attribute": "physique"
           },
           "might": {
             "value": 0,
-            "talent": 0,
             "attribute": "physique"
           },
           "endurance": {
             "value": 0,
-            "talent": 0,
             "attribute": "physique"
           },
           "evasion": {
             "value": 0,
-            "talent": 0,
             "attribute": "finesse"
           },
           "stealth": {
             "value": 0,
-            "talent": 0,
             "attribute": "finesse"
           },
           "coordination": {
             "value": 0,
-            "talent": 0,
             "attribute": "finesse"
           },
           "thievery": {
             "value": 0,
-            "talent": 0,
             "attribute": "finesse"
           },
           "resilience": {
             "value": 0,
-            "talent": 0,
             "attribute": "mind"
           },
           "concentration": {
             "value": 0,
-            "talent": 0,
             "attribute": "mind"
           },
           "senses": {
             "value": 0,
-            "talent": 0,
             "attribute": "mind"
           },
           "logic": {
             "value": 0,
-            "talent": 0,
             "attribute": "mind"
           },
           "wildcraft": {
             "value": 0,
-            "talent": 0,
             "attribute": "knowledge"
           },
           "academics": {
             "value": 0,
-            "talent": 0,
             "attribute": "knowledge"
           },
           "magic": {
             "value": 0,
-            "talent": 0,
             "attribute": "knowledge"
           },
           "medicine": {
             "value": 0,
-            "talent": 0,
             "attribute": "knowledge"
           },
           "expression": {
             "value": 0,
-            "talent": 0,
             "attribute": "social"
           },
           "presence": {
             "value": 0,
-            "talent": 0,
             "attribute": "social"
           },
           "insight": {
             "value": 0,
-            "talent": 0,
             "attribute": "social"
           },
           "persuasion": {
             "value": 0,
-            "talent": 0,
             "attribute": "social"
           }
         },

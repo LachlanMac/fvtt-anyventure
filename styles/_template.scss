@@ -1,0 +1,51 @@
+// ===================================
+// Anyventure SCSS Color Variables
+// ===================================
+
+// Primary Colors
+$primary-dark: #4b4a44;
+$primary-light: #666;
+$text-black: #000;
+$text-gray: #666;
+
+// Background Colors
+$bg-light-gray: rgba(0, 0, 0, 0.02);
+$bg-medium-gray: rgba(0, 0, 0, 0.03);
+$bg-dark-gray: rgba(0, 0, 0, 0.05);
+$bg-white-transparent: rgba(255, 255, 255, 0.3);
+$bg-white-hover: rgba(255, 255, 255, 0.5);
+$bg-white-active: rgba(255, 255, 255, 0.8);
+
+// Border Colors
+$border-light: #ccc;
+$border-medium: #c9c7b8;
+$border-primary: $primary-dark;
+
+// Accent Colors
+$accent-primary: rgba(75, 74, 68, 0.1);
+$accent-shadow: rgba(75, 74, 68, 0.5);
+
+// Font Sizes
+$font-size-small: 11px;
+$font-size-normal: 12px;
+$font-size-medium: 14px;
+$font-size-large: 16px;
+
+// Spacing
+$spacing-xs: 2px;
+$spacing-sm: 5px;
+$spacing-md: 8px;
+$spacing-lg: 10px;
+$spacing-xl: 15px;
+$spacing-xxl: 20px;
+$spacing-xxxl: 25px;
+
+// Border Radius
+$border-radius-sm: 3px;
+$border-radius-md: 5px;
+
+// Shadows
+$shadow-light: 0 0 5px $accent-shadow;
+
+// Animation
+$transition-hover: all 0.2s ease;

@@ -81,9 +81,9 @@ export class AnyventureActor extends Actor {
    * Calculate skill talents based on attributes
    */
   _calculateSkillTalents(systemData) {
-    // Basic skills get their talent from attributes
-    if (systemData.skills?.basic) {
-      for (let [key, skill] of Object.entries(systemData.skills.basic)) {
+    // Basic skills get their talent from attributes (skills are directly on system)
+    if (systemData.basic) {
+      for (let [key, skill] of Object.entries(systemData.basic)) {
         if (skill.attribute && systemData.attributes[skill.attribute]) {
           skill.talent = systemData.attributes[skill.attribute].value;
         }
@@ -166,11 +166,25 @@ export class AnyventureActor extends Actor {
 
     // Copy the skill scores to the top level, so that rolls can use
     // formulas like `@basic.fitness.value + @basic.fitness.talent`.
-    if (data.skills) {
-      for (let [category, skills] of Object.entries(data.skills)) {
-        for (let [key, skill] of Object.entries(skills)) {
-          data[`${category}.${key}`] = skill;
-        }
+    // Since skills are directly on system, we reference them directly
+    if (data.basic) {
+      for (let [key, skill] of Object.entries(data.basic)) {
+        data[`basic.${key}`] = skill;
+      }
+    }
+    if (data.weapon) {
+      for (let [key, skill] of Object.entries(data.weapon)) {
+        data[`weapon.${key}`] = skill;
+      }
+    }
+    if (data.magic) {
+      for (let [key, skill] of Object.entries(data.magic)) {
+        data[`magic.${key}`] = skill;
+      }
+    }
+    if (data.crafting) {
+      for (let [key, skill] of Object.entries(data.crafting)) {
+        data[`crafting.${key}`] = skill;
       }
     }
   }
@@ -181,17 +195,19 @@ export class AnyventureActor extends Actor {
   _getNpcRollData(data) {
     if (this.type !== 'npc') return;
 
-    // Process NPC data here
+    // Process NPC data here - same as character
+    this._getCharacterRollData(data);
   }
 
   /**
-   * Roll a skill check
+   * Roll a skill check with dialog for bonus/penalty dice
    * @param {string} category - The skill category (basic, weapon, magic, crafting)
    * @param {string} skillName - The name of the skill
    * @param {Object} options - Additional options for the roll
    */
   async rollSkill(category, skillName, options = {}) {
-    const skill = this.system.skills[category]?.[skillName];
+    // Skills are directly on system now
+    const skill = this.system[category]?.[skillName];
     if (!skill) {
       ui.notifications.warn(`Skill ${category}.${skillName} not found`);
       return null;
@@ -200,19 +216,22 @@ export class AnyventureActor extends Actor {
     // Get the dice type based on skill value (0=d4, 1=d6, 2=d8, etc.)
     const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20'];
     const diceType = diceTypes[Math.min(skill.value, 6)] || 'd4';
-    const numDice = skill.talent || 1;
+    const baseDice = skill.talent || 1;
 
-    // Create the roll formula
-    const formula = `${numDice}${diceType}`;
+    // Import the roll dialog
+    const { AnyventureRollDialog } = await import('../sheets/roll-dialog.mjs');
     
-    // Create and execute the roll
-    const roll = new Roll(formula, this.getRollData());
-    await roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this }),
-      flavor: `${skillName.charAt(0).toUpperCase() + skillName.slice(1)} Check`,
-      rollMode: game.settings.get('core', 'rollMode'),
+    // Show the roll dialog
+    return AnyventureRollDialog.show({
+      title: `${skillName.charAt(0).toUpperCase() + skillName.slice(1)} Check`,
+      skillName: skillName.charAt(0).toUpperCase() + skillName.slice(1),
+      baseDice: baseDice,
+      diceType: diceType,
+      actor: this,
+      rollCallback: (roll, data) => {
+        // Optional callback for additional processing
+        console.log(`${skillName} roll completed:`, roll.total, data);
+      }
     });
-
-    return roll;
   }
 }

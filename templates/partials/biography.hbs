@@ -1,0 +1,88 @@
+{{!-- Biography Tab Content --}}
+<div class="biography-content">
+  <div class="physical-traits">
+    <h3>Physical Traits</h3>
+    <div class="traits-grid">
+      <div class="trait">
+        <label for="system.physicalTraits.size">Size</label>
+        <input type="text" name="system.physicalTraits.size" value="{{system.physicalTraits.size}}" data-dtype="String"/>
+      </div>
+      <div class="trait">
+        <label for="system.physicalTraits.height">Height</label>
+        <input type="text" name="system.physicalTraits.height" value="{{system.physicalTraits.height}}" data-dtype="String"/>
+      </div>
+      <div class="trait">
+        <label for="system.physicalTraits.weight">Weight</label>
+        <input type="text" name="system.physicalTraits.weight" value="{{system.physicalTraits.weight}}" data-dtype="String"/>
+      </div>
+      <div class="trait">
+        <label for="system.physicalTraits.gender">Gender</label>
+        <input type="text" name="system.physicalTraits.gender" value="{{system.physicalTraits.gender}}" data-dtype="String"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="biography-section">
+    <h3>Appearance</h3>
+    <div class="editor">
+      {{editor system.details.appearance target="system.details.appearance" button=true owner=owner editable=editable}}
+    </div>
+  </div>
+
+  <div class="biography-section">
+    <h3>Biography</h3>
+    <div class="editor">
+      {{editor system.details.biography target="system.details.biography" button=true owner=owner editable=editable}}
+    </div>
+  </div>
+
+  <div class="languages-section">
+    <h3>Languages</h3>
+    {{#each skillCategories.language as |language key|}}
+    <div class="language flexrow">
+      <label class="language-name">{{capitalize key}}</label>
+      <input type="number" name="system.language.{{key}}.value" value="{{language.value}}" data-dtype="Number" min="0" max="3"/>
+      <span class="language-level">
+        {{#if (eq language.value 0)}}Unknown{{/if}}
+        {{#if (eq language.value 1)}}Basic{{/if}}
+        {{#if (eq language.value 2)}}Fluent{{/if}}
+        {{#if (eq language.value 3)}}Mastery{{/if}}
+      </span>
+    </div>
+    {{/each}}
+  </div>
+
+  <div class="movement-section">
+    <h3>Movement</h3>
+    <div class="movement-grid">
+      <div class="movement-type">
+        <label for="system.movement.standard">Standard</label>
+        <input type="number" name="system.movement.standard" value="{{system.movement.standard}}" data-dtype="Number"/>
+      </div>
+      <div class="movement-type">
+        <label for="system.movement.swim">Swim</label>
+        <input type="number" name="system.movement.swim" value="{{system.movement.swim}}" data-dtype="Number"/>
+      </div>
+      <div class="movement-type">
+        <label for="system.movement.climb">Climb</label>
+        <input type="number" name="system.movement.climb" value="{{system.movement.climb}}" data-dtype="Number"/>
+      </div>
+      <div class="movement-type">
+        <label for="system.movement.fly">Fly</label>
+        <input type="number" name="system.movement.fly" value="{{system.movement.fly}}" data-dtype="Number"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="mitigation-section">
+    <h3>Damage Mitigation</h3>
+    <div class="mitigation-grid">
+      {{#each system.mitigation as |value type|}}
+      <div class="mitigation-type">
+        <label for="system.mitigation.{{type}}">{{capitalize type}}</label>
+        <input type="number" name="system.mitigation.{{type}}" value="{{value}}" data-dtype="Number"/>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</div>

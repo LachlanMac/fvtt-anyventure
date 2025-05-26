@@ -1,0 +1,594 @@
+// Import variables
+@import 'template';
+
+/* ========================================= */
+/*  Anyventure System Styles               */
+/* ========================================= */
+
+.anyventure {
+  /* ----------------------------------------- */
+  /*  Base Styling                            */
+  /* ----------------------------------------- */
+  
+  .window-content {
+    height: 100%;
+    padding: $spacing-sm;
+    overflow-y: hidden;
+  }
+
+  .sheet-header {
+    flex: 0 0 100px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: $spacing-lg;
+
+    .profile-img {
+      flex: 0 0 100px;
+      height: 100px;
+      margin-right: $spacing-lg;
+    }
+
+    .header-fields {
+      flex: 1;
+    }
+
+    h1.charname {
+      height: 50px;
+      padding: 0px;
+      margin: $spacing-sm 0;
+      border-bottom: 0;
+
+      input {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+    }
+  }
+
+  .resource {
+    width: 50px;
+    height: 40px;
+    margin-top: $spacing-lg;
+    float: left;
+    text-align: center;
+
+    input {
+      width: 100%;
+      height: 28px;
+    }
+  }
+
+  .tabs {
+    height: 40px;
+    border-top: 1px solid #AAA;
+    border-bottom: 1px solid #AAA;
+
+    .item {
+      line-height: 40px;
+      font-weight: bold;
+
+      &.active {
+        text-decoration: underline;
+        text-shadow: none;
+      }
+    }
+  }
+
+  .sheet-body {
+    flex: 1;
+    overflow: hidden;
+
+    .tab {
+      height: 100%;
+      overflow-y: auto;
+
+      &.biography {
+        overflow-y: scroll;
+      }
+
+      &.flexrow {
+        gap: $spacing-xxl;
+      }
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Attribute-Grouped Skills                */
+  /* ----------------------------------------- */
+
+  .skills-by-attribute {
+    margin: $spacing-lg 0;
+  }
+
+  .attribute-section {
+    margin-bottom: $spacing-xxxl;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-md;
+    padding: $spacing-lg;
+    background: $bg-light-gray;
+  }
+
+  .attribute-header {
+    align-items: center;
+    margin-bottom: $spacing-lg;
+    padding-bottom: $spacing-md;
+    border-bottom: 2px solid $primary-dark;
+  }
+
+  .attribute-name {
+    flex: 1;
+    margin: 0;
+    font-size: $font-size-large;
+    font-weight: bold;
+    color: $primary-dark;
+  }
+
+  .attribute-value {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    input {
+      width: 50px;
+      text-align: center;
+      font-weight: bold;
+      font-size: $font-size-large;
+      background: $accent-primary;
+      border: 2px solid $primary-dark;
+    }
+  }
+
+  .talent-label {
+    font-size: $font-size-normal;
+    color: $text-gray;
+    font-style: italic;
+  }
+
+  .attribute-skills {
+    margin-left: $spacing-xl;
+
+    .skill {
+      margin-bottom: $spacing-xs;
+      padding: $spacing-xs $spacing-md;
+      background: $bg-white-transparent;
+      border-radius: $border-radius-sm;
+    }
+  }
+
+  .skill-plus {
+    font-weight: bold;
+    color: $primary-dark;
+    margin-right: $spacing-xs;
+  }
+
+  /* ----------------------------------------- */
+  /*  Skills General                          */
+  /* ----------------------------------------- */
+
+  .skills {
+    margin: $spacing-lg 0;
+  }
+
+  .skill-category {
+    margin-bottom: $spacing-xxl;
+    padding: $spacing-lg;
+    background: $bg-medium-gray;
+    border-radius: $border-radius-md;
+    border-left: 3px solid $text-gray;
+
+    h4 {
+      margin: 0 0 $spacing-lg 0;
+      color: $text-gray;
+      font-weight: bold;
+      font-size: $font-size-medium;
+    }
+
+    .skill {
+      background: $bg-white-hover;
+      margin-bottom: $spacing-xs;
+      padding: $spacing-sm $spacing-md;
+      border-radius: $border-radius-sm;
+
+      &:hover {
+        background: $bg-white-active;
+      }
+    }
+  }
+
+  .skill {
+    display: flex;
+    align-items: center;
+    padding: $spacing-xs $spacing-sm;
+    border-bottom: 1px solid $border-light;
+
+    &:hover {
+      background: $bg-dark-gray;
+    }
+  }
+
+  .skill-name {
+    flex: 1;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:hover {
+      color: $primary-dark;
+    }
+  }
+
+  .skill-fields {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    min-width: 120px;
+  }
+
+  .skill-talent {
+    min-width: 25px;
+    text-align: center;
+    font-weight: bold;
+    color: $primary-dark;
+    background: $accent-primary;
+    padding: $spacing-xs 6px;
+    border-radius: $border-radius-sm;
+    font-size: $font-size-normal;
+  }
+
+  .skill-value {
+    width: 35px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .skill-dice {
+    min-width: 30px;
+    text-align: center;
+    font-size: $font-size-small;
+    color: $primary-dark;
+    font-weight: bold;
+    background: $accent-primary;
+    padding: $spacing-xs 6px;
+    border-radius: $border-radius-sm;
+  }
+
+  /* ----------------------------------------- */
+  /*  Resources                               */
+  /* ----------------------------------------- */
+
+  .resources {
+    margin: $spacing-xxl 0;
+    display: flex;
+    gap: $spacing-xxl;
+  }
+
+  .resource {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .resource-label {
+    font-weight: bold;
+    margin-bottom: $spacing-sm;
+  }
+
+  .resource-content {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    input {
+      width: 50px;
+      text-align: center;
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Creation Points Display                 */
+  /* ----------------------------------------- */
+
+  .creation-points {
+    margin: $spacing-xxl 0;
+    padding: $spacing-lg;
+    background: $bg-dark-gray;
+    border-radius: $border-radius-md;
+    border-left: 4px solid $primary-dark;
+
+    label {
+      display: block;
+      margin-bottom: $spacing-sm;
+      font-weight: bold;
+      color: $primary-dark;
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Responsive Layout Adjustments           */
+  /* ----------------------------------------- */
+
+  .left-column {
+    flex: 0 0 300px;
+    min-width: 280px;
+  }
+
+  .right-column {
+    flex: 1;
+    min-width: 400px;
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+  }
+
+  /* ----------------------------------------- */
+  /*  Items Lists                             */
+  /* ----------------------------------------- */
+
+  .items-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    color: #444;
+
+    .item-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .item-name {
+      flex: 2;
+      margin: 0;
+      overflow: hidden;
+      font-size: 13px;
+      text-align: left;
+      align-items: center;
+      display: flex;
+
+      h3, h4 {
+        margin: 0;
+        white-space: nowrap;
+        overflow-x: hidden;
+      }
+
+      .item-image {
+        flex: 0 0 30px;
+        height: 30px;
+        background-size: 30px;
+        border: none;
+        margin-right: $spacing-sm;
+      }
+    }
+
+    .item-controls {
+      display: flex;
+      flex: 0 0 100px;
+      justify-content: flex-end;
+
+      a {
+        font-size: $font-size-normal;
+        text-align: center;
+        margin: 0 6px;
+      }
+    }
+
+    .item {
+      align-items: center;
+      padding: 0 $spacing-xs;
+      border-bottom: 1px solid $border-medium;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    .item-prop {
+      text-align: center;
+      border-left: 1px solid $border-medium;
+      border-right: 1px solid $border-medium;
+      font-size: $font-size-normal;
+    }
+  }
+
+  .items-header {
+    height: 28px;
+    margin: $spacing-xs 0;
+    padding: 0;
+    align-items: center;
+    background: $bg-dark-gray;
+    border: 2px groove #eeede0;
+    font-weight: bold;
+
+    > * {
+      font-size: $font-size-normal;
+      text-align: center;
+    }
+
+    .item-name {
+      padding-left: $spacing-sm;
+      text-align: left;
+      display: flex;
+    }
+  }
+
+  .item-formula {
+    flex: 0 0 200px;
+    padding: 0 $spacing-md;
+  }
+
+  /* ----------------------------------------- */
+  /*  Biography Tab                           */
+  /* ----------------------------------------- */
+
+  .biography-content {
+    padding: $spacing-lg;
+  }
+
+  .biography-section {
+    margin-bottom: $spacing-xxl;
+
+    h3 {
+      margin: 0 0 $spacing-lg 0;
+      font-weight: bold;
+      border-bottom: 1px solid $border-light;
+      padding-bottom: $spacing-sm;
+    }
+  }
+
+  .traits-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-lg;
+    margin-bottom: $spacing-xxl;
+  }
+
+  .trait {
+    display: flex;
+    flex-direction: column;
+
+    label {
+      font-weight: bold;
+      margin-bottom: $spacing-sm;
+    }
+  }
+
+  .movement-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $spacing-lg;
+  }
+
+  .movement-type {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    label {
+      font-weight: bold;
+      margin-bottom: $spacing-sm;
+    }
+
+    input {
+      width: 60px;
+      text-align: center;
+    }
+  }
+
+  .mitigation-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-lg;
+  }
+
+  .mitigation-type {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    label {
+      font-weight: bold;
+      margin-bottom: $spacing-sm;
+      font-size: $font-size-normal;
+    }
+
+    input {
+      width: 50px;
+      text-align: center;
+    }
+  }
+
+  .language {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+    margin-bottom: $spacing-sm;
+  }
+
+  .language-name {
+    flex: 1;
+    font-weight: bold;
+  }
+
+  .language input {
+    width: 40px;
+    text-align: center;
+  }
+
+  .language-level {
+    width: 80px;
+    font-style: italic;
+    color: $text-gray;
+  }
+
+  /* ----------------------------------------- */
+  /*  Roll Dialog Styles                      */
+  /* ----------------------------------------- */
+
+  &-roll-dialog {
+    min-width: 400px;
+
+    .roll-info {
+      background: $bg-dark-gray;
+      padding: $spacing-lg;
+      border-radius: $border-radius-md;
+      margin-bottom: $spacing-xl;
+      text-align: center;
+
+      h3 {
+        margin: 0 0 $spacing-sm 0;
+        color: $primary-dark;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: $spacing-lg;
+
+      label {
+        flex: 0 0 120px;
+        font-weight: bold;
+        color: $primary-dark;
+      }
+
+      input {
+        flex: 1;
+        padding: $spacing-sm;
+        border: 1px solid $border-light;
+        border-radius: $border-radius-sm;
+        text-align: center;
+      }
+    }
+
+    .roll-preview {
+      background: $accent-primary;
+      padding: $spacing-lg;
+      border-radius: $border-radius-md;
+      margin-top: $spacing-xl;
+      text-align: center;
+
+      #final-formula {
+        font-family: monospace;
+        font-weight: bold;
+        color: $primary-dark;
+        font-size: $font-size-large;
+      }
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Rollable Elements                       */
+  /* ----------------------------------------- */
+
+  .rollable {
+    &:hover, &:focus {
+      color: $text-black;
+      text-shadow: 0 0 10px red;
+      cursor: pointer;
+    }
+  }
+}

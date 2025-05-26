@@ -8,6 +8,7 @@ import { AnyventureActor } from './documents/actor.mjs';
 import { AnyventureItem } from './documents/item.mjs';
 import { AnyventureActorSheet } from './sheets/actor-sheet.mjs';
 import { AnyventureItemSheet } from './sheets/item-sheet.mjs';
+import { AnyventureRollDialog } from './sheets/roll-dialog.mjs';
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -20,6 +21,7 @@ Hooks.once('init', async function() {
   game.anyventure = {
     AnyventureActor,
     AnyventureItem,
+    AnyventureRollDialog,
     rollItemMacro
   };
 
@@ -28,14 +30,14 @@ Hooks.once('init', async function() {
   CONFIG.Item.documentClass = AnyventureItem;
 
   // Register sheet application classes
-  foundry.documents.collections.Actors.unregisterSheet("core", foundry.applications.sheets.ActorSheet);
-  foundry.documents.collections.Actors.registerSheet("anyventure", AnyventureActorSheet, { 
+  Actors.unregisterSheet("core", foundry.applications.sheets.ActorSheet);
+  Actors.registerSheet("anyventure", AnyventureActorSheet, { 
     types: ["character", "npc"], 
     makeDefault: true 
   });
 
-  foundry.documents.collections.Items.unregisterSheet("core", foundry.applications.sheets.ItemSheet);
-  foundry.documents.collections.Items.registerSheet("anyventure", AnyventureItemSheet, { 
+  Items.unregisterSheet("core", foundry.applications.sheets.ItemSheet);
+  Items.registerSheet("anyventure", AnyventureItemSheet, { 
     makeDefault: true 
   });
 
@@ -156,7 +158,7 @@ function rollItemMacro(itemName) {
  * @return {Promise}
  */
 async function preloadHandlebarsTemplates() {
- return foundry.applications.handlebars.loadTemplates([
+ return loadTemplates([
     // Actor templates
     "systems/anyventure/templates/actor/actor-character-sheet.hbs",
     "systems/anyventure/templates/actor/actor-npc-sheet.hbs",
@@ -169,6 +171,11 @@ async function preloadHandlebarsTemplates() {
     "systems/anyventure/templates/item/item-equipment-sheet.hbs",
     
     // Partial templates
-    "systems/anyventure/templates/partials/skills.hbs"
+    "systems/anyventure/templates/partials/skills.hbs",
+    "systems/anyventure/templates/partials/biography.hbs",
+    "systems/anyventure/templates/partials/equipment.hbs",
+    "systems/anyventure/templates/partials/moves.hbs",
+    "systems/anyventure/templates/partials/spells.hbs",
+    "systems/anyventure/templates/partials/modules.hbs",
   ]);
 }
