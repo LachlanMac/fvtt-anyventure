@@ -1,0 +1,486 @@
+{
+  "Actor": {
+    "types": ["character", "npc"],
+    "templates": {
+      "base": {
+        "attributes": {
+          "physique": {
+            "value": 1,
+            "min": 1,
+            "max": 4
+          },
+          "finesse": {
+            "value": 1,
+            "min": 1,
+            "max": 4
+          },
+          "mind": {
+            "value": 1,
+            "min": 1,
+            "max": 4
+          },
+          "knowledge": {
+            "value": 1,
+            "min": 1,
+            "max": 4
+          },
+          "social": {
+            "value": 1,
+            "min": 1,
+            "max": 4
+          }
+        },
+        "resources": {
+          "health": {
+            "value": 0,
+            "max": 0,
+            "temp": 0
+          },
+          "resolve": {
+            "value": 0,
+            "max": 0,
+            "temp": 0
+          },
+          "energy": {
+            "value": 5,
+            "max": 5,
+            "temp": 0
+          }
+        },
+        "movement": {
+          "standard": 5,
+          "current": 5,
+          "swim": 0,
+          "climb": 0,
+          "fly": 0
+        },
+        "mitigation": {
+          "physical": 0,
+          "heat": 0,
+          "cold": 0,
+          "lightning": 0,
+          "dark": 0,
+          "divine": 0,
+          "aether": 0,
+          "psychic": 0,
+          "toxic": 0
+        }
+      },
+      "skills": {
+        "basic": {
+          "fitness": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "physique"
+          },
+          "deflection": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "physique"
+          },
+          "might": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "physique"
+          },
+          "endurance": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "physique"
+          },
+          "evasion": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "finesse"
+          },
+          "stealth": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "finesse"
+          },
+          "coordination": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "finesse"
+          },
+          "thievery": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "finesse"
+          },
+          "resilience": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "mind"
+          },
+          "concentration": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "mind"
+          },
+          "senses": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "mind"
+          },
+          "logic": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "mind"
+          },
+          "wildcraft": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "knowledge"
+          },
+          "academics": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "knowledge"
+          },
+          "magic": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "knowledge"
+          },
+          "medicine": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "knowledge"
+          },
+          "expression": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "social"
+          },
+          "presence": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "social"
+          },
+          "insight": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "social"
+          },
+          "persuasion": {
+            "value": 0,
+            "talent": 0,
+            "attribute": "social"
+          }
+        },
+        "weapon": {
+          "unarmed": {
+            "value": 0,
+            "talent": 1
+          },
+          "throwing": {
+            "value": 0,
+            "talent": 1
+          },
+          "simpleMeleeWeapons": {
+            "value": 0,
+            "talent": 1
+          },
+          "simpleRangedWeapons": {
+            "value": 0,
+            "talent": 1
+          },
+          "complexMeleeWeapons": {
+            "value": 0,
+            "talent": 0
+          },
+          "complexRangedWeapons": {
+            "value": 0,
+            "talent": 0
+          }
+        },
+        "magic": {
+          "black": {
+            "value": 0,
+            "talent": 0
+          },
+          "primal": {
+            "value": 0,
+            "talent": 0
+          },
+          "metamagic": {
+            "value": 0,
+            "talent": 0
+          },
+          "divine": {
+            "value": 0,
+            "talent": 0
+          },
+          "mysticism": {
+            "value": 0,
+            "talent": 0
+          }
+        },
+        "crafting": {
+          "engineering": {
+            "value": 0,
+            "talent": 0
+          },
+          "fabrication": {
+            "value": 0,
+            "talent": 0
+          },
+          "alchemy": {
+            "value": 0,
+            "talent": 0
+          },
+          "cooking": {
+            "value": 0,
+            "talent": 0
+          },
+          "glyphcraft": {
+            "value": 0,
+            "talent": 0
+          },
+          "bioshaping": {
+            "value": 0,
+            "talent": 0
+          }
+        },
+        "language": {
+          "common": {
+            "value": 3,
+            "talent": 0
+          }
+        },
+        "music": {
+          "percussion": {
+            "value": 0,
+            "talent": 0
+          },
+          "strings": {
+            "value": 0,
+            "talent": 0
+          },
+          "wind": {
+            "value": 0,
+            "talent": 0
+          },
+          "vocals": {
+            "value": 0,
+            "talent": 0
+          }
+        }
+      },
+      "character": {
+        "details": {
+          "race": "",
+          "culture": "",
+          "biography": "",
+          "appearance": "",
+          "portraitUrl": ""
+        },
+        "characterCreation": {
+          "attributePointsRemaining": 6,
+          "talentStarsRemaining": 8
+        },
+        "modulePoints": {
+          "total": 5,
+          "spent": 0,
+          "available": 5
+        },
+        "spellSlots": {
+          "current": 0,
+          "max": 10
+        },
+        "languages": [],
+        "immunities": [],
+        "vision": [],
+        "physicalTraits": {
+          "size": "",
+          "weight": "",
+          "height": "",
+          "gender": ""
+        }
+      }
+    },
+    "character": {
+      "templates": ["base", "skills", "character"],
+      "modules": [],
+      "spells": [],
+      "actions": [],
+      "conditions": []
+    },
+    "npc": {
+      "templates": ["base", "skills"],
+      "npcType": "foe",
+      "modules": [],
+      "actions": [],
+      "conditions": []
+    }
+  },
+  "Item": {
+    "types": ["module", "spell", "weapon", "armor", "equipment", "race", "culture"],
+    "templates": {
+      "base": {
+        "description": "",
+        "source": ""
+      },
+      "physical": {
+        "weight": 0,
+        "value": 0,
+        "rarity": "common"
+      }
+    },
+    "module": {
+      "templates": ["base"],
+      "moduleType": "core",
+      "ruleset": 1,
+      "anyventure_id": "",
+      "options": {
+        "option_1": {
+          "name": "",
+          "anyventure_id": "",
+          "description": "",
+          "selected": false,
+          "data": "",
+          "cost": 0
+        },
+        "option_2a": {
+          "name": "",
+          "anyventure_id": "",
+          "description": "",
+          "selected": false,
+          "data": "",
+          "cost": 0
+        },
+        "option_2b": {
+          "name": "",
+          "anyventure_id": "",
+          "description": "",
+          "selected": false,
+          "data": "",
+          "cost": 0
+        },
+        "option_3": {
+          "name": "",
+          "anyventure_id": "",
+          "description": "",
+          "selected": false,
+          "data": "",
+          "cost": 0
+        },
+        "option_4a": {
+          "name": "",
+          "anyventure_id": "",
+          "description": "",
+          "selected": false,
+          "data": "",
+          "cost": 0
+        },
+        "option_4b": {
+          "name": "",
+          "anyventure_id": "",
+          "description": "",
+          "selected": false,
+          "data": "",
+          "cost": 0
+        },
+        "option_5": {
+          "name": "",
+          "anyventure_id": "",
+          "description": "",
+          "selected": false,
+          "data": "",
+          "cost": 0
+        },
+        "option_6a": {
+          "name": "",
+          "anyventure_id": "",
+          "description": "",
+          "selected": false,
+          "data": "",
+          "cost": 0
+        },
+        "option_6b": {
+          "name": "",
+          "anyventure_id": "",
+          "description": "",
+          "selected": false,
+          "data": "",
+          "cost": 0
+        },
+        "option_7": {
+          "name": "",
+          "anyventure_id": "",
+          "description": "",
+          "selected": false,
+          "data": "",
+          "cost": 0
+        }
+      }
+    },
+    "spell": {
+      "templates": ["base"],
+      "magicType": "primal",
+      "subschool": "elemental",
+      "complexity": 4,
+      "range": "short",
+      "damage": 0,
+      "damageType": "aether",
+      "dodgeDifficulty": 6,
+      "component": {
+        "name": "",
+        "cost": 0
+      },
+      "ritual": true
+    },
+    "weapon": {
+      "templates": ["base", "physical"],
+      "weapon_data": {
+        "category": "simpleMeleeWeapons",
+        "flags": [],
+        "primary": {
+          "damage": "3",
+          "damage_extra": "2",
+          "damage_type": "physical",
+          "category": "blunt",
+          "secondary_damage": 0,
+          "secondary_damage_extra": 0,
+          "secondary_damage_type": "none",
+          "min_range": 0,
+          "max_range": 0
+        },
+        "secondary": {
+          "damage": "0",
+          "damage_extra": "0",
+          "damage_type": "none",
+          "category": "extra",
+          "secondary_damage": 0,
+          "secondary_damage_extra": 0,
+          "secondary_damage_type": "none",
+          "min_range": 0,
+          "max_range": 0
+        }
+      }
+    },
+    "armor": {
+      "templates": ["base", "physical"],
+      "armor_data": {
+        "category": "light",
+        "base_mitigation": 0,
+        "dexterity_limit": 0
+      }
+    },
+    "equipment": {
+      "templates": ["base", "physical"],
+      "type": "gear"
+    },
+    "race": {
+      "templates": ["base"],
+      "traits": [],
+      "bonuses": {}
+    },
+    "culture": {
+      "templates": ["base"],
+      "traits": [],
+      "bonuses": {}
+    }
+  }
+}

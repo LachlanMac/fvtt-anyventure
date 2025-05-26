@@ -1,0 +1,145 @@
+{
+  "ANYVENTURE": {
+    "SystemName": "Anyventure",
+    
+    "Actor": {
+      "Character": "Character",
+      "NPC": "NPC"
+    },
+    
+    "Attributes": {
+      "Physique": "Physique",
+      "Finesse": "Finesse", 
+      "Mind": "Mind",
+      "Knowledge": "Knowledge",
+      "Social": "Social"
+    },
+    
+    "Skills": {
+      "Basic": "Basic Skills",
+      "Weapon": "Weapon Skills", 
+      "Magic": "Magic Skills",
+      "Crafting": "Crafting Skills",
+      "Language": "Languages",
+      "Music": "Music",
+      
+      "Fitness": "Fitness",
+      "Deflection": "Deflection",
+      "Might": "Might",
+      "Endurance": "Endurance",
+      "Evasion": "Evasion",
+      "Stealth": "Stealth",
+      "Coordination": "Coordination",
+      "Thievery": "Thievery",
+      "Resilience": "Resilience",
+      "Concentration": "Concentration",
+      "Senses": "Senses",
+      "Logic": "Logic",
+      "Wildcraft": "Wildcraft",
+      "Academics": "Academics",
+      "Magic": "Magic",
+      "Medicine": "Medicine",
+      "Expression": "Expression",
+      "Presence": "Presence",
+      "Insight": "Insight",
+      "Persuasion": "Persuasion",
+      
+      "Unarmed": "Unarmed",
+      "Throwing": "Throwing",
+      "SimpleMeleeWeapons": "Simple Melee",
+      "SimpleRangedWeapons": "Simple Ranged",
+      "ComplexMeleeWeapons": "Complex Melee", 
+      "ComplexRangedWeapons": "Complex Ranged",
+      
+      "Black": "Black Magic",
+      "Primal": "Primal Magic",
+      "Metamagic": "Metamagic",
+      "Divine": "Divine Magic",
+      "Mysticism": "Mysticism",
+      
+      "Engineering": "Engineering",
+      "Fabrication": "Fabrication",
+      "Alchemy": "Alchemy",
+      "Cooking": "Cooking",
+      "Glyphcraft": "Glyphcraft",
+      "Bioshaping": "Bioshaping"
+    },
+    
+    "Resources": {
+      "Health": "Health",
+      "Resolve": "Resolve",
+      "Energy": "Energy"
+    },
+    
+    "Movement": {
+      "Standard": "Standard",
+      "Swim": "Swim",
+      "Climb": "Climb", 
+      "Fly": "Fly"
+    },
+    
+    "Items": {
+      "Module": "Module",
+      "Spell": "Spell",
+      "Weapon": "Weapon",
+      "Armor": "Armor",
+      "Equipment": "Equipment",
+      "Race": "Race",
+      "Culture": "Culture"
+    },
+    
+    "Tabs": {
+      "Skills": "Skills",
+      "Modules": "Modules",
+      "Equipment": "Equipment", 
+      "Spells": "Spells",
+      "Biography": "Biography"
+    },
+    
+    "Biography": {
+      "Race": "Race",
+      "Culture": "Culture",
+      "Appearance": "Appearance",
+      "Biography": "Biography",
+      "PhysicalTraits": "Physical Traits",
+      "Size": "Size",
+      "Height": "Height",
+      "Weight": "Weight",
+      "Gender": "Gender"
+    },
+    
+    "Mitigation": {
+      "Physical": "Physical",
+      "Heat": "Heat",
+      "Cold": "Cold",
+      "Lightning": "Lightning",
+      "Dark": "Dark",
+      "Divine": "Divine", 
+      "Aether": "Aether",
+      "Psychic": "Psychic",
+      "Toxic": "Toxic"
+    },
+    
+    "ModulePoints": {
+      "Total": "Module Points",
+      "Available": "Available Points"
+    },
+    
+    "Languages": {
+      "Unknown": "Unknown",
+      "Basic": "Basic",
+      "Fluent": "Fluent", 
+      "Mastery": "Mastery"
+    },
+    
+    "Dice": {
+      "d4": "d4",
+      "d6": "d6",
+      "d8": "d8", 
+      "d10": "d10",
+      "d12": "d12",
+      "d16": "d16",
+      "d20": "d20"
+    }
+  }
+}

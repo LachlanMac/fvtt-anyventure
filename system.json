@@ -1,0 +1,63 @@
+{
+  "id": "anyventure",
+  "title": "Anyventure",
+  "description": "A classless TTRPG system where characters progress through modular skill trees, featuring unique dice mechanics and resource management.",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "LachlanMac",
+      "url": "https://github.com/LachlanMac"
+    }
+  ],
+  "compatibility": {
+    "minimum": "13.324",
+    "verified": "13.331",
+    "maximum": "13"
+  },
+  "relationships": {
+    "systems": [],
+    "requires": []
+  },
+  "esmodules": [
+    "modules/anyventure.mjs"
+  ],
+  "styles": [
+    "styles/anyventure.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "packs": [
+   
+  ],
+  "grid": {
+    "distance": 1,
+    "units": "u"
+  },
+  "primaryTokenAttribute": "resources.health",
+  "secondaryTokenAttribute": "resources.resolve",
+  "url": "https://github.com/LachlanMac/fvtt-anyventure",
+  "manifest": "https://github.com/LachlanMac/fvtt-anyventure/releases/latest/download/system.json",
+  "download": "https://github.com/LachlanMac/fvtt-anyventure/releases/latest/download/anyventure.zip",
+  "license": "LICENSE",
+  "readme": "README.md",
+  "media": [
+    {
+      "type": "icon",
+      "url": "artwork/system-icon.png"
+    },
+    {
+      "type": "cover",
+      "url": "artwork/system-cover.png"
+    }
+  ],
+  "flags": {
+    "anyventure": {
+      "version": "1.0.0"
+    }
+  }
+}

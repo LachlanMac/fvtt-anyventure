@@ -1,0 +1,163 @@
+<form class="{{cssClass}} {{item.type}} flexcol" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  <header class="sheet-header">
+    <img class="item-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="64" width="64"/>
+    <div class="header-fields">
+      <h1 class="item-name"><input name="name" type="text" value="{{item.name}}" placeholder="Weapon Name"/></h1>
+      <div class="item-subtitle">
+        <input type="text" name="system.source" value="{{system.source}}" placeholder="Source"/>
+      </div>
+      <div class="weapon-basics flexrow">
+        <div class="form-group">
+          <label>Category</label>
+          <select name="system.weapon_data.category" data-dtype="String">
+            {{#each weaponCategories as |category|}}
+            <option value="{{category.value}}" {{#if (eq ../system.weapon_data.category category.value)}}selected{{/if}}>{{category.label}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Weight</label>
+          <input type="number" name="system.weight" value="{{system.weight}}" data-dtype="Number" step="0.1"/>
+        </div>
+        <div class="form-group">
+          <label>Value</label>
+          <input type="number" name="system.value" value="{{system.value}}" data-dtype="Number"/>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="damage">Damage</a>
+    <a class="item" data-tab="properties">Properties</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    {{!-- Description Tab --}}
+    <div class="tab" data-group="primary" data-tab="description">
+      <div class="form-group stacked">
+        <label>Description</label>
+        <div class="form-fields">
+          {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+        </div>
+      </div>
+    </div>
+
+    {{!-- Damage Tab --}}
+    <div class="tab" data-group="primary" data-tab="damage">
+      <div class="weapon-damage">
+        
+        {{!-- Primary Damage --}}
+        <div class="damage-section">
+          <h3>Primary Damage</h3>
+          <div class="damage-fields">
+            <div class="form-group">
+              <label>Base Damage</label>
+              <input type="text" name="system.weapon_data.primary.damage" value="{{system.weapon_data.primary.damage}}" data-dtype="String" placeholder="3"/>
+            </div>
+            <div class="form-group">
+              <label>Extra Damage</label>
+              <input type="text" name="system.weapon_data.primary.damage_extra" value="{{system.weapon_data.primary.damage_extra}}" data-dtype="String" placeholder="2"/>
+            </div>
+            <div class="form-group">
+              <label>Damage Type</label>
+              <select name="system.weapon_data.primary.damage_type" data-dtype="String">
+                {{#each damageTypes as |type|}}
+                <option value="{{type}}" {{#if (eq ../system.weapon_data.primary.damage_type type)}}selected{{/if}}>{{capitalize type}}</option>
+                {{/each}}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select name="system.weapon_data.primary.category" data-dtype="String">
+                {{#each damageCategories as |category|}}
+                <option value="{{category.value}}" {{#if (eq ../system.weapon_data.primary.category category.value)}}selected{{/if}}>{{category.label}}</option>
+                {{/each}}
+              </select>
+            </div>
+          </div>
+          
+          <div class="range-fields">
+            <div class="form-group">
+              <label>Min Range</label>
+              <input type="number" name="system.weapon_data.primary.min_range" value="{{system.weapon_data.primary.min_range}}" data-dtype="Number"/>
+            </div>
+            <div class="form-group">
+              <label>Max Range</label>
+              <input type="number" name="system.weapon_data.primary.max_range" value="{{system.weapon_data.primary.max_range}}" data-dtype="Number"/>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Secondary Damage --}}
+        <div class="damage-section">
+          <h3>Secondary Damage</h3>
+          <div class="damage-fields">
+            <div class="form-group">
+              <label>Base Damage</label>
+              <input type="text" name="system.weapon_data.secondary.damage" value="{{system.weapon_data.secondary.damage}}" data-dtype="String" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Extra Damage</label>
+              <input type="text" name="system.weapon_data.secondary.damage_extra" value="{{system.weapon_data.secondary.damage_extra}}" data-dtype="String" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Damage Type</label>
+              <select name="system.weapon_data.secondary.damage_type" data-dtype="String">
+                <option value="none">None</option>
+                {{#each damageTypes as |type|}}
+                <option value="{{type}}" {{#if (eq ../system.weapon_data.secondary.damage_type type)}}selected{{/if}}>{{capitalize type}}</option>
+                {{/each}}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select name="system.weapon_data.secondary.category" data-dtype="String">
+                {{#each damageCategories as |category|}}
+                <option value="{{category.value}}" {{#if (eq ../system.weapon_data.secondary.category category.value)}}selected{{/if}}>{{category.label}}</option>
+                {{/each}}
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {{!-- Properties Tab --}}
+    <div class="tab" data-group="primary" data-tab="properties">
+      <div class="weapon-properties">
+        <h3>Weapon Flags</h3>
+        <div class="flags-grid">
+          {{#each weaponFlags as |flag|}}
+          <div class="flag-item">
+            <label>
+              <input type="checkbox" class="weapon-flag" value="{{flag}}" {{#if (includes ../system.weapon_data.flags flag)}}checked{{/if}}/>
+              {{capitalize flag}}
+            </label>
+          </div>
+          {{/each}}
+        </div>
+
+        <div class="form-group">
+          <label>Rarity</label>
+          <select name="system.rarity" data-dtype="String">
+            <option value="common" {{#if (eq system.rarity "common")}}selected{{/if}}>Common</option>
+            <option value="uncommon" {{#if (eq system.rarity "uncommon")}}selected{{/if}}>Uncommon</option>
+            <option value="rare" {{#if (eq system.rarity "rare")}}selected{{/if}}>Rare</option>
+            <option value="epic" {{#if (eq system.rarity "epic")}}selected{{/if}}>Epic</option>
+            <option value="legendary" {{#if (eq system.rarity "legendary")}}selected{{/if}}>Legendary</option>
+            <option value="artifact" {{#if (eq system.rarity "artifact")}}selected{{/if}}>Artifact</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</form>
