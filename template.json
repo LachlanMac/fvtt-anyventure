@@ -7,27 +7,27 @@
           "physique": {
             "value": 1,
             "min": 1,
-            "max": 4
+            "max": 5
           },
           "finesse": {
             "value": 1,
             "min": 1,
-            "max": 4
+            "max": 5
           },
           "mind": {
             "value": 1,
             "min": 1,
-            "max": 4
+            "max": 5
           },
           "knowledge": {
             "value": 1,
             "min": 1,
-            "max": 4
+            "max": 5
           },
           "social": {
             "value": 1,
             "min": 1,
-            "max": 4
+            "max": 5
           }
         },
         "resources": {

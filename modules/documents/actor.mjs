@@ -45,7 +45,7 @@ export class AnyventureActor extends Actor {
     if (actorData.type !== 'character') return;
 
     const systemData = actorData.system;
-
+    console.log(systemData);
     // Calculate skill talents based on attributes
     this._calculateSkillTalents(systemData);
     

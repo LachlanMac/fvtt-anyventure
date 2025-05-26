@@ -1,188 +1,238 @@
-{{!-- Skills Organized by Attribute --}}
-<div class="skills-by-attribute">
-  <h3>Skills & Attributes</h3>
-  
-  {{!-- Physique Attribute and Skills --}}
-  <div class="attribute-section">
-    <div class="attribute-header flexrow">
-      <h4 class="attribute-name" data-attribute="physique">
-        Physique
-      </h4>
-      <div class="attribute-value">
-        <input type="number" name="system.attributes.physique.value" value="{{system.attributes.physique.value}}" data-dtype="Number" min="1" max="4"/>
-        <span class="talent-label">talents</span>
-      </div>
-    </div>
-    <div class="attribute-skills">
-      {{#each skillCategories.basic as |skill key|}}
-        {{#if (eq skill.attribute "physique")}}
-        <div class="skill flexrow">
-          <label class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{capitalize key}}</label>
-          <div class="skill-fields flexrow">
-            <span class="skill-plus">+</span>
-            <input type="number" class="skill-value" name="system.basic.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-            <span class="skill-dice">{{skillDie skill.value}}</span>
+{{!-- Skills Page --}}
+<div class="skills-page">
+  {{!-- Skills Grid --}}
+  <div class="skills-grid">
+    {{!-- Left Column --}}
+    <div class="skills-column">
+      {{!-- Physique --}}
+      <div class="attribute-block">
+        <div class="attribute-header">
+          <h3 class="attribute-name">
+            <i class="fas fa-dumbbell"></i>
+            Physique
+          </h3>
+          <div class="talent-stars">
+            {{#times system.attributes.physique.value}}
+              <i class="fas fa-star filled"></i>
+            {{/times}}
           </div>
         </div>
-        {{/if}}
-      {{/each}}
-    </div>
-  </div>
-
-  {{!-- Finesse Attribute and Skills --}}
-  <div class="attribute-section">
-    <div class="attribute-header flexrow">
-      <h4 class="attribute-name" data-attribute="finesse">
-        Finesse
-      </h4>
-      <div class="attribute-value">
-        <input type="number" name="system.attributes.finesse.value" value="{{system.attributes.finesse.value}}" data-dtype="Number" min="1" max="4"/>
-        <span class="talent-label">talents</span>
+        <div class="skills-list">
+          {{#each skillCategories.basic as |skill key|}}
+            {{#if (eq skill.attribute "physique")}}
+            <div class="skill-row">
+              <span class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
+              <div class="skill-value-group">
+                <span class="skill-modifier">({{skill.value}})</span>
+                <span class="skill-die">{{skill.talent}}{{skillDie skill.value}}</span>
+              </div>
+            </div>
+            {{/if}}
+          {{/each}}
+        </div>
       </div>
-    </div>
-    <div class="attribute-skills">
-      {{#each skillCategories.basic as |skill key|}}
-        {{#if (eq skill.attribute "finesse")}}
-        <div class="skill flexrow">
-          <label class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{capitalize key}}</label>
-          <div class="skill-fields flexrow">
-            <span class="skill-plus">+</span>
-            <input type="number" class="skill-value" name="system.basic.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-            <span class="skill-dice">{{skillDie skill.value}}</span>
+
+      {{!-- Finesse --}}
+      <div class="attribute-block">
+        <div class="attribute-header">
+          <h3 class="attribute-name">
+            <i class="fas fa-feather-alt"></i>
+            Finesse
+          </h3>
+          <div class="talent-stars">
+            {{#times system.attributes.finesse.value}}
+              <i class="fas fa-star filled"></i>
+            {{/times}}
           </div>
         </div>
-        {{/if}}
-      {{/each}}
-    </div>
-  </div>
-
-  {{!-- Mind Attribute and Skills --}}
-  <div class="attribute-section">
-    <div class="attribute-header flexrow">
-      <h4 class="attribute-name" data-attribute="mind">
-        Mind
-      </h4>
-      <div class="attribute-value">
-        <input type="number" name="system.attributes.mind.value" value="{{system.attributes.mind.value}}" data-dtype="Number" min="1" max="4"/>
-        <span class="talent-label">talents</span>
+        <div class="skills-list">
+          {{#each skillCategories.basic as |skill key|}}
+            {{#if (eq skill.attribute "finesse")}}
+            <div class="skill-row">
+              <span class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
+              <div class="skill-value-group">
+                <span class="skill-modifier">({{skill.value}})</span>
+                <span class="skill-die">{{skill.talent}}{{skillDie skill.value}}</span>
+              </div>
+            </div>
+            {{/if}}
+          {{/each}}
+        </div>
       </div>
-    </div>
-    <div class="attribute-skills">
-      {{#each skillCategories.basic as |skill key|}}
-        {{#if (eq skill.attribute "mind")}}
-        <div class="skill flexrow">
-          <label class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{capitalize key}}</label>
-          <div class="skill-fields flexrow">
-            <span class="skill-plus">+</span>
-            <input type="number" class="skill-value" name="system.basic.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-            <span class="skill-dice">{{skillDie skill.value}}</span>
+
+      {{!-- Mind --}}
+      <div class="attribute-block">
+        <div class="attribute-header">
+          <h3 class="attribute-name">
+            <i class="fas fa-brain"></i>
+            Mind
+          </h3>
+          <div class="talent-stars">
+            {{#times system.attributes.mind.value}}
+              <i class="fas fa-star filled"></i>
+            {{/times}}
           </div>
         </div>
-        {{/if}}
-      {{/each}}
-    </div>
-  </div>
-
-  {{!-- Knowledge Attribute and Skills --}}
-  <div class="attribute-section">
-    <div class="attribute-header flexrow">
-      <h4 class="attribute-name" data-attribute="knowledge">
-        Knowledge
-      </h4>
-      <div class="attribute-value">
-        <input type="number" name="system.attributes.knowledge.value" value="{{system.attributes.knowledge.value}}" data-dtype="Number" min="1" max="4"/>
-        <span class="talent-label">talents</span>
+        <div class="skills-list">
+          {{#each skillCategories.basic as |skill key|}}
+            {{#if (eq skill.attribute "mind")}}
+            <div class="skill-row">
+              <span class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
+              <div class="skill-value-group">
+                <span class="skill-modifier">({{skill.value}})</span>
+                <span class="skill-die">{{skill.talent}}{{skillDie skill.value}}</span>
+              </div>
+            </div>
+            {{/if}}
+          {{/each}}
+        </div>
       </div>
     </div>
-    <div class="attribute-skills">
-      {{#each skillCategories.basic as |skill key|}}
-        {{#if (eq skill.attribute "knowledge")}}
-        <div class="skill flexrow">
-          <label class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{capitalize key}}</label>
-          <div class="skill-fields flexrow">
-            <span class="skill-plus">+</span>
-            <input type="number" class="skill-value" name="system.basic.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-            <span class="skill-dice">{{skillDie skill.value}}</span>
+
+    {{!-- Right Column --}}
+    <div class="skills-column">
+      {{!-- Knowledge --}}
+      <div class="attribute-block">
+        <div class="attribute-header">
+          <h3 class="attribute-name">
+            <i class="fas fa-book"></i>
+            Knowledge
+          </h3>
+          <div class="talent-stars">
+            {{#times system.attributes.knowledge.value}}
+              <i class="fas fa-star filled"></i>
+            {{/times}}
           </div>
         </div>
-        {{/if}}
-      {{/each}}
-    </div>
-  </div>
-
-  {{!-- Social Attribute and Skills --}}
-  <div class="attribute-section">
-    <div class="attribute-header flexrow">
-      <h4 class="attribute-name" data-attribute="social">
-        Social
-      </h4>
-      <div class="attribute-value">
-        <input type="number" name="system.attributes.social.value" value="{{system.attributes.social.value}}" data-dtype="Number" min="1" max="4"/>
-        <span class="talent-label">talents</span>
+        <div class="skills-list">
+          {{#each skillCategories.basic as |skill key|}}
+            {{#if (eq skill.attribute "knowledge")}}
+            <div class="skill-row">
+              <span class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
+              <div class="skill-value-group">
+                <span class="skill-modifier">({{skill.value}})</span>
+                <span class="skill-die">{{skill.talent}}{{skillDie skill.value}}</span>
+              </div>
+            </div>
+            {{/if}}
+          {{/each}}
+        </div>
       </div>
-    </div>
-    <div class="attribute-skills">
-      {{#each skillCategories.basic as |skill key|}}
-        {{#if (eq skill.attribute "social")}}
-        <div class="skill flexrow">
-          <label class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{capitalize key}}</label>
-          <div class="skill-fields flexrow">
-            <span class="skill-plus">+</span>
-            <input type="number" class="skill-value" name="system.basic.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-            <span class="skill-dice">{{skillDie skill.value}}</span>
+
+      {{!-- Social --}}
+      <div class="attribute-block">
+        <div class="attribute-header">
+          <h3 class="attribute-name">
+            <i class="fas fa-comments"></i>
+            Social
+          </h3>
+          <div class="talent-stars">
+            {{#times system.attributes.social.value}}
+              <i class="fas fa-star filled"></i>
+            {{/times}}
           </div>
         </div>
-        {{/if}}
-      {{/each}}
-    </div>
-  </div>
+        <div class="skills-list">
+          {{#each skillCategories.basic as |skill key|}}
+            {{#if (eq skill.attribute "social")}}
+            <div class="skill-row">
+              <span class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
+              <div class="skill-value-group">
+                <span class="skill-modifier">({{skill.value}})</span>
+                <span class="skill-die">{{skill.talent}}{{skillDie skill.value}}</span>
+              </div>
+            </div>
+            {{/if}}
+          {{/each}}
+        </div>
+      </div>
 
-  {{!-- Weapon Skills --}}
-  <div class="skill-category">
-    <h4>Weapon Skills</h4>
-    {{#each skillCategories.weapon as |skill key|}}
-    <div class="skill flexrow">
-      <label class="skill-name rollable skill-roll" data-category="weapon" data-skill="{{key}}">{{capitalize key}}</label>
-      <div class="skill-fields flexrow">
-        <span class="skill-talent">{{skill.talent}}</span>
-        <span class="skill-plus">+</span>
-        <input type="number" class="skill-value" name="system.weapon.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-        <span class="skill-dice">{{skillDie skill.value}}</span>
+      {{!-- Crafting Skills --}}
+      <div class="attribute-block">
+        <div class="attribute-header">
+          <h3 class="attribute-name">
+            <i class="fas fa-hammer"></i>
+            Crafting
+          </h3>
+        </div>
+        <div class="skills-list">
+          {{#each skillCategories.crafting as |skill key|}}
+            {{#if skill.talent}}
+            <div class="skill-row">
+              <span class="skill-name rollable skill-roll" data-category="crafting" data-skill="{{key}}">{{localizeSkill key}}</span>
+              <div class="skill-value-group">
+                <span class="talent-stars-skill">
+                {{#times skill.talent}}
+                  <i class="fas fa-star filled"></i>
+                {{/times}}
+              </span>
+                <span class="skill-modifier">({{skill.value}})</span>
+                <span class="skill-die">{{skill.talent}}{{skillDie skill.value}}</span>
+              </div>
+            </div>
+            {{/if}}
+          {{/each}}
+        </div>
       </div>
     </div>
-    {{/each}}
   </div>
 
-  {{!-- Magic Skills --}}
-  <div class="skill-category">
-    <h4>Magic Skills</h4>
-    {{#each skillCategories.magic as |skill key|}}
-    <div class="skill flexrow">
-      <label class="skill-name rollable skill-roll" data-category="magic" data-skill="{{key}}">{{capitalize key}}</label>
-      <div class="skill-fields flexrow">
-        <span class="skill-talent">{{skill.talent}}</span>
-        <span class="skill-plus">+</span>
-        <input type="number" class="skill-value" name="system.magic.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-        <span class="skill-dice">{{skillDie skill.value}}</span>
+  {{!-- Specialized Skills --}}
+  <div class="specialized-skills">
+    {{!-- Weapon Skills --}}
+    {{#if (hasAnyTalent skillCategories.weapon)}}
+    <div class="skill-category-block">
+      <h3 class="category-header">
+        <i class="fas fa-sword"></i>
+        Weapon Skills
+      </h3>
+      <div class="specialized-grid">
+        {{#each skillCategories.weapon as |skill key|}}
+          {{#if skill.talent}}
+          <div class="specialized-skill">
+            <span class="skill-name rollable skill-roll" data-category="weapon" data-skill="{{key}}">{{localizeSkill key}}</span>
+            <div class="skill-value-group">
+              <span class="talent-stars-skill">
+                {{#times skill.talent}}
+                  <i class="fas fa-star filled"></i>
+                {{/times}}
+              </span>
+              <span class="skill-modifier">({{skill.value}})</span>
+              <span class="skill-die">{{skill.talent}}{{skillDie skill.value}}</span>
+            </div>
+          </div>
+          {{/if}}
+        {{/each}}
       </div>
     </div>
-    {{/each}}
-  </div>
+    {{/if}}
 
-  {{!-- Crafting Skills --}}
-  <div class="skill-category">
-    <h4>Crafting Skills</h4>
-    {{#each skillCategories.crafting as |skill key|}}
-    <div class="skill flexrow">
-      <label class="skill-name rollable skill-roll" data-category="crafting" data-skill="{{key}}">{{capitalize key}}</label>
-      <div class="skill-fields flexrow">
-        <span class="skill-talent">{{skill.talent}}</span>
-        <span class="skill-plus">+</span>
-        <input type="number" class="skill-value" name="system.crafting.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-        <span class="skill-dice">{{skillDie skill.value}}</span>
+    {{!-- Magic Skills --}}
+    {{#if (hasAnyTalent skillCategories.magic)}}
+    <div class="skill-category-block">
+      <h3 class="category-header">
+        <i class="fas fa-magic"></i>
+        Magic Skills
+      </h3>
+      <div class="specialized-grid">
+        {{#each skillCategories.magic as |skill key|}}
+          {{#if skill.talent}}
+          <div class="specialized-skill">
+            <span class="skill-name rollable skill-roll" data-category="magic" data-skill="{{key}}">{{localizeSkill key}}</span>
+            <div class="skill-value-group">
+              <span class="talent-stars-skill">
+                {{#times skill.talent}}
+                  <i class="fas fa-star filled"></i>
+                {{/times}}
+              </span>
+              <span class="skill-modifier">({{skill.value}})</span>
+              <span class="skill-die">{{skill.talent}}{{skillDie skill.value}}</span>
+            </div>
+          </div>
+          {{/if}}
+        {{/each}}
       </div>
     </div>
-    {{/each}}
+    {{/if}}
   </div>
-
 </div>

@@ -3,22 +3,28 @@
 /* ========================================= */
 .anyventure {
   /* ----------------------------------------- */
-  /*  Base Styling                            */
+  /*  Window & Base Layout                    */
   /* ----------------------------------------- */
   /* ----------------------------------------- */
-  /*  Attribute-Grouped Skills                */
+  /*  Left Sidebar                            */
   /* ----------------------------------------- */
   /* ----------------------------------------- */
-  /*  Skills General                          */
+  /*  Resources Section                       */
   /* ----------------------------------------- */
   /* ----------------------------------------- */
-  /*  Resources                               */
+  /*  Mitigations Table                       */
   /* ----------------------------------------- */
   /* ----------------------------------------- */
-  /*  Creation Points Display                 */
+  /*  Main Content Area                       */
   /* ----------------------------------------- */
   /* ----------------------------------------- */
-  /*  Responsive Layout Adjustments           */
+  /*  Tab Navigation (Bottom)                 */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Skills Page                             */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Specialized Skills                      */
   /* ----------------------------------------- */
   /* ----------------------------------------- */
   /*  Items Lists                             */
@@ -30,253 +36,585 @@
   /*  Roll Dialog Styles                      */
   /* ----------------------------------------- */
   /* ----------------------------------------- */
-  /*  Rollable Elements                       */
+  /*  Scrollbar Styling                       */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Utility Classes                         */
   /* ----------------------------------------- */
 }
 .anyventure .window-content {
+  background: #1a1525;
+  color: #e8e3f0;
   height: 100%;
-  padding: 5px;
-  overflow-y: hidden;
-}
-.anyventure .sheet-header {
-  flex: 0 0 100px;
+  padding: 0;
   overflow: hidden;
+  font-family: "Roboto", "Helvetica Neue", sans-serif;
+}
+.anyventure .sheet-wrapper {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  margin-bottom: 10px;
-}
-.anyventure .sheet-header .profile-img {
-  flex: 0 0 100px;
-  height: 100px;
-  margin-right: 10px;
-}
-.anyventure .sheet-header .header-fields {
-  flex: 1;
-}
-.anyventure .sheet-header h1.charname {
-  height: 50px;
-  padding: 0px;
-  margin: 5px 0;
-  border-bottom: 0;
-}
-.anyventure .sheet-header h1.charname input {
-  width: 100%;
   height: 100%;
-  margin: 0;
+  gap: 0;
+  position: relative;
 }
-.anyventure .resource {
-  width: 50px;
-  height: 40px;
-  margin-top: 10px;
-  float: left;
-  text-align: center;
-}
-.anyventure .resource input {
-  width: 100%;
-  height: 28px;
-}
-.anyventure .tabs {
-  height: 40px;
-  border-top: 1px solid #AAA;
-  border-bottom: 1px solid #AAA;
-}
-.anyventure .tabs .item {
-  line-height: 40px;
-  font-weight: bold;
-}
-.anyventure .tabs .item.active {
-  text-decoration: underline;
-  text-shadow: none;
-}
-.anyventure .sheet-body {
-  flex: 1;
-  overflow: hidden;
-}
-.anyventure .sheet-body .tab {
-  height: 100%;
-  overflow-y: auto;
-}
-.anyventure .sheet-body .tab.biography {
-  overflow-y: scroll;
-}
-.anyventure .sheet-body .tab.flexrow {
-  gap: 20px;
-}
-.anyventure .skills-by-attribute {
-  margin: 10px 0;
-}
-.anyventure .attribute-section {
-  margin-bottom: 25px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.02);
-}
-.anyventure .attribute-header {
-  align-items: center;
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #4b4a44;
-}
-.anyventure .attribute-name {
-  flex: 1;
-  margin: 0;
-  font-size: 16px;
-  font-weight: bold;
-  color: #4b4a44;
-}
-.anyventure .attribute-value {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.anyventure .attribute-value input {
-  width: 50px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 16px;
-  background: rgba(75, 74, 68, 0.1);
-  border: 2px solid #4b4a44;
-}
-.anyventure .talent-label {
-  font-size: 12px;
-  color: #666;
-  font-style: italic;
-}
-.anyventure .attribute-skills {
-  margin-left: 15px;
-}
-.anyventure .attribute-skills .skill {
-  margin-bottom: 2px;
-  padding: 2px 8px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 3px;
-}
-.anyventure .skill-plus {
-  font-weight: bold;
-  color: #4b4a44;
-  margin-right: 2px;
-}
-.anyventure .skills {
-  margin: 10px 0;
-}
-.anyventure .skill-category {
-  margin-bottom: 20px;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.03);
-  border-radius: 5px;
-  border-left: 3px solid #666;
-}
-.anyventure .skill-category h4 {
-  margin: 0 0 10px 0;
-  color: #666;
-  font-weight: bold;
-  font-size: 14px;
-}
-.anyventure .skill-category .skill {
-  background: rgba(255, 255, 255, 0.5);
-  margin-bottom: 2px;
-  padding: 5px 8px;
-  border-radius: 3px;
-}
-.anyventure .skill-category .skill:hover {
-  background: rgba(255, 255, 255, 0.8);
-}
-.anyventure .skill {
-  display: flex;
-  align-items: center;
-  padding: 2px 5px;
-  border-bottom: 1px solid #ccc;
-}
-.anyventure .skill:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-.anyventure .skill-name {
-  flex: 1;
-  font-weight: bold;
-  cursor: pointer;
-}
-.anyventure .skill-name:hover {
-  color: #4b4a44;
-}
-.anyventure .skill-fields {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 120px;
-}
-.anyventure .skill-talent {
-  min-width: 25px;
-  text-align: center;
-  font-weight: bold;
-  color: #4b4a44;
-  background: rgba(75, 74, 68, 0.1);
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 12px;
-}
-.anyventure .skill-value {
-  width: 35px;
-  text-align: center;
-  font-weight: bold;
-}
-.anyventure .skill-dice {
-  min-width: 30px;
-  text-align: center;
-  font-size: 11px;
-  color: #4b4a44;
-  font-weight: bold;
-  background: rgba(75, 74, 68, 0.1);
-  padding: 2px 6px;
-  border-radius: 3px;
-}
-.anyventure .resources {
-  margin: 20px 0;
-  display: flex;
-  gap: 20px;
-}
-.anyventure .resource {
+.anyventure .left-sidebar {
+  flex: 0 0 280px;
+  background: #2d2438;
+  border-right: 2px solid #b8860b;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
-.anyventure .resource-label {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-.anyventure .resource-content {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.anyventure .resource-content input {
-  width: 50px;
+.anyventure .character-header {
+  padding: 12px;
+  background: linear-gradient(135deg, #2d2438 0%, #4a3c5c 100%);
+  border-bottom: 1px solid #b8860b;
   text-align: center;
 }
-.anyventure .creation-points {
-  margin: 20px 0;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 5px;
-  border-left: 4px solid #4b4a44;
+.anyventure .character-header .profile-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid #daa520;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7), 0 0 10px rgba(255, 215, 0, 0.4);
+  margin: 0 auto 8px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
-.anyventure .creation-points label {
-  display: block;
-  margin-bottom: 5px;
+.anyventure .character-header .profile-img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.4);
+}
+.anyventure .character-header .charname {
+  margin: 0;
+}
+.anyventure .character-header .charname input {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid #b8860b;
+  color: #ffd700;
+  font-size: 16px;
   font-weight: bold;
-  color: #4b4a44;
+  text-align: center;
+  width: 100%;
+  padding: 2px;
+  transition: all 0.15s ease;
 }
-.anyventure .left-column {
-  flex: 0 0 300px;
-  min-width: 280px;
+.anyventure .character-header .charname input:hover, .anyventure .character-header .charname input:focus {
+  border-color: #ffd700;
+  box-shadow: 0 2px 0 0 rgba(255, 215, 0, 0.4);
 }
-.anyventure .right-column {
+.anyventure .resources-section {
+  padding: 12px;
+  background: rgba(26, 21, 37, 0.3);
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+}
+.anyventure .resource-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.anyventure .resource-bar {
+  position: relative;
+  background: rgba(26, 21, 37, 0.6);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 6px;
+  padding: 2px;
+  overflow: hidden;
+  margin-bottom: 4px;
+  height: 36px;
+}
+.anyventure .resource-bar label {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  color: #c5bdd1;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 3;
+}
+.anyventure .resource-bar .resource-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+  gap: 2px;
+}
+.anyventure .resource-bar .resource-btn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: rgba(45, 36, 56, 0.8);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  color: #c5bdd1;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.anyventure .resource-bar .resource-btn:hover {
+  background: rgba(184, 134, 11, 0.3);
+  border-color: #daa520;
+  color: #ffd700;
+}
+.anyventure .resource-bar .resource-btn.minus {
+  margin-right: 2px;
+}
+.anyventure .resource-bar .resource-btn.plus {
+  margin-left: 2px;
+}
+.anyventure .resource-bar .resource-values {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.anyventure .resource-bar .resource-values input {
+  background: transparent;
+  border: none;
+  color: #e8e3f0;
+  font-weight: bold;
+  font-size: 14px;
+  width: 35px;
+  text-align: center;
+  padding: 0;
+}
+.anyventure .resource-bar .resource-values input:hover, .anyventure .resource-bar .resource-values input:focus {
+  color: #ffd700;
+}
+.anyventure .resource-bar .resource-values .separator {
+  color: #c5bdd1;
+  font-weight: bold;
+}
+.anyventure .resource-bar .resource-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  transition: width 0.3s ease;
+  z-index: 1;
+  opacity: 0.3;
+}
+.anyventure .resource-bar.health .resource-fill {
+  background: linear-gradient(90deg, #dc3545, rgb(227.5316455696, 96.4683544304, 109.0253164557));
+}
+.anyventure .resource-bar.resolve .resource-fill {
+  background: linear-gradient(90deg, #6f42c1, rgb(140.2589641434, 104.4023904382, 205.5976095618));
+}
+.anyventure .resource-bar.energy .resource-fill {
+  background: linear-gradient(90deg, #20c997, rgb(60.0386266094, 223.9613733906, 175.4635193133));
+}
+.anyventure .mitigations-container {
+  padding: 8px;
+  background: rgba(26, 21, 37, 0.2);
   flex: 1;
-  min-width: 400px;
   overflow-y: auto;
-  max-height: calc(100vh - 200px);
+}
+.anyventure .mitigations-container .section-header {
+  color: #ffd700;
+  font-size: 11px;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.anyventure .mitigations-container .section-header i {
+  font-size: 12px;
+}
+.anyventure .mitigations-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: rgba(26, 21, 37, 0.5);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.anyventure .mitigations-table thead {
+  background: #4a3c5c;
+}
+.anyventure .mitigations-table thead th {
+  padding: 2px 4px;
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #b8860b;
+}
+.anyventure .mitigations-table tbody tr {
+  transition: all 0.15s ease;
+}
+.anyventure .mitigations-table tbody tr:hover {
+  background: rgba(255, 215, 0, 0.1);
+}
+.anyventure .mitigations-table tbody tr:not(:last-child) td {
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+}
+.anyventure .mitigations-table td {
+  padding: 2px 4px;
+  text-align: center;
+  font-size: 14px;
+}
+.anyventure .mitigations-table td.damage-type {
+  text-align: left;
+  color: #c5bdd1;
+  font-weight: 500;
+}
+.anyventure .mitigations-table td.damage-type i {
+  margin-right: 2px;
+  color: #cdaa3d;
+  width: 12px;
+  font-size: 10px;
+  text-align: center;
+}
+.anyventure .mitigations-table td.mitigation-value input {
+  background: rgba(26, 21, 37, 0.5);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  color: #e8e3f0;
+  width: 35px;
+  text-align: center;
+  padding: 1px;
+  font-size: 10px;
+  transition: all 0.15s ease;
+}
+.anyventure .mitigations-table td.mitigation-value input:hover, .anyventure .mitigations-table td.mitigation-value input:focus {
+  border-color: #daa520;
+  background: rgba(26, 21, 37, 0.8);
+}
+.anyventure .mitigations-table td.resist-value {
+  color: #cdaa3d;
+  font-weight: bold;
+}
+.anyventure .main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #1a1525;
+  position: relative;
+  min-width: 0;
+}
+.anyventure .sheet-tabs {
+  display: flex;
+  height: 40px;
+  border-bottom: 2px solid #b8860b;
+  background: #2d2438;
+  flex-shrink: 0;
+}
+.anyventure .sheet-tabs .item {
+  flex: 1;
+  line-height: 40px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  color: #c5bdd1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 12px;
+  border-right: 1px solid rgba(155, 137, 179, 0.2);
+}
+.anyventure .sheet-tabs .item:last-child {
+  border-right: none;
+}
+.anyventure .sheet-tabs .item:hover {
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+  text-shadow: 0 0 4px rgba(255, 215, 0, 0.4);
+}
+.anyventure .sheet-tabs .item.active {
+  color: #ffd700;
+  background: rgba(184, 134, 11, 0.2);
+  text-shadow: 0 0 4px rgba(255, 215, 0, 0.4);
+}
+.anyventure .sheet-tabs .item.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+.anyventure .sheet-body {
+  flex: 1 1 auto;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.anyventure .tab {
+  display: none;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+}
+.anyventure .tab.active {
+  display: block;
+}
+.anyventure .module-points {
+  padding: 8px;
+  background: linear-gradient(135deg, rgba(74, 60, 92, 0.3), rgba(45, 36, 56, 0.3));
+  border: 1px solid #b8860b;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.anyventure .module-points label {
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 12px;
+}
+.anyventure .skills-page {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.anyventure .modules h3 {
+  color: #ffd700;
+  margin: 0 0 8px 0;
+}
+.anyventure .skills-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.anyventure .attribute-block {
+  background: rgba(45, 36, 56, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  padding: 4px;
+  margin-bottom: 4px;
+  transition: all 0.2s ease;
+}
+.anyventure .attribute-block:hover {
+  border-color: #b8860b;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.anyventure .attribute-block .attribute-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+}
+.anyventure .attribute-block .attribute-header .attribute-name {
+  margin: 0;
+  color: #ffd700;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.anyventure .attribute-block .attribute-header .attribute-name i {
+  font-size: 11px;
+}
+.anyventure .attribute-block .attribute-header .talent-stars {
+  display: flex;
+  gap: 1px;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+}
+.anyventure .attribute-block .attribute-header .talent-stars i {
+  font-size: 11px;
+  color: #8b7a9e;
+  transition: all 0.15s ease;
+}
+.anyventure .attribute-block .attribute-header .talent-stars i.filled {
+  color: #ffd700;
+  text-shadow: 0 0 4px rgba(255, 215, 0, 0.4);
+}
+.anyventure .attribute-block .attribute-header .talent-stars .talent-input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.anyventure .skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.anyventure .skill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 4px;
+  background: rgba(26, 21, 37, 0.3);
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  position: relative;
+}
+.anyventure .skill-row:hover {
+  background: rgba(255, 215, 0, 0.1);
+}
+.anyventure .skill-row:hover .skill-name {
+  color: #ffd700;
+}
+.anyventure .skill-row .skill-name {
+  flex: 1;
+  color: #e8e3f0;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  font-size: 14px;
+}
+.anyventure .skill-row .skill-name.rollable:hover {
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+.anyventure .skill-row .skill-value-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.anyventure .skill-row .skill-value-group .talent-badge {
+  background: #b8860b;
+  color: #1a1525;
+  padding: 1px 3px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 10px;
+  min-width: 14px;
+  text-align: center;
+  margin-right: 2px;
+}
+.anyventure .skill-row .skill-value-group .talent-stars-skill {
+  display: flex;
+  gap: 1px;
+  align-items: center;
+  min-width: 50px;
+  margin-right: 2px;
+}
+.anyventure .skill-row .skill-value-group .talent-stars-skill i {
+  font-size: 10px;
+  color: #ffd700;
+  text-shadow: 0 0 4px rgba(255, 215, 0, 0.4);
+}
+.anyventure .skill-row .skill-value-group .skill-modifier {
+  color: #cdaa3d;
+  font-weight: bold;
+  font-size: 14px;
+  min-width: 25px;
+  text-align: right;
+  margin-right: 2px;
+  display: inline-block;
+}
+.anyventure .skill-row .skill-value-group .skill-die {
+  color: #e8e3f0;
+  font-size: 14px;
+  margin-left: 2px;
+  min-width: 40px;
+  display: inline-block;
+}
+.anyventure .specialized-skills {
+  margin-top: 8px;
+}
+.anyventure .skill-category-block {
+  background: rgba(45, 36, 56, 0.2);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  padding: 4px;
+  margin-bottom: 8px;
+}
+.anyventure .skill-category-block .category-header {
+  margin: 0 0 4px 0;
+  color: #ffd700;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+}
+.anyventure .skill-category-block .category-header i {
+  font-size: 11px;
+}
+.anyventure .specialized-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 2px;
+}
+.anyventure .specialized-skill {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 4px;
+  background: rgba(26, 21, 37, 0.4);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+.anyventure .specialized-skill:hover {
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #b8860b;
+}
+.anyventure .specialized-skill:hover .skill-name {
+  color: #ffd700;
+}
+.anyventure .specialized-skill .skill-name {
+  flex: 1;
+  color: #e8e3f0;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+}
+.anyventure .specialized-skill .skill-value-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.anyventure .specialized-skill .skill-value-group .talent-badge {
+  background: #b8860b;
+  color: #1a1525;
+  padding: 1px 2px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 10px;
+  min-width: 16px;
+  text-align: center;
+}
+.anyventure .specialized-skill .skill-value-group .talent-stars-skill {
+  display: flex;
+  gap: 1px;
+  align-items: center;
+  min-width: 50px;
+  margin-right: 2px;
+}
+.anyventure .specialized-skill .skill-value-group .talent-stars-skill i {
+  font-size: 10px;
+  color: #ffd700;
+  text-shadow: 0 0 4px rgba(255, 215, 0, 0.4);
+}
+.anyventure .specialized-skill .skill-value-group .skill-modifier {
+  color: #cdaa3d;
+  font-weight: bold;
+  min-width: 25px;
+  text-align: right;
+  font-size: 14px;
+  display: inline-block;
+}
+.anyventure .specialized-skill .skill-value-group .skill-die {
+  color: #e8e3f0;
+  font-size: 14px;
+  margin-left: 2px;
+  min-width: 40px;
+  display: inline-block;
 }
 .anyventure .items-list {
   list-style: none;
@@ -284,7 +622,7 @@
   padding: 0;
   overflow-y: auto;
   scrollbar-width: thin;
-  color: #444;
+  color: #e8e3f0;
 }
 .anyventure .items-list .item-list {
   list-style: none;
@@ -295,7 +633,7 @@
   flex: 2;
   margin: 0;
   overflow: hidden;
-  font-size: 13px;
+  font-size: 12px;
   text-align: left;
   align-items: center;
   display: flex;
@@ -310,7 +648,7 @@
   height: 30px;
   background-size: 30px;
   border: none;
-  margin-right: 5px;
+  margin-right: 4px;
 }
 .anyventure .items-list .item-controls {
   display: flex;
@@ -321,36 +659,46 @@
   font-size: 12px;
   text-align: center;
   margin: 0 6px;
+  color: #c5bdd1;
+  transition: all 0.15s ease;
+}
+.anyventure .items-list .item-controls a:hover {
+  color: #ffd700;
 }
 .anyventure .items-list .item {
   align-items: center;
-  padding: 0 2px;
-  border-bottom: 1px solid #c9c7b8;
+  padding: 4px 8px;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+  transition: all 0.15s ease;
+}
+.anyventure .items-list .item:hover {
+  background: rgba(255, 215, 0, 0.1);
 }
 .anyventure .items-list .item:last-child {
   border-bottom: none;
 }
 .anyventure .items-list .item-prop {
   text-align: center;
-  border-left: 1px solid #c9c7b8;
-  border-right: 1px solid #c9c7b8;
+  border-left: 1px solid rgba(155, 137, 179, 0.3);
+  border-right: 1px solid rgba(155, 137, 179, 0.3);
   font-size: 12px;
 }
 .anyventure .items-header {
-  height: 28px;
-  margin: 2px 0;
-  padding: 0;
+  height: 40px;
+  margin: 0;
+  padding: 0 8px;
   align-items: center;
-  background: rgba(0, 0, 0, 0.05);
-  border: 2px groove #eeede0;
+  background: #4a3c5c;
+  border: 1px solid #b8860b;
   font-weight: bold;
+  color: #ffd700;
 }
 .anyventure .items-header > * {
   font-size: 12px;
   text-align: center;
 }
 .anyventure .items-header .item-name {
-  padding-left: 5px;
+  padding-left: 4px;
   text-align: left;
   display: flex;
 }
@@ -359,133 +707,132 @@
   padding: 0 8px;
 }
 .anyventure .biography-content {
-  padding: 10px;
+  padding: 16px;
 }
 .anyventure .biography-section {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 .anyventure .biography-section h3 {
-  margin: 0 0 10px 0;
+  margin: 0 0 12px 0;
   font-weight: bold;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 5px;
-}
-.anyventure .traits-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-.anyventure .trait {
-  display: flex;
-  flex-direction: column;
-}
-.anyventure .trait label {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-.anyventure .movement-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-.anyventure .movement-type {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.anyventure .movement-type label {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-.anyventure .movement-type input {
-  width: 60px;
-  text-align: center;
-}
-.anyventure .mitigation-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-.anyventure .mitigation-type {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.anyventure .mitigation-type label {
-  font-weight: bold;
-  margin-bottom: 5px;
-  font-size: 12px;
-}
-.anyventure .mitigation-type input {
-  width: 50px;
-  text-align: center;
-}
-.anyventure .language {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 5px;
-}
-.anyventure .language-name {
-  flex: 1;
-  font-weight: bold;
-}
-.anyventure .language input {
-  width: 40px;
-  text-align: center;
-}
-.anyventure .language-level {
-  width: 80px;
-  font-style: italic;
-  color: #666;
+  border-bottom: 1px solid #b8860b;
+  padding-bottom: 4px;
+  color: #ffd700;
 }
 .anyventure-roll-dialog {
   min-width: 400px;
 }
+.anyventure-roll-dialog .window-content {
+  background: #2d2438;
+}
 .anyventure-roll-dialog .roll-info {
-  background: rgba(0, 0, 0, 0.05);
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 15px;
+  background: linear-gradient(135deg, #4a3c5c, #2d2438);
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
   text-align: center;
+  border: 1px solid #b8860b;
 }
 .anyventure-roll-dialog .roll-info h3 {
-  margin: 0 0 5px 0;
-  color: #4b4a44;
+  margin: 0 0 4px 0;
+  color: #ffd700;
 }
 .anyventure-roll-dialog .form-group {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .anyventure-roll-dialog .form-group label {
   flex: 0 0 120px;
   font-weight: bold;
-  color: #4b4a44;
+  color: #cdaa3d;
 }
 .anyventure-roll-dialog .form-group input {
   flex: 1;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+  padding: 4px;
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
   text-align: center;
+  background: rgba(26, 21, 37, 0.5);
+  color: #e8e3f0;
+}
+.anyventure-roll-dialog .form-group input:hover, .anyventure-roll-dialog .form-group input:focus {
+  border-color: #daa520;
+  background: rgba(26, 21, 37, 0.8);
 }
 .anyventure-roll-dialog .roll-preview {
-  background: rgba(75, 74, 68, 0.1);
-  padding: 10px;
-  border-radius: 5px;
-  margin-top: 15px;
+  background: rgba(184, 134, 11, 0.2);
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 16px;
   text-align: center;
+  border: 1px solid #b8860b;
 }
 .anyventure-roll-dialog .roll-preview #final-formula {
-  font-family: monospace;
+  font-family: "Courier New", monospace;
   font-weight: bold;
-  color: #4b4a44;
+  color: #ffd700;
   font-size: 16px;
+  text-shadow: 0 0 4px rgba(255, 215, 0, 0.4);
 }
-.anyventure .rollable:hover, .anyventure .rollable:focus {
-  color: #000;
-  text-shadow: 0 0 10px red;
+.anyventure ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.anyventure ::-webkit-scrollbar-track {
+  background: #1a1525;
+  border-radius: 4px;
+}
+.anyventure ::-webkit-scrollbar-thumb {
+  background: #6b5980;
+  border-radius: 4px;
+}
+.anyventure ::-webkit-scrollbar-thumb:hover {
+  background: #b8860b;
+}
+.anyventure * {
+  scrollbar-width: thin;
+  scrollbar-color: #6b5980 #1a1525;
+}
+.anyventure .rollable:hover {
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
   cursor: pointer;
-}/*# sourceMappingURL=anyventure.css.map */
+}
+.anyventure input[type=text],
+.anyventure input[type=number],
+.anyventure select,
+.anyventure textarea {
+  background: rgba(26, 21, 37, 0.5);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  color: #e8e3f0;
+}
+.anyventure input[type=text]:hover, .anyventure input[type=text]:focus,
+.anyventure input[type=number]:hover,
+.anyventure input[type=number]:focus,
+.anyventure select:hover,
+.anyventure select:focus,
+.anyventure textarea:hover,
+.anyventure textarea:focus {
+  border-color: #daa520;
+  background: rgba(26, 21, 37, 0.8);
+}
+.anyventure button {
+  background: linear-gradient(135deg, #4a3c5c, #2d2438);
+  border: 1px solid #b8860b;
+  color: #ffd700;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-weight: bold;
+}
+.anyventure button:hover {
+  background: linear-gradient(135deg, rgb(86.4144736842, 70.0657894737, 107.4342105263), rgb(57.472826087, 45.9782608696, 71.5217391304));
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+.anyventure button:active {
+  transform: translateY(1px);
+}
+
+/*# sourceMappingURL=anyventure.css.map */

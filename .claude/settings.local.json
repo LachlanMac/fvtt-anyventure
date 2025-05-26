@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sass:*)",
+      "Bash(npm install:*)",
+      "Bash(sed:*)",
+      "Bash(npx sass:*)",
+      "Bash(grep:*)"
+    ],
+    "deny": []
+  }
+}

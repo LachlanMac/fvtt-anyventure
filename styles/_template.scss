@@ -2,50 +2,78 @@
 // Anyventure SCSS Color Variables
 // ===================================
 
-// Primary Colors
-$primary-dark: #4b4a44;
-$primary-light: #666;
-$text-black: #000;
-$text-gray: #666;
+// Dark Purple & Gold Theme
+$purple-darkest: #1a1525;
+$purple-dark: #2d2438;
+$purple-medium: #4a3c5c;
+$purple-light: #6b5980;
+$purple-lighter: #9b89b3;
+
+$gold-bright: #ffd700;
+$gold-medium: #daa520;
+$gold-dark: #b8860b;
+$gold-muted: #cdaa3d;
+
+// Text Colors
+$text-light: #e8e3f0;
+$text-medium: #c5bdd1;
+$text-dark: #8b7a9e;
+$text-gold: $gold-bright;
 
 // Background Colors
-$bg-light-gray: rgba(0, 0, 0, 0.02);
-$bg-medium-gray: rgba(0, 0, 0, 0.03);
-$bg-dark-gray: rgba(0, 0, 0, 0.05);
-$bg-white-transparent: rgba(255, 255, 255, 0.3);
-$bg-white-hover: rgba(255, 255, 255, 0.5);
-$bg-white-active: rgba(255, 255, 255, 0.8);
+$bg-darkest: $purple-darkest;
+$bg-dark: $purple-dark;
+$bg-medium: rgba($purple-medium, 0.3);
+$bg-light: rgba($purple-light, 0.15);
+$bg-hover: rgba($gold-bright, 0.1);
+$bg-active: rgba($gold-bright, 0.2);
 
 // Border Colors
-$border-light: #ccc;
-$border-medium: #c9c7b8;
-$border-primary: $primary-dark;
+$border-light: rgba($purple-lighter, 0.3);
+$border-medium: rgba($purple-lighter, 0.5);
+$border-gold: $gold-dark;
+$border-purple: $purple-light;
 
 // Accent Colors
-$accent-primary: rgba(75, 74, 68, 0.1);
-$accent-shadow: rgba(75, 74, 68, 0.5);
+$accent-primary: $gold-medium;
+$accent-secondary: $purple-light;
+$accent-glow: rgba($gold-bright, 0.4);
+
+// Resource Colors
+$health-color: #dc3545;
+$resolve-color: #6f42c1;
+$energy-color: #20c997;
 
 // Font Sizes
+$font-size-tiny: 10px;
 $font-size-small: 11px;
 $font-size-normal: 12px;
 $font-size-medium: 14px;
 $font-size-large: 16px;
+$font-size-xlarge: 18px;
 
 // Spacing
 $spacing-xs: 2px;
-$spacing-sm: 5px;
+$spacing-sm: 4px;
 $spacing-md: 8px;
-$spacing-lg: 10px;
-$spacing-xl: 15px;
-$spacing-xxl: 20px;
-$spacing-xxxl: 25px;
+$spacing-lg: 12px;
+$spacing-xl: 16px;
+$spacing-xxl: 24px;
+$spacing-xxxl: 32px;
 
 // Border Radius
-$border-radius-sm: 3px;
-$border-radius-md: 5px;
+$border-radius-sm: 4px;
+$border-radius-md: 6px;
+$border-radius-lg: 8px;
+$border-radius-xl: 12px;
 
 // Shadows
-$shadow-light: 0 0 5px $accent-shadow;
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
+$shadow-md: 0 4px 8px rgba(0, 0, 0, 0.6);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.7);
+$shadow-glow: 0 0 10px $accent-glow;
 
 // Animation
-$transition-hover: all 0.2s ease;
+$transition-fast: all 0.15s ease;
+$transition-normal: all 0.2s ease;
+$transition-slow: all 0.3s ease;

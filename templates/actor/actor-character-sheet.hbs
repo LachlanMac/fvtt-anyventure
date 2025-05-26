@@ -1,108 +1,115 @@
-<form class="{{cssClass}} {{actor.type}} flexcol" autocomplete="off">
-
-  {{!-- Sheet Header --}}
-  <header class="sheet-header">
-    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
-    <div class="header-fields">
-      <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
-      <div class="resources flexrow">
-        <div class="resource flex2">
-          <label for="system.details.race" class="resource-label">Race</label>
-          <input type="text" name="system.details.race" value="{{system.details.race}}" data-dtype="String"/>
-        </div>
-        <div class="resource flex2">
-          <label for="system.details.culture" class="resource-label">Culture</label>
-          <input type="text" name="system.details.culture" value="{{system.details.culture}}" data-dtype="String"/>
-        </div>
-        <div class="resource flex1">
-          <label for="system.modulePoints.total" class="resource-label">Module Points</label>
-          <input type="text" name="system.modulePoints.total" value="{{system.modulePoints.total}}" data-dtype="Number"/>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  {{!-- Sheet Tab Navigation --}}
-  <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="skills">Skills</a>
-    <a class="item" data-tab="modules">Modules</a>
-    <a class="item" data-tab="equipment">Equipment</a>
-    <a class="item" data-tab="spells">Spells</a>
-    <a class="item" data-tab="biography">Biography</a>
-  </nav>
-
-  {{!-- Sheet Body --}}
-  <section class="sheet-body">
-
-    {{!-- Skills Tab --}}
-    <div class="tab flexrow" data-group="primary" data-tab="skills">
-      <div class="left-column">
-        
-        {{!-- Resources --}}
-        <div class="resources flexrow">
-          <div class="resource">
-            <label for="system.resources.health.value" class="resource-label">Health</label>
-            <div class="resource-content flexrow flex-center">
-              <input type="number" name="system.resources.health.value" value="{{system.resources.health.value}}" data-dtype="Number"/>
-              <span> / </span>
-              <input type="number" name="system.resources.health.max" value="{{system.resources.health.max}}" data-dtype="Number"/>
-            </div>
-          </div>
-          <div class="resource">
-            <label for="system.resources.resolve.value" class="resource-label">Resolve</label>
-            <div class="resource-content flexrow flex-center">
-              <input type="number" name="system.resources.resolve.value" value="{{system.resources.resolve.value}}" data-dtype="Number"/>
-              <span> / </span>
-              <input type="number" name="system.resources.resolve.max" value="{{system.resources.resolve.max}}" data-dtype="Number"/>
-            </div>
-          </div>
-          <div class="resource">
-            <label for="system.resources.energy.value" class="resource-label">Energy</label>
-            <div class="resource-content flexrow flex-center">
-              <input type="number" name="system.resources.energy.value" value="{{system.resources.energy.value}}" data-dtype="Number"/>
-              <span> / </span>
-              <input type="number" name="system.resources.energy.max" value="{{system.resources.energy.max}}" data-dtype="Number"/>
-            </div>
-          </div>
-        </div>
-
-        {{!-- Character Creation Points --}}
-        <div class="creation-points">
-          <div class="attribute-points">
-            <label>Available Attribute Points: {{availableAttributePoints}}</label>
-          </div>
-          <div class="module-points">
-            <label>Available Module Points: {{availableModulePoints}}</label>
-          </div>
-        </div>
-
+<form class="{{cssClass}} {{actor.type}}" autocomplete="off">
+  <div class="sheet-wrapper">
+    
+    {{!-- Left Sidebar - Always Visible --}}
+    <aside class="left-sidebar">
+      {{!-- Character Header --}}
+      <div class="character-header">
+        <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+        <h1 class="charname">
+          <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name"/>
+        </h1>
       </div>
 
-      <div class="right-column">
-        {{!-- Include Skills Partial --}}
-        {{> "systems/anyventure/templates/partials/skills.hbs"}}
+      {{!-- Resources Section --}}
+      <div class="resources-section">
+        <div class="resource-group">
+          <div class="resource-bar health">
+            <label>Health</label>
+            <div class="resource-controls">
+              <button type="button" class="resource-btn minus" data-resource="health" data-action="decrease">
+                <i class="fas fa-minus"></i>
+              </button>
+              <div class="resource-values">
+                <input type="number" name="system.resources.health.value" value="{{system.resources.health.value}}"/>
+                <span class="separator">/</span>
+                <input type="number" name="system.resources.health.max" value="{{system.resources.health.max}}"/>
+              </div>
+              <button type="button" class="resource-btn plus" data-resource="health" data-action="increase">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="resource-fill" style="width: {{percentage system.resources.health.value system.resources.health.max}}%"></div>
+          </div>
+          <div class="resource-bar resolve">
+            <label>Resolve</label>
+            <div class="resource-controls">
+              <button type="button" class="resource-btn minus" data-resource="resolve" data-action="decrease">
+                <i class="fas fa-minus"></i>
+              </button>
+              <div class="resource-values">
+                <input type="number" name="system.resources.resolve.value" value="{{system.resources.resolve.value}}"/>
+                <span class="separator">/</span>
+                <input type="number" name="system.resources.resolve.max" value="{{system.resources.resolve.max}}"/>
+              </div>
+              <button type="button" class="resource-btn plus" data-resource="resolve" data-action="increase">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="resource-fill" style="width: {{percentage system.resources.resolve.value system.resources.resolve.max}}%"></div>
+          </div>
+          <div class="resource-bar energy">
+            <label>Energy</label>
+            <div class="resource-controls">
+              <button type="button" class="resource-btn minus" data-resource="energy" data-action="decrease">
+                <i class="fas fa-minus"></i>
+              </button>
+              <div class="resource-values">
+                <input type="number" name="system.resources.energy.value" value="{{system.resources.energy.value}}"/>
+                <span class="separator">/</span>
+                <input type="number" name="system.resources.energy.max" value="{{system.resources.energy.max}}"/>
+              </div>
+              <button type="button" class="resource-btn plus" data-resource="energy" data-action="increase">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="resource-fill" style="width: {{percentage system.resources.energy.value system.resources.energy.max}}%"></div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    {{!-- Modules Tab --}}
-    <div class="tab flexrow" data-group="primary" data-tab="modules">
-      {{> "systems/anyventure/templates/partials/modules.hbs"}}
-    </div>
+      {{!-- Mitigations Section --}}
+      {{> "systems/anyventure/templates/partials/mitigations.hbs"}}
+    </aside>
 
-    {{!-- Equipment Tab --}}
-    <div class="tab flexrow" data-group="primary" data-tab="equipment">
-      {{> "systems/anyventure/templates/partials/equipment.hbs"}}
-    </div>
+    {{!-- Main Content Area --}}
+    <main class="main-content">
+      {{!-- Tab Navigation --}}
+      <nav class="sheet-tabs tabs" data-group="primary">
+        <a class="item active" data-tab="skills">Skills</a>
+        <a class="item" data-tab="modules">Modules</a>
+        <a class="item" data-tab="equipment">Equipment</a>
+        <a class="item" data-tab="spells">Spells</a>
+        <a class="item" data-tab="biography">Biography</a>
+      </nav>
+      
+      {{!-- Sheet Body for Tab Content --}}
+      <section class="sheet-body">
+        {{!-- Skills Tab --}}
+        <div class="tab skills" data-group="primary" data-tab="skills">
+          {{> "systems/anyventure/templates/partials/skills.hbs"}}
+        </div>
 
-    {{!-- Spells Tab --}}
-    <div class="tab flexrow" data-group="primary" data-tab="spells">
-      {{> "systems/anyventure/templates/partials/spells.hbs"}}
-    </div>
+        {{!-- Modules Tab --}}
+        <div class="tab modules" data-group="primary" data-tab="modules">
+          {{> "systems/anyventure/templates/partials/modules.hbs"}}
+        </div>
 
-    {{!-- Biography Tab --}}
-    <div class="tab biography" data-group="primary" data-tab="biography">
-      {{> "systems/anyventure/templates/partials/biography.hbs"}}
-    </div>
+        {{!-- Equipment Tab --}}
+        <div class="tab equipment" data-group="primary" data-tab="equipment">
+          {{> "systems/anyventure/templates/partials/equipment.hbs"}}
+        </div>
 
-  </section>
+        {{!-- Spells Tab --}}
+        <div class="tab spells" data-group="primary" data-tab="spells">
+          {{> "systems/anyventure/templates/partials/spells.hbs"}}
+        </div>
+
+        {{!-- Biography Tab --}}
+        <div class="tab biography" data-group="primary" data-tab="biography">
+          {{> "systems/anyventure/templates/partials/biography.hbs"}}
+        </div>
+      </section>
+    </main>
+  </div>
 </form>

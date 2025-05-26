@@ -1,0 +1,63 @@
+{{!-- Mitigations Table --}}
+<div class="mitigations-container">
+  <h3 class="section-header">
+    <i class="fas fa-shield-alt"></i>
+    Mitigations
+  </h3>
+  <table class="mitigations-table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Complete</th>
+        <th>Resist</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="damage-type"><i class="fas fa-fist-raised"></i> Physical</td>
+        <td class="mitigation-value">{{system.mitigation.physical}}</td>
+        <td class="resist-value">{{multiply system.mitigation.physical 2}}</td>
+      </tr>
+      <tr>
+        <td class="damage-type"><i class="fas fa-fire"></i> Heat</td>
+        <td class="mitigation-value">{{system.mitigation.heat}}</td>
+        <td class="resist-value">{{multiply system.mitigation.heat 2}}</td>
+      </tr>
+      <tr>
+        <td class="damage-type"><i class="fas fa-snowflake"></i> Cold</td>
+        <td class="mitigation-value">{{system.mitigation.cold}}</td>
+        <td class="resist-value">{{multiply system.mitigation.cold 2}}</td>
+      </tr>
+      <tr>
+        <td class="damage-type"><i class="fas fa-bolt"></i> Lightning</td>
+        <td class="mitigation-value">{{system.mitigation.lightning}}</td>
+        <td class="resist-value">{{multiply system.mitigation.lightning 2}}</td>
+      </tr>
+      <tr>
+        <td class="damage-type"><i class="fas fa-moon"></i> Dark</td>
+        <td class="mitigation-value">{{system.mitigation.dark}}</td>
+        <td class="resist-value">{{multiply system.mitigation.dark 2}}</td>
+      </tr>
+      <tr>
+        <td class="damage-type"><i class="fas fa-sun"></i> Divine</td>
+        <td class="mitigation-value">{{system.mitigation.divine}}</td>
+        <td class="resist-value">{{multiply system.mitigation.divine 2}}</td>
+      </tr>
+      <tr>
+        <td class="damage-type"><i class="fas fa-magic"></i> Arcane</td>
+        <td class="mitigation-value">{{system.mitigation.aether}}</td>
+        <td class="resist-value">{{multiply system.mitigation.aether 2}}</td>
+      </tr>
+      <tr>
+        <td class="damage-type"><i class="fas fa-brain"></i> Psychic</td>
+        <td class="mitigation-value">{{system.mitigation.psychic}}</td>
+        <td class="resist-value">{{multiply system.mitigation.psychic 2}}</td>
+      </tr>
+      <tr>
+        <td class="damage-type"><i class="fas fa-biohazard"></i> Toxic</td>
+        <td class="mitigation-value">{{system.mitigation.toxic}}</td>
+        <td class="resist-value">{{multiply system.mitigation.toxic 2}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

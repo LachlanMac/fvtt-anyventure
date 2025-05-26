@@ -9,8 +9,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["anyventure", "sheet", "actor"],
       template: "systems/anyventure/templates/actor/actor-character-sheet.hbs",
-      width: 720,
-      height: 680,
+      width: 830,
+      height: 720,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "skills" }]
     });
   }
@@ -179,6 +179,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     
     // Skill rolls
     html.find('.skill-roll').click(this._onSkillRoll.bind(this));
+    
+    // Resource modification buttons
+    html.find('.resource-btn').click(this._onResourceModify.bind(this));
 
     // Drag events for macros.
     if (this.actor.isOwner) {
@@ -282,6 +285,34 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     
     if (category && skill) {
       return this.actor.rollSkill(category, skill);
+    }
+  }
+
+  /**
+   * Handle resource modification via +/- buttons
+   * @param {Event} event   The originating click event
+   * @private
+   */
+  _onResourceModify(event) {
+    event.preventDefault();
+    const button = event.currentTarget;
+    const resource = button.dataset.resource;
+    const action = button.dataset.action;
+    
+    const currentValue = this.actor.system.resources[resource].value;
+    const maxValue = this.actor.system.resources[resource].max;
+    
+    let newValue = currentValue;
+    if (action === 'increase' && currentValue < maxValue) {
+      newValue = currentValue + 1;
+    } else if (action === 'decrease' && currentValue > 0) {
+      newValue = currentValue - 1;
+    }
+    
+    if (newValue !== currentValue) {
+      const updateData = {};
+      updateData[`system.resources.${resource}.value`] = newValue;
+      return this.actor.update(updateData);
     }
   }
 }

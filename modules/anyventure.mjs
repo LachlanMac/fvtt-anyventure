@@ -71,6 +71,28 @@ Hooks.once('ready', async function() {
     return str.charAt(0).toUpperCase() + str.slice(1);
   });
 
+  // Helper to get localized skill name
+  Handlebars.registerHelper('localizeSkill', function(skillKey) {
+    // For camelCase keys like "simpleMeleeWeapons", we need to capitalize properly
+    // Convert first letter to uppercase: simpleMeleeWeapons -> SimpleMeleeWeapons
+    const capitalizedKey = skillKey.charAt(0).toUpperCase() + skillKey.slice(1);
+    const localizationPath = `ANYVENTURE.Skills.${capitalizedKey}`;
+    
+    // Try to get the localized string
+    const localized = game.i18n.localize(localizationPath);
+    
+    // If localization fails (returns the path), fall back to readable format
+    if (localized === localizationPath) {
+      // Convert camelCase to readable format: simpleMeleeWeapons -> Simple Melee Weapons
+      return skillKey
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, str => str.toUpperCase())
+        .trim();
+    }
+    
+    return localized;
+  });
+
   // Helper for skill dice conversion (0=d4, 1=d6, 2=d8, 3=d10, 4=d12, 5=d16, 6=d20)
   Handlebars.registerHelper('skillDie', function(level) {
     const dice = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20'];
@@ -91,6 +113,44 @@ Hooks.once('ready', async function() {
   Handlebars.registerHelper('includes', function(array, value) {
     if (!Array.isArray(array)) return false;
     return array.includes(value);
+  });
+
+  // Helper for multiplication
+  Handlebars.registerHelper('multiply', function(a, b) {
+    const numA = Number(a) || 0;
+    const numB = Number(b) || 0;
+    return numA * numB;
+  });
+
+  // Helper for subtraction
+  Handlebars.registerHelper('subtract', function(a, b) {
+    return a - b;
+  });
+
+  // Helper for calculating percentage
+  Handlebars.registerHelper('percentage', function(value, max) {
+    if (!max || max === 0) return 0;
+    return Math.round((value / max) * 100);
+  });
+
+  // Helper for iterating a specific number of times
+  Handlebars.registerHelper('times', function(n, block) {
+    let accum = '';
+    for (let i = 0; i < n; i++) {
+      accum += block.fn(i);
+    }
+    return accum;
+  });
+
+  // Helper to check if any skill in a category has talent > 0
+  Handlebars.registerHelper('hasAnyTalent', function(skills) {
+    if (!skills) return false;
+    for (let key in skills) {
+      if (skills[key].talent && skills[key].talent > 0) {
+        return true;
+      }
+    }
+    return false;
   });
 
   console.log('Anyventure | System Ready');
@@ -177,5 +237,6 @@ async function preloadHandlebarsTemplates() {
     "systems/anyventure/templates/partials/moves.hbs",
     "systems/anyventure/templates/partials/spells.hbs",
     "systems/anyventure/templates/partials/modules.hbs",
+    "systems/anyventure/templates/partials/mitigations.hbs",
   ]);
 }
