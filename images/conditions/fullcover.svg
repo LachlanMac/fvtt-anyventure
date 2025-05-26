@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1" data-name="Layer 1">
+    <g>
+      <rect x="1.5" y=".5" width="255" height="255" rx="38.5" ry="38.5"/>
+      <path d="m218,1c20.95,0,38,17.05,38,38v178c0,20.95-17.05,38-38,38H40c-20.95,0-38-17.05-38-38V39C2,18.05,19.05,1,40,1h178m0-1H40C18.55,0,1,17.55,1,39v178c0,21.45,17.55,39,39,39h178c21.45,0,39-17.55,39-39V39c0-21.45-17.55-39-39-39h0Z"/>
+    </g>
+  </g>
+  <g id="Layer_14" data-name="Layer 14">
+    <rect class="cls-1" x="29" y="31" width="198" height="193" rx="12" ry="12"/>
+    <path d="m238.5,72v-5h-69.5V20.5h-5v46.5h-82V22.5h-5v44.5H20.5v5h98.5v37H19v5h47v33H28.5v5h82.5v36H25.5v5h27.5v41.5h5v-41.5h100v41.5h5v-41.5h71.5v-5h-16.5v-36h20.5v-5h-69.5v-33h68v-5h-25v-37h26.5Zm-25.5,116h-97v-36h97v36Zm-49-41h-93v-33h93v33Zm43-38h-83v-37h83v37Z"/>
+  </g>
+</svg>
