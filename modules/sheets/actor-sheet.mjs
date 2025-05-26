@@ -1,12 +1,12 @@
 /**
  * Extend the basic ActorSheet with some very simple modifications
- * @extends {ActorSheet}
+ * @extends {foundry.appv1.sheets.ActorSheet}
  */
-export class AnyventureActorSheet extends ActorSheet {
+export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
   /** @override */
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["anyventure", "sheet", "actor"],
       template: "systems/anyventure/templates/actor/actor-character-sheet.hbs",
       width: 720,
@@ -46,6 +46,7 @@ export class AnyventureActorSheet extends ActorSheet {
     // Prepare NPC data and items.
     if (actorData.type == 'npc') {
       this._prepareItems(context);
+      this._prepareCharacterData(context); // NPCs use the same skill preparation
     }
 
     // Add roll data for TinyMCE editors.
@@ -60,19 +61,28 @@ export class AnyventureActorSheet extends ActorSheet {
   /**
    * Organize and classify Items for Character sheets.
    *
-   * @param {Object} actorData The actor to prepare.
+   * @param {Object} context The context to prepare.
    *
    * @return {undefined}
    */
   _prepareCharacterData(context) {
-    // Handle skill categories
+    // Update talent values for basic skills based on attributes
+    if (context.system.basic) {
+      for (let [key, skill] of Object.entries(context.system.basic)) {
+        if (skill.attribute && context.system.attributes[skill.attribute]) {
+          skill.talent = context.system.attributes[skill.attribute].value;
+        }
+      }
+    }
+
+    // Handle skill categories - they're directly on system, not under system.skills
     context.skillCategories = {
-      basic: context.system.skills.basic || {},
-      weapon: context.system.skills.weapon || {},
-      magic: context.system.skills.magic || {},
-      crafting: context.system.skills.crafting || {},
-      language: context.system.skills.language || {},
-      music: context.system.skills.music || {}
+      basic: context.system.basic || {},
+      weapon: context.system.weapon || {},
+      magic: context.system.magic || {},
+      crafting: context.system.crafting || {},
+      language: context.system.language || {},
+      music: context.system.music || {}
     };
 
     // Calculate available module points
@@ -99,7 +109,7 @@ export class AnyventureActorSheet extends ActorSheet {
 
     // Iterate through items, allocating to containers
     for (let i of context.items) {
-      i.img = i.img || DEFAULT_TOKEN;
+      i.img = i.img || foundry.CONST.DEFAULT_TOKEN;
       // Append to gear.
       if (i.type === 'equipment') {
         gear.push(i);
@@ -192,7 +202,7 @@ export class AnyventureActorSheet extends ActorSheet {
     // Get the type of item to create.
     const type = header.dataset.type;
     // Grab any data associated with this control.
-    const data = duplicate(header.dataset);
+    const data = foundry.utils.duplicate(header.dataset);
     // Initialize a default name.
     const name = `New ${type.capitalize()}`;
     // Prepare the item object.
@@ -331,7 +341,7 @@ function prepareActiveEffectCategories(effects) {
 
   // Iterate over active effects, classifying them into categories
   for ( let e of effects ) {
-    e._getSourceName(); // Trigger a lookup for the source name
+    if ( e._getSourceName ) e._getSourceName(); // Trigger a lookup for the source name if method exists
     if ( e.disabled ) categories.inactive.effects.push(e);
     else if ( e.isTemporary ) categories.temporary.effects.push(e);
     else categories.passive.effects.push(e);

@@ -28,14 +28,14 @@ Hooks.once('init', async function() {
   CONFIG.Item.documentClass = AnyventureItem;
 
   // Register sheet application classes
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("anyventure", AnyventureActorSheet, { 
+  foundry.documents.collections.Actors.unregisterSheet("core", foundry.applications.sheets.ActorSheet);
+  foundry.documents.collections.Actors.registerSheet("anyventure", AnyventureActorSheet, { 
     types: ["character", "npc"], 
     makeDefault: true 
   });
 
-  Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("anyventure", AnyventureItemSheet, { 
+  foundry.documents.collections.Items.unregisterSheet("core", foundry.applications.sheets.ItemSheet);
+  foundry.documents.collections.Items.registerSheet("anyventure", AnyventureItemSheet, { 
     makeDefault: true 
   });
 
@@ -63,6 +63,12 @@ Hooks.once('ready', async function() {
     return str.toLowerCase();
   });
 
+  // Helper to capitalize first letter of a string
+  Handlebars.registerHelper('capitalize', function(str) {
+    if (typeof str !== 'string') return str;
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  });
+
   // Helper for skill dice conversion (0=d4, 1=d6, 2=d8, 3=d10, 4=d12, 5=d16, 6=d20)
   Handlebars.registerHelper('skillDie', function(level) {
     const dice = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20'];
@@ -72,6 +78,17 @@ Hooks.once('ready', async function() {
   // Helper for checking if module option is selected
   Handlebars.registerHelper('isSelected', function(option) {
     return option.selected === true;
+  });
+
+  // Helper for checking equality (useful for conditionals)
+  Handlebars.registerHelper('eq', function(a, b) {
+    return a === b;
+  });
+
+  // Helper for checking if array includes value
+  Handlebars.registerHelper('includes', function(array, value) {
+    if (!Array.isArray(array)) return false;
+    return array.includes(value);
   });
 
   console.log('Anyventure | System Ready');
@@ -139,7 +156,7 @@ function rollItemMacro(itemName) {
  * @return {Promise}
  */
 async function preloadHandlebarsTemplates() {
- return loadTemplates([
+ return foundry.applications.handlebars.loadTemplates([
     // Actor templates
     "systems/anyventure/templates/actor/actor-character-sheet.hbs",
     "systems/anyventure/templates/actor/actor-npc-sheet.hbs",
@@ -149,6 +166,9 @@ async function preloadHandlebarsTemplates() {
     "systems/anyventure/templates/item/item-spell-sheet.hbs",
     "systems/anyventure/templates/item/item-weapon-sheet.hbs",
     "systems/anyventure/templates/item/item-armor-sheet.hbs",
-    "systems/anyventure/templates/item/item-equipment-sheet.hbs"
+    "systems/anyventure/templates/item/item-equipment-sheet.hbs",
+    
+    // Partial templates
+    "systems/anyventure/templates/partials/skills.hbs"
   ]);
 }

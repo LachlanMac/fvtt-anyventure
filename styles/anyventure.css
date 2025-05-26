@@ -1,439 +1,181 @@
 /* ----------------------------------------- */
-/*  Anyventure System Styles               */
+/*  Attribute-Grouped Skills                 */
 /* ----------------------------------------- */
 
-.anyventure {
-  /* Base styling */
-}
-
-.anyventure .window-content {
-  height: 100%;
-  padding: 5px;
-  overflow-y: hidden;
-}
-
-.anyventure .sheet-header {
-  flex: 0 0 100px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  margin-bottom: 10px;
-}
-
-.anyventure .sheet-header .profile-img {
-  flex: 0 0 100px;
-  height: 100px;
-  margin-right: 10px;
-}
-
-.anyventure .sheet-header .header-fields {
-  flex: 1;
-}
-
-.anyventure .sheet-header h1.charname {
-  height: 50px;
-  padding: 0px;
-  margin: 5px 0;
-  border-bottom: 0;
-}
-
-.anyventure .sheet-header h1.charname input {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-}
-
-.anyventure .resource {
-  width: 50px;
-  height: 40px;
-  margin-top: 10px;
-  float: left;
-  text-align: center;
-}
-
-.anyventure .resource input {
-  width: 100%;
-  height: 28px;
-}
-
-.anyventure .tabs {
-  height: 40px;
-  border-top: 1px solid #AAA;
-  border-bottom: 1px solid #AAA;
-}
-
-.anyventure .tabs .item {
-  line-height: 40px;
-  font-weight: bold;
-}
-
-.anyventure .tabs .item.active {
-  text-decoration: underline;
-  text-shadow: none;
-}
-
-.anyventure .sheet-body {
-  flex: 1;
-  overflow: hidden;
-}
-
-.anyventure .sheet-body .tab {
-  height: 100%;
-  overflow-y: auto;
-}
-
-.anyventure .sheet-body .tab.biography {
-  overflow-y: scroll;
-}
-
-/* ----------------------------------------- */
-/*  Skills                                   */
-/* ----------------------------------------- */
-
-.anyventure .skills {
+.anyventure .skills-by-attribute {
   margin: 10px 0;
 }
+
+.anyventure .attribute-section {
+  margin-bottom: 25px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.anyventure .attribute-header {
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #4b4a44;
+}
+
+.anyventure .attribute-name {
+  flex: 1;
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #4b4a44;
+}
+
+.anyventure .attribute-name:hover {
+  color: #000;
+  text-shadow: 0 0 5px rgba(75, 74, 68, 0.5);
+}
+
+.anyventure .attribute-value {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.anyventure .attribute-value input {
+  width: 50px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  background: rgba(75, 74, 68, 0.1);
+  border: 2px solid #4b4a44;
+}
+
+.anyventure .talent-label {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+.anyventure .attribute-skills {
+  margin-left: 15px;
+}
+
+.anyventure .attribute-skills .skill {
+  margin-bottom: 3px;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.anyventure .skill-plus {
+  font-weight: bold;
+  color: #4b4a44;
+  margin-right: 2px;
+}
+
+/* ----------------------------------------- */
+/*  Creation Points Display                  */
+/* ----------------------------------------- */
+
+.anyventure .creation-points {
+  margin: 20px 0;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 5px;
+  border-left: 4px solid #4b4a44;
+}
+
+.anyventure .creation-points label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #4b4a44;
+}
+
+/* ----------------------------------------- */
+/*  Weapon/Magic/Crafting Skills             */
+/* ----------------------------------------- */
 
 .anyventure .skill-category {
   margin-bottom: 20px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 5px;
+  border-left: 3px solid #666;
 }
 
 .anyventure .skill-category h4 {
-  margin: 0 0 5px 0;
-  padding: 5px;
-  background: rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #4b4a44;
-  font-weight: bold;
-}
-
-.anyventure .skill {
-  display: flex;
-  align-items: center;
-  padding: 2px 5px;
-  border-bottom: 1px solid #ccc;
-}
-
-.anyventure .skill:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.anyventure .skill-name {
-  flex: 1;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.anyventure .skill-name:hover {
-  color: #4b4a44;
-}
-
-.anyventure .skill-fields {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.anyventure .skill-talent {
-  width: 30px;
-  text-align: center;
-  font-weight: bold;
-  color: #666;
-}
-
-.anyventure .skill-value {
-  width: 40px;
-  text-align: center;
-}
-
-.anyventure .skill-dice {
-  width: 30px;
-  text-align: center;
-  font-size: 12px;
-  color: #4b4a44;
-}
-
-/* ----------------------------------------- */
-/*  Attributes                               */
-/* ----------------------------------------- */
-
-.anyventure .attributes {
-  margin: 10px 0;
-}
-
-.anyventure .attribute-group h3 {
   margin: 0 0 10px 0;
-  font-weight: bold;
-}
-
-.anyventure .attribute {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-}
-
-.anyventure .attribute-label {
-  flex: 1;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.anyventure .attribute-label:hover {
-  color: #4b4a44;
-}
-
-.anyventure .attribute input {
-  width: 50px;
-  text-align: center;
-}
-
-.anyventure .attribute-points {
-  margin-top: 10px;
-  font-style: italic;
   color: #666;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.anyventure .skill-category .skill {
+  background: rgba(255, 255, 255, 0.5);
+  margin-bottom: 3px;
+  padding: 5px 8px;
+  border-radius: 3px;
+}
+
+.anyventure .skill-category .skill:hover {
+  background: rgba(255, 255, 255, 0.8);
 }
 
 /* ----------------------------------------- */
-/*  Resources                                */
+/*  Responsive Layout Adjustments            */
 /* ----------------------------------------- */
 
-.anyventure .resources {
-  margin: 20px 0;
-  display: flex;
+.anyventure .tab.flexrow {
   gap: 20px;
 }
 
-.anyventure .resource {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.anyventure .left-column {
+  flex: 0 0 300px;
+  min-width: 280px;
 }
 
-.anyventure .resource-label {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.anyventure .resource-content {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.anyventure .resource-content input {
-  width: 50px;
-  text-align: center;
-}
-
-/* ----------------------------------------- */
-/*  Items Lists                              */
-/* ----------------------------------------- */
-
-.anyventure .items-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  color: #444;
-}
-
-.anyventure .items-list .item-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.anyventure .items-list .item-name {
-  flex: 2;
-  margin: 0;
-  overflow: hidden;
-  font-size: 13px;
-  text-align: left;
-  align-items: center;
-  display: flex;
-}
-
-.anyventure .items-list .item-name h3, .anyventure .items-list .item-name h4 {
-  margin: 0;
-  white-space: nowrap;
-  overflow-x: hidden;
-}
-
-.anyventure .items-list .item-controls {
-  display: flex;
-  flex: 0 0 100px;
-  justify-content: flex-end;
-}
-
-.anyventure .items-list .item-controls a {
-  font-size: 12px;
-  text-align: center;
-  margin: 0 6px;
-}
-
-.anyventure .items-list .item {
-  align-items: center;
-  padding: 0 2px;
-  border-bottom: 1px solid #c9c7b8;
-}
-
-.anyventure .items-list .item:last-child {
-  border-bottom: none;
-}
-
-.anyventure .items-list .item .item-name .item-image {
-  flex: 0 0 30px;
-  height: 30px;
-  background-size: 30px;
-  border: none;
-  margin-right: 5px;
-}
-
-.anyventure .items-list .item-prop {
-  text-align: center;
-  border-left: 1px solid #c9c7b8;
-  border-right: 1px solid #c9c7b8;
-  font-size: 12px;
-}
-
-.anyventure .items-header {
-  height: 28px;
-  margin: 2px 0;
-  padding: 0;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.05);
-  border: 2px groove #eeede0;
-  font-weight: bold;
-}
-
-.anyventure .items-header > * {
-  font-size: 12px;
-  text-align: center;
-}
-
-.anyventure .items-header .item-name {
-  padding-left: 5px;
-  text-align: left;
-  display: flex;
-}
-
-.anyventure .item-formula {
-  flex: 0 0 200px;
-  padding: 0 8px;
-}
-
-/* ----------------------------------------- */
-/*  Biography Tab                            */
-/* ----------------------------------------- */
-
-.anyventure .biography-content {
-  padding: 10px;
-}
-
-.anyventure .biography-section {
-  margin-bottom: 20px;
-}
-
-.anyventure .biography-section h3 {
-  margin: 0 0 10px 0;
-  font-weight: bold;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 5px;
-}
-
-.anyventure .traits-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.anyventure .trait {
-  display: flex;
-  flex-direction: column;
-}
-
-.anyventure .trait label {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.anyventure .movement-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
-.anyventure .movement-type {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.anyventure .movement-type label {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.anyventure .movement-type input {
-  width: 60px;
-  text-align: center;
-}
-
-.anyventure .mitigation-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.anyventure .mitigation-type {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.anyventure .mitigation-type label {
-  font-weight: bold;
-  margin-bottom: 5px;
-  font-size: 12px;
-}
-
-.anyventure .mitigation-type input {
-  width: 50px;
-  text-align: center;
-}
-
-.anyventure .language {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 5px;
-}
-
-.anyventure .language-name {
+.anyventure .right-column {
   flex: 1;
+  min-width: 400px;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+}
+
+/* ----------------------------------------- */
+/*  Skill Field Improvements                 */
+/* ----------------------------------------- */
+
+.anyventure .skill-fields {
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.anyventure .skill-talent {
+  min-width: 25px;
+  text-align: center;
+  font-weight: bold;
+  color: #4b4a44;
+  background: rgba(75, 74, 68, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.anyventure .skill-value {
+  width: 35px;
+  text-align: center;
   font-weight: bold;
 }
 
-.anyventure .language input {
-  width: 40px;
+.anyventure .skill-dice {
+  min-width: 30px;
   text-align: center;
-}
-
-.anyventure .language-level {
-  width: 80px;
-  font-style: italic;
-  color: #666;
-}
-
-/* ----------------------------------------- */
-/*  Rollable Elements                        */
-/* ----------------------------------------- */
-
-.anyventure .rollable:hover, .anyventure .rollable:focus {
-  color: #000;
-  text-shadow: 0 0 10px red;
-  cursor: pointer;
+  font-size: 11px;
+  color: #4b4a44;
+  font-weight: bold;
+  background: rgba(75, 74, 68, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
 }

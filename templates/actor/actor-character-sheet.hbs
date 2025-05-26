@@ -38,22 +38,6 @@
     <div class="tab flexrow" data-group="primary" data-tab="skills">
       <div class="left-column">
         
-        {{!-- Attributes --}}
-        <div class="attributes flexrow">
-          <div class="attribute-group">
-            <h3>Attributes</h3>
-            {{#each system.attributes as |attribute key|}}
-            <div class="attribute flexrow">
-              <label for="system.attributes.{{key}}.value" class="attribute-label rollable attribute-roll" data-attribute="{{key}}">{{capitalize key}}</label>
-              <input type="number" name="system.attributes.{{key}}.value" value="{{attribute.value}}" data-dtype="Number" min="1" max="4"/>
-            </div>
-            {{/each}}
-            <div class="attribute-points">
-              <label>Available Points: {{availableAttributePoints}}</label>
-            </div>
-          </div>
-        </div>
-
         {{!-- Resources --}}
         <div class="resources flexrow">
           <div class="resource">
@@ -82,74 +66,21 @@
           </div>
         </div>
 
+        {{!-- Character Creation Points --}}
+        <div class="creation-points">
+          <div class="attribute-points">
+            <label>Available Attribute Points: {{availableAttributePoints}}</label>
+          </div>
+          <div class="module-points">
+            <label>Available Module Points: {{availableModulePoints}}</label>
+          </div>
+        </div>
+
       </div>
 
       <div class="right-column">
-        {{!-- Skills --}}
-        <div class="skills">
-          <h3>Skills</h3>
-          
-          {{!-- Basic Skills --}}
-          <div class="skill-category">
-            <h4>Basic Skills</h4>
-            {{#each skillCategories.basic as |skill key|}}
-            <div class="skill flexrow">
-              <label class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{capitalize key}}</label>
-              <div class="skill-fields flexrow">
-                <span class="skill-talent">{{skill.talent}}</span>
-                <input type="number" class="skill-value" name="system.skills.basic.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-                <span class="skill-dice">{{skillDie skill.value}}</span>
-              </div>
-            </div>
-            {{/each}}
-          </div>
-
-          {{!-- Weapon Skills --}}
-          <div class="skill-category">
-            <h4>Weapon Skills</h4>
-            {{#each skillCategories.weapon as |skill key|}}
-            <div class="skill flexrow">
-              <label class="skill-name rollable skill-roll" data-category="weapon" data-skill="{{key}}">{{capitalize key}}</label>
-              <div class="skill-fields flexrow">
-                <span class="skill-talent">{{skill.talent}}</span>
-                <input type="number" class="skill-value" name="system.skills.weapon.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-                <span class="skill-dice">{{skillDie skill.value}}</span>
-              </div>
-            </div>
-            {{/each}}
-          </div>
-
-          {{!-- Magic Skills --}}
-          <div class="skill-category">
-            <h4>Magic Skills</h4>
-            {{#each skillCategories.magic as |skill key|}}
-            <div class="skill flexrow">
-              <label class="skill-name rollable skill-roll" data-category="magic" data-skill="{{key}}">{{capitalize key}}</label>
-              <div class="skill-fields flexrow">
-                <span class="skill-talent">{{skill.talent}}</span>
-                <input type="number" class="skill-value" name="system.skills.magic.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-                <span class="skill-dice">{{skillDie skill.value}}</span>
-              </div>
-            </div>
-            {{/each}}
-          </div>
-
-          {{!-- Crafting Skills --}}
-          <div class="skill-category">
-            <h4>Crafting Skills</h4>
-            {{#each skillCategories.crafting as |skill key|}}
-            <div class="skill flexrow">
-              <label class="skill-name rollable skill-roll" data-category="crafting" data-skill="{{key}}">{{capitalize key}}</label>
-              <div class="skill-fields flexrow">
-                <span class="skill-talent">{{skill.talent}}</span>
-                <input type="number" class="skill-value" name="system.skills.crafting.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-                <span class="skill-dice">{{skillDie skill.value}}</span>
-              </div>
-            </div>
-            {{/each}}
-          </div>
-
-        </div>
+        {{!-- Include Skills Partial --}}
+        {{> "systems/anyventure/templates/partials/skills.hbs"}}
       </div>
     </div>
 
@@ -376,7 +307,7 @@
           {{#each skillCategories.language as |language key|}}
           <div class="language flexrow">
             <label class="language-name">{{capitalize key}}</label>
-            <input type="number" name="system.skills.language.{{key}}.value" value="{{language.value}}" data-dtype="Number" min="0" max="3"/>
+            <input type="number" name="system.language.{{key}}.value" value="{{language.value}}" data-dtype="Number" min="0" max="3"/>
             <span class="language-level">
               {{#if (eq language.value 0)}}Unknown{{/if}}
               {{#if (eq language.value 1)}}Basic{{/if}}
