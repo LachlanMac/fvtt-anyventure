@@ -18,6 +18,9 @@
   /*  Mitigations Table                       */
   /* ----------------------------------------- */
   /* ----------------------------------------- */
+  /*  Movement Table                           */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
   /*  Main Content Area                       */
   /* ----------------------------------------- */
   /* ----------------------------------------- */
@@ -271,7 +274,7 @@
   overflow-x: hidden;
 }
 .anyventure .character-header {
-  padding: 12px;
+  padding: 8px 12px 12px 12px;
   background: linear-gradient(135deg, #2d2438 0%, #4a3c5c 100%);
   border-bottom: 1px solid #b8860b;
   text-align: center;
@@ -293,7 +296,7 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.4);
 }
 .anyventure .character-header .charname {
-  margin: 0;
+  margin: 8px 0 0 0;
 }
 .anyventure .character-header .charname input {
   background: transparent;
@@ -319,7 +322,7 @@
 .anyventure .resource-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .anyventure .resource-bar {
   position: relative;
@@ -419,8 +422,7 @@
 .anyventure .mitigations-container {
   padding: 8px;
   background: rgba(26, 21, 37, 0.2);
-  flex: 1;
-  overflow-y: auto;
+  flex: 0 0 auto;
 }
 .anyventure .mitigations-container .section-header {
   color: #ffd700;
@@ -498,6 +500,79 @@
   background: rgba(26, 21, 37, 0.8);
 }
 .anyventure .mitigations-table td.resist-value {
+  color: #cdaa3d;
+  font-weight: bold;
+}
+.anyventure .movement-container {
+  padding: 8px;
+  background: rgba(26, 21, 37, 0.2);
+  flex: 0 0 auto;
+}
+.anyventure .movement-container .section-header {
+  color: #ffd700;
+  font-size: 11px;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.anyventure .movement-container .section-header i {
+  font-size: 12px;
+}
+.anyventure .movement-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: rgba(26, 21, 37, 0.5);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.anyventure .movement-table thead {
+  background: #4a3c5c;
+}
+.anyventure .movement-table thead th {
+  padding: 2px 4px;
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #b8860b;
+}
+.anyventure .movement-table tbody tr {
+  transition: all 0.15s ease;
+}
+.anyventure .movement-table tbody tr:hover {
+  background: rgba(255, 215, 0, 0.1);
+}
+.anyventure .movement-table tbody tr:not(:last-child) td {
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+}
+.anyventure .movement-table td {
+  padding: 2px 4px;
+  text-align: center;
+  font-size: 14px;
+}
+.anyventure .movement-table td.movement-type {
+  text-align: left;
+  color: #c5bdd1;
+  font-weight: 500;
+}
+.anyventure .movement-table td.movement-type i {
+  margin-right: 2px;
+  color: #cdaa3d;
+  width: 12px;
+  font-size: 10px;
+  text-align: center;
+}
+.anyventure .movement-table td.movement-value {
+  color: #cdaa3d;
+  font-weight: bold;
+}
+.anyventure .movement-table td.sprint-value {
   color: #cdaa3d;
   font-weight: bold;
 }
@@ -869,8 +944,25 @@
   min-width: 40px;
   display: inline-block;
 }
+.anyventure .skill-row .skill-value-group .skill-die.skill-upgraded {
+  color: #28a745;
+}
+.anyventure .skill-row .skill-value-group .skill-die.skill-downgraded {
+  color: #dc3545;
+}
 .anyventure .specialized-skills {
   margin-top: 8px;
+}
+.anyventure .tab.skills.active {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.anyventure .tab.skills.active .skills-page {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 .anyventure .skill-category-block {
   background: rgba(45, 36, 56, 0.2);
@@ -920,6 +1012,17 @@
   cursor: pointer;
   font-weight: 500;
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.anyventure .specialized-skill .skill-name .skill-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 2px;
+  vertical-align: middle;
+  display: inline-block;
+  flex: 0 0 24px;
 }
 .anyventure .specialized-skill .skill-value-group {
   display: flex;
@@ -963,40 +1066,30 @@
   min-width: 40px;
   display: inline-block;
 }
-
-/* Magical Language Styling */
-.anyventure .specialized-skill.magical-language {
-  border-color: rgba(138, 43, 226, 0.5);
-  background: rgba(138, 43, 226, 0.1);
+.anyventure .specialized-skill .skill-value-group .skill-die.skill-upgraded {
+  color: #28a745;
 }
-
-.anyventure .specialized-skill.magical-language:hover {
-  border-color: #8a2be2;
-  background: rgba(138, 43, 226, 0.2);
+.anyventure .specialized-skill .skill-value-group .skill-die.skill-downgraded {
+  color: #dc3545;
 }
-
-.anyventure .specialized-skill.magical-language .skill-name {
-  color: #dda0dd;
+.anyventure .specialized-skill .skill-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 24px;
 }
-
-.anyventure .specialized-skill.magical-language:hover .skill-name {
-  color: #e6b3ff;
+.anyventure .specialized-skill .skill-controls a {
+  color: #cdaa3d;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
-
-.anyventure .specialized-skill.magical-language .skill-name .fa-magic {
-  color: #8a2be2;
-  margin-right: 4px;
-  text-shadow: 0 0 4px rgba(138, 43, 226, 0.6);
+.anyventure .specialized-skill .skill-controls a:hover {
+  color: #ffd700;
 }
-
-/* No talent indicator */
-.anyventure .specialized-skill .talent-stars-skill .no-talent {
-  color: #666;
-  font-style: italic;
-  min-width: 50px;
-  text-align: center;
+.anyventure .specialized-skill .skill-controls--spacer {
+  pointer-events: none;
+  opacity: 0;
 }
-
 .anyventure .items-list {
   list-style: none;
   margin: 0;
@@ -2021,4 +2114,207 @@
 .anyventure .inventory-table .inventory-row .quantity-minus:hover,
 .anyventure .inventory-table .inventory-row .quantity-plus:hover {
   color: #daa520;
+}
+.anyventure .traits-modules-section .tab.traits {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.anyventure .traits-modules-section .tab.traits::-webkit-scrollbar {
+  width: 6px;
+}
+.anyventure .traits-modules-section .tab.traits::-webkit-scrollbar-track {
+  background: rgba(45, 36, 56, 0.2);
+  border-radius: 3px;
+}
+.anyventure .traits-modules-section .tab.traits::-webkit-scrollbar-thumb {
+  background: rgba(218, 165, 32, 0.6);
+  border-radius: 3px;
+}
+.anyventure .traits-modules-section .tab.traits::-webkit-scrollbar-thumb:hover {
+  background: rgba(218, 165, 32, 0.8);
+}
+.anyventure .traits-modules-section .trait-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.anyventure .traits-modules-section .trait-list .trait-item {
+  display: flex;
+  align-items: flex-start;
+  background: linear-gradient(135deg, #2d2438, rgba(45, 36, 56, 0.9));
+  border: 1px solid rgba(218, 165, 32, 0.3);
+  border-radius: 4px;
+  padding: 6px 10px;
+  transition: all 0.2s ease;
+}
+.anyventure .traits-modules-section .trait-list .trait-item:hover {
+  background: linear-gradient(135deg, rgba(45, 36, 56, 0.9), #2d2438);
+  border-color: rgba(218, 165, 32, 0.5);
+}
+.anyventure .traits-modules-section .trait-list .trait-item .trait-content {
+  flex: 1;
+  min-width: 0;
+}
+.anyventure .traits-modules-section .trait-list .trait-item .trait-content .trait-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #daa520;
+  margin: 0 0 2px 0;
+  line-height: 1.2;
+}
+.anyventure .traits-modules-section .trait-list .trait-item .trait-content .trait-description {
+  font-size: 9px;
+  color: #e8e3f0;
+  margin: 0;
+  line-height: 1.3;
+  word-wrap: break-word;
+}
+.anyventure .traits-modules-section .trait-list .trait-empty {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  font-size: 10px;
+  padding: 10px;
+  background: #f8f9fa;
+  border: 1px dashed #dee2e6;
+  border-radius: 4px;
+}
+.anyventure .traits-modules-section .trait-category {
+  margin-bottom: 12px;
+}
+.anyventure .traits-modules-section .trait-category:last-child {
+  margin-bottom: 0;
+}
+.anyventure .traits-modules-section .trait-category .trait-category-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: #495057;
+  margin: 0 0 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.anyventure .traits-modules-section .trait-category .trait-category-header i {
+  font-size: 11px;
+  color: #6c757d;
+}
+.anyventure .moves-section .ability-item {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #2d2438, rgba(45, 36, 56, 0.9));
+  border: 1px solid rgba(218, 165, 32, 0.3);
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+.anyventure .moves-section .ability-item:hover {
+  background: linear-gradient(135deg, rgba(45, 36, 56, 0.9), #2d2438);
+  border-color: rgba(218, 165, 32, 0.5);
+}
+.anyventure .moves-section .ability-item .ability-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+}
+.anyventure .moves-section .ability-item .ability-icon img {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(218, 165, 32, 0.3);
+  border-radius: 2px;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.anyventure .moves-section .ability-item .ability-content {
+  flex: 1;
+  min-width: 0;
+}
+.anyventure .moves-section .ability-item .ability-content .ability-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.anyventure .moves-section .ability-item .ability-content .ability-header .ability-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #daa520;
+  margin: 0;
+  flex: 0 0 auto;
+}
+.anyventure .moves-section .ability-item .ability-content .ability-header .ability-energy {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: #e8e3f0;
+  flex: 0 0 auto;
+}
+.anyventure .moves-section .ability-item .ability-content .ability-header .ability-energy i {
+  font-size: 9px;
+  color: #daa520;
+}
+.anyventure .moves-section .ability-item .ability-content .ability-header .ability-tags {
+  display: flex;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+.anyventure .moves-section .ability-item .ability-content .ability-header .ability-tags .daily-badge, .anyventure .moves-section .ability-item .ability-content .ability-header .ability-tags .magic-badge {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.anyventure .moves-section .ability-item .ability-content .ability-header .ability-tags .daily-badge {
+  background: rgba(184, 134, 11, 0.3);
+  color: #daa520;
+  border: 1px solid rgba(218, 165, 32, 0.4);
+}
+.anyventure .moves-section .ability-item .ability-content .ability-header .ability-tags .magic-badge {
+  background: rgba(74, 60, 92, 0.3);
+  color: #e8e3f0;
+  border: 1px solid rgba(74, 60, 92, 0.4);
+}
+.anyventure .moves-section .ability-item .ability-content .ability-description {
+  font-size: 11px;
+  color: #e8e3f0;
+  margin: 0;
+  line-height: 1.3;
+}
+.anyventure .moves-section .ability-item .ability-controls {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 10px;
+}
+.anyventure .moves-section .ability-item .ability-controls .item-control {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  color: #c5bdd1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.anyventure .moves-section .ability-item .ability-controls .item-control:hover {
+  color: #daa520;
+}
+.anyventure .moves-section .ability-item .ability-controls .item-control.item-delete:hover {
+  color: #e74c3c;
+}
+.anyventure .moves-section .ability-item .ability-controls .item-control i {
+  font-size: 12px;
+}
+.anyventure .moves-section .empty-message {
+  text-align: center;
+  color: #c5bdd1;
+  font-style: italic;
+  padding: 20px;
+  font-size: 12px;
 }/*# sourceMappingURL=anyventure.css.map */

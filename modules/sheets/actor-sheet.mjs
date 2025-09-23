@@ -14,7 +14,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       classes: ["anyventure", "sheet", "actor"],
       template: "systems/anyventure/templates/actor/actor-character-sheet.hbs",
       width: 830,
-      height: 720,
+      height: 832,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "skills" }]
     });
   }
@@ -45,6 +45,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     if (actorData.type == 'character') {
       this._prepareItems(context);
       this._prepareCharacterData(context);
+      this._prepareTraits(context);
+      this._prepareAbilities(context);
     }
 
     // Prepare NPC data and items.
@@ -71,7 +73,6 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
    */
   _prepareCharacterData(context) {
 
-    console.log("PREP CHAR DATA");
     // Update talent values for basic skills based on attributes
     if (context.system.basic) {
       for (let [key, skill] of Object.entries(context.system.basic)) {
@@ -83,10 +84,6 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Handle skill categories - they're directly on system, not under system.skills
     const languageSkills = this._prepareLanguagesFromItems(context) || {};
-    console.log('=== SKILL CATEGORIES DEBUG ===');
-    console.log('Language skills prepared:', languageSkills);
-    console.log('Object.keys(languageSkills):', Object.keys(languageSkills));
-
     context.skillCategories = {
       basic: context.system.basic || {},
       weapon: context.system.weapon || {},
@@ -95,10 +92,6 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       language: languageSkills,
       music: context.system.music || {}
     };
-
-    console.log('Final context.skillCategories.language:', context.skillCategories.language);
-    console.log('=== END SKILL CATEGORIES DEBUG ===');
-
     // Calculate available module points
     if (context.system.modulePoints && typeof context.system.modulePoints === 'object') {
       // New structure: { total: X, spent: Y }
@@ -110,6 +103,135 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     
     // Calculate available attribute points (for character creation)
     context.availableAttributePoints = context.system.characterCreation?.attributePointsRemaining || 0;
+  }
+
+  /**
+   * Prepare trait data for display in the traits section
+   * Collects TA (ancestry), TG (general), and TC (crafting) traits from selected module options
+   * @param {Object} context The context to prepare
+   * @private
+   */
+  _prepareTraits(context) {
+    const ancestryTraits = [];
+    const generalTraits = [];
+    const craftingTraits = [];
+    const culturalTraits = [];
+
+
+    // Helper function to process options for trait codes
+    const processOptions = (options, sourceName, allSelected = false) => {
+      const optionsToProcess = allSelected ? options : options.filter(opt => opt.selected);
+
+      for (const option of optionsToProcess) {
+        if (!option.data) continue;
+
+        // Parse the data looking for TA, TG, TC, TP codes
+        const data = option.data;
+
+        if (typeof data !== 'string') continue;
+
+        // Split by colon to handle multiple data codes in one string
+        const dataParts = data.split(':').map(part => part.trim());
+
+        for (const dataPart of dataParts) {
+          // Look for trait codes: TA=trait_name, TG=trait_name, TC=trait_name, TP=trait_name, or just TA, TG, TC, TP
+          const taMatch = dataPart.match(/^TA(?:=(.+))?$/i);
+          const tgMatch = dataPart.match(/^TG(?:=(.+))?$/i);
+          const tcMatch = dataPart.match(/^TC(?:=(.+))?$/i);
+          const tpMatch = dataPart.match(/^TP(?:=(.+))?$/i);
+
+          if (taMatch) {
+            const traitName = taMatch[1] ? taMatch[1].trim() : option.name || 'Ancestry Trait';
+            if (traitName && !ancestryTraits.some(t => t.name === traitName)) {
+              ancestryTraits.push({
+                name: traitName,
+                description: option.description || '',
+                source: sourceName
+              });
+            }
+          }
+
+          if (tgMatch) {
+            const traitName = tgMatch[1] ? tgMatch[1].trim() : option.name || 'General Trait';
+            if (traitName && !generalTraits.some(t => t.name === traitName)) {
+              generalTraits.push({
+                name: traitName,
+                description: option.description || '',
+                source: sourceName
+              });
+            }
+          }
+
+          if (tcMatch) {
+            const traitName = tcMatch[1] ? tcMatch[1].trim() : option.name || 'Crafting Trait';
+            if (traitName && !craftingTraits.some(t => t.name === traitName)) {
+              craftingTraits.push({
+                name: traitName,
+                description: option.description || '',
+                source: sourceName
+              });
+            }
+          }
+
+          if (tpMatch) {
+            const traitName = tpMatch[1] ? tpMatch[1].trim() : option.name || 'Cultural Trait';
+            if (traitName && !culturalTraits.some(t => t.name === traitName)) {
+              culturalTraits.push({
+                name: traitName,
+                description: option.description || '',
+                source: sourceName
+              });
+            }
+          }
+        }
+      }
+    };
+
+    // Process modules (selected options only)
+    const modules = context.items.filter(i => i.type === 'module');
+    for (const module of modules) {
+      if (!module.system.options) continue;
+      processOptions(module.system.options, module.name, false);
+    }
+
+    // Process ancestry items (all options are automatically selected)
+    const ancestries = context.items.filter(i => i.type === 'ancestry');
+    for (const ancestry of ancestries) {
+      if (!ancestry.system.options) continue;
+      processOptions(ancestry.system.options, ancestry.name, true);
+    }
+
+    // Process trait items (all options are automatically selected)
+    const traits = context.items.filter(i => i.type === 'trait');
+    for (const trait of traits) {
+      if (!trait.system.options) continue;
+      processOptions(trait.system.options, trait.name, true);
+    }
+
+    // Add the trait arrays to context for template use
+    context.ancestryTraits = ancestryTraits;
+    context.generalTraits = generalTraits;
+    context.craftingTraits = craftingTraits;
+    context.culturalTraits = culturalTraits;
+  }
+
+  /**
+   * Prepare action and reaction abilities for display in the Moves tab
+   * @param {Object} context The context to prepare
+   * @private
+   */
+  _prepareAbilities(context) {
+    // Filter items to get actions and reactions
+    const actions = context.items.filter(i => i.type === 'action');
+    const reactions = context.items.filter(i => i.type === 'reaction');
+
+    // Sort by name for better organization
+    actions.sort((a, b) => a.name.localeCompare(b.name));
+    reactions.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Add to context for template use
+    context.actionItems = actions;
+    context.reactionItems = reactions;
   }
 
   /**
@@ -283,20 +405,13 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
    * @private
    */
   _prepareLanguagesFromItems(context) {
-    console.log('=== _prepareLanguagesFromItems DEBUG ===');
-    console.log('Total items:', context.items.length);
-
     const languageSkills = {};
-
     // Find all language items owned by this character
     const languageItems = context.items.filter(item => item.type === 'language');
-    console.log('Language items found:', languageItems.length);
-    console.log('Language items:', languageItems.map(item => ({ name: item.name, type: item.type, talent: item.system.talent })));
 
     for (const item of languageItems) {
       // Convert language name to a key (lowercase, replace spaces with underscores)
       const key = item.name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-      console.log(`Processing language: ${item.name} -> key: ${key}`);
 
       languageSkills[key] = {
         name: item.name,
@@ -304,12 +419,10 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         talent: item.system.talent || 0,
         baseTalent: item.flags?.anyventure?.characterTalent || item.system.talent || 0,
         magic: item.system.magic || 0,
+        img: item.img || 'icons/svg/book.svg',
         itemId: item._id // Store the item ID for reference
       };
     }
-
-    console.log('Final languageSkills object:', languageSkills);
-    console.log('=== END DEBUG ===');
     return languageSkills;
   }
 
@@ -627,11 +740,20 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Skill rolls
     html.find('.skill-roll').click(this._onSkillRoll.bind(this));
 
-    // Language talent setting (right-click to set talent)
-    html.find('.skill-roll[data-category="language"]').contextmenu(this._onLanguageTalentSet.bind(this));
+    // Language star clicking
+    html.find('.language-star').click(this._onLanguageStarClick.bind(this));
+
+    // Music star clicking
+    html.find('.music-star').click(this._onMusicStarClick.bind(this));
+
+    // Language delete
+    html.find('.language-delete').click(this._onLanguageDelete.bind(this));
 
     // Weapon attack rolls
     html.find('.weapon-attack-clickable').click(this._onWeaponAttackRoll.bind(this));
+
+    // Ability usage (actions and reactions)
+    html.find('.ability-clickable').click(this._onAbilityUse.bind(this));
 
     // Resource modification buttons
     html.find('.resource-btn').click(this._onResourceModify.bind(this));
@@ -858,14 +980,18 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   /**
-   * Handle language talent setting (right-click context menu)
-   * @param {Event} event   The originating right-click event
+   * Handle language star clicking
+   * @param {Event} event   The originating click event
    * @private
    */
-  async _onLanguageTalentSet(event) {
+  async _onLanguageStarClick(event) {
     event.preventDefault();
-    const dataset = event.currentTarget.dataset;
-    const itemId = dataset.itemId;
+    event.stopPropagation();
+
+    const star = event.currentTarget;
+    const starLevel = parseInt(star.dataset.starLevel);
+    const starsContainer = star.closest('.language-stars');
+    const itemId = starsContainer.dataset.itemId;
 
     if (!itemId) {
       ui.notifications.warn("Language item not found");
@@ -878,43 +1004,67 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       return;
     }
 
-    // Create a dialog to set talent level
     const currentTalent = languageItem.system.talent || 0;
+    const newTalent = (currentTalent === starLevel) ? 0 : starLevel;
+    // Set talent to the new level
+    await languageItem.update({ 'system.talent': newTalent });
 
-    const content = `
-      <form>
-        <div class="form-group">
-          <label>Set talent level for <strong>${languageItem.name}</strong>:</label>
-          <div style="display: flex; gap: 10px; margin-top: 10px;">
-            ${[0, 1, 2, 3, 4].map(level =>
-              `<button type="button" class="talent-btn" data-talent="${level}"
-                      style="padding: 8px 12px; ${level === currentTalent ? 'background: #b8860b; color: #1a1525;' : 'background: #2a2a2a; color: #e8e3f0;'} border: 1px solid #666; border-radius: 4px; cursor: pointer;">
-                ${level === 0 ? 'None' : '★'.repeat(level)}
-              </button>`
-            ).join('')}
-          </div>
-        </div>
-      </form>
-    `;
+    // Force re-render of the sheet to update star display
+    this.render(false);
 
-    new Dialog({
-      title: `Set Language Talent: ${languageItem.name}`,
-      content: content,
-      buttons: {
-        cancel: {
-          label: "Cancel"
-        }
-      },
-      render: (html) => {
-        html.find('.talent-btn').click(async (e) => {
-          const talent = parseInt(e.currentTarget.dataset.talent);
-          await languageItem.update({ 'system.talent': talent });
-          ui.notifications.info(`Set ${languageItem.name} talent to ${talent === 0 ? 'None' : talent + ' stars'}`);
-          // Close the dialog
-          html.closest('.dialog').find('.dialog-button.cancel').click();
-        });
-      }
-    }).render(true);
+    // Optional notification
+    const starText = newTalent === 0 ? 'None' : `${newTalent} star${newTalent > 1 ? 's' : ''}`;
+    ui.notifications.info(`Set ${languageItem.name} talent to ${starText}`);
+  }
+
+  /**
+   * Handle music star clicking
+   * @param {Event} event   The originating click event
+   * @private
+   */
+  async _onMusicStarClick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const star = event.currentTarget;
+    const starLevel = parseInt(star.dataset.starLevel);
+    const starsContainer = star.closest('.music-stars');
+    const musicKey = starsContainer?.dataset?.musicKey;
+
+    if (!musicKey) {
+      ui.notifications.warn('Music skill not found');
+      return;
+    }
+
+    const currentTalent = this.actor.system.music?.[musicKey]?.talent || 0;
+    const newTalent = (currentTalent === starLevel) ? 0 : starLevel;
+
+    await this.actor.update({ [`system.music.${musicKey}.talent`]: newTalent });
+    this.render(false);
+
+    const starText = newTalent === 0 ? 'None' : `${newTalent} star${newTalent > 1 ? 's' : ''}`;
+    ui.notifications.info(`Set ${musicKey} talent to ${starText}`);
+  }
+
+  /**
+   * Remove a language item from the actor
+   * @param {Event} event
+   * @private
+   */
+  async _onLanguageDelete(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const button = event.currentTarget;
+    const itemId = button.dataset.itemId || button.closest('.specialized-skill')?.dataset?.itemId;
+    if (!itemId) return;
+
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+
+    await item.delete();
+    // Re-render to reflect removal
+    this.render(false);
   }
 
   /**
@@ -991,7 +1141,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       attackData: attackData,
       actor: this.actor,
       rollCallback: (roll, data) => {
-        console.log("Attack roll completed:", roll.total, data);
+       // console.log("Attack roll completed:", roll.total, data);
       }
     });
   }
@@ -1022,6 +1172,87 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       updateData[`system.resources.${resource}.value`] = newValue;
       return this.actor.update(updateData);
     }
+  }
+
+  /**
+   * Handle ability usage (actions and reactions)
+   * @param {Event} event   The originating click event
+   * @private
+   */
+  async _onAbilityUse(event) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const itemId = element.dataset.itemId;
+    const abilityType = element.dataset.abilityType;
+    const energyCost = parseInt(element.dataset.energyCost) || 0;
+
+    // Get the ability item
+    const item = this.actor.items.get(itemId);
+    if (!item) {
+      ui.notifications.warn("Ability not found");
+      return;
+    }
+
+    // Check if actor has enough energy
+    const currentEnergy = this.actor.system.resources?.energy?.value || 0;
+    if (energyCost > currentEnergy) {
+      ui.notifications.warn("Not enough energy to use this ability");
+      return;
+    }
+
+    // Show confirmation dialog
+    const abilityName = item.name;
+    const description = item.system.description || "No description available";
+
+    const confirmed = await Dialog.confirm({
+      title: "Use Ability",
+      content: `
+        <div style="margin-bottom: 10px;">
+          <strong>Are you sure you want to use this ${abilityType}?</strong>
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong>Name:</strong> ${abilityName}
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong>Energy Cost:</strong> ${energyCost === 0 ? "None" : energyCost}
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong>Description:</strong><br>
+          ${description}
+        </div>
+      `,
+      yes: () => true,
+      no: () => false,
+      defaultYes: false
+    });
+
+    if (!confirmed) return;
+
+    // Deduct energy if there's a cost
+    if (energyCost > 0) {
+      const newEnergy = currentEnergy - energyCost;
+      await this.actor.update({ 'system.resources.energy.value': newEnergy });
+    }
+
+    // Post to chat
+    const chatData = {
+      user: game.user.id,
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      content: `
+        <div style="border: 1px solid #999; padding: 10px; background: #f8f8f8;">
+          <div style="margin-bottom: 5px;">
+            <strong>${this.actor.name}</strong> used <strong>${abilityName}</strong>
+            ${energyCost > 0 ? `(${energyCost} energy)` : ''}
+          </div>
+          <div style="font-style: italic;">
+            ${description}
+          </div>
+        </div>
+      `,
+      type: CONST.CHAT_MESSAGE_TYPES.OTHER
+    };
+
+    ChatMessage.create(chatData);
   }
 
   /**

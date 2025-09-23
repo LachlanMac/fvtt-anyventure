@@ -65,6 +65,14 @@ function mergeDeltas(sourceDelta, targetDelta) {
     targetDelta.movement[type] += value;
   });
 
+  // Merge abilities (avoid duplicates)
+  if (sourceDelta.abilities && sourceDelta.abilities.length > 0) {
+    if (!targetDelta.abilities) targetDelta.abilities = [];
+    sourceDelta.abilities.forEach(ability => {
+      targetDelta.abilities.push(ability);
+    });
+  }
+
   // Merge immunities (avoid duplicates)
   sourceDelta.immunities.forEach(immunity => {
     if (!targetDelta.immunities.includes(immunity)) {
@@ -86,36 +94,18 @@ function mergeDeltas(sourceDelta, targetDelta) {
  */
 export function parseCharacter(actor) {
   console.log('Parsing character:', actor.name);
-
   // Create single delta that will be mutated by all parsing functions
   const delta = createEmptyDelta();
-
-  // 1. Parse size effects
-  parseSize(actor, delta);
-
   // 2. Parse trait effects (commented out for now)
   // parseTrait(actor, delta);
-
-  // 3. Parse ancestry effects (commented out for now)
-  // parseAncestry(actor, delta);
-
+  // 3. Parse ancestry effects
+  parseAncestry(actor, delta);
   // 4. Parse module effects
   parseModules(actor, delta);
-
+  // 5. Parse traits (TA, TG, TC)
+  parseTraits(actor, delta);
   console.log('Character parsing complete. Final delta:', delta);
   return delta;
-}
-
-/**
- * Parse size effects for the character
- * @param {Object} actor - The actor to parse
- * @param {Object} delta - The delta object to mutate
- */
-export function parseSize(actor, delta) {
-  console.log('Parsing size effects for:', actor.name);
-
-  // Size effects are handled through ancestry options instead of here
-  // This function is kept for consistency but does no processing
 }
 
 /**
@@ -143,17 +133,111 @@ export function parseTrait(actor, delta) {
  * @param {Object} delta - The delta object to mutate
  */
 export function parseAncestry(actor, delta) {
-  console.log('Parsing ancestry effects for:', actor.name);
+  console.log('=== PARSING ANCESTRY EFFECTS ===');
+  console.log('Actor name:', actor.name);
 
-  // TODO: Implement ancestry parsing logic
-  // This would handle racial bonuses like:
-  // - Attribute bonuses
-  // - Skill bonuses
-  // - Special abilities
-  // - Resistances/immunities
+  // Get all ancestry items from the actor
+  const ancestries = actor.items?.filter(item => item.type === 'ancestry') || [];
+  console.log('Found ancestries:', ancestries.length);
 
-  // Ancestry parsing logic would go here
-  // For example, parsing actor.system.ancestry data codes, then merging into delta
+  for (const ancestry of ancestries) {
+    console.log(`Processing ancestry: ${ancestry.name}`);
+    console.log('Ancestry details:', {
+      name: ancestry.name,
+      size: ancestry.system?.size,
+      homeworld: ancestry.system?.homeworld,
+      language: ancestry.system?.language
+    });
+
+    // Unlike modules, ancestries automatically give ALL their racial traits
+    // All options should already be marked as selected: true
+    const options = ancestry.system?.options || [];
+    console.log(`Ancestry has ${options.length} racial traits to apply`);
+
+    if (options.length > 0) {
+      console.log('All ancestry traits:', options.map(opt => ({
+        name: opt.name,
+        description: opt.description.substring(0, 100) + '...',
+        data: opt.data,
+        selected: opt.selected
+      })));
+    }
+
+    // Get selected subchoices from flags for this ancestry
+    const selectedOptionsFlags = ancestry.flags?.anyventure?.selectedOptions || [];
+    console.log('Selected options from flags:', selectedOptionsFlags);
+
+    // Process ALL ancestry options (they should all be selected: true)
+    for (const option of options) {
+      console.log(`Processing racial trait: ${option.name}`);
+
+      // Check if this option has subchoices
+      if (option.subchoices && option.subchoices.length > 0) {
+        console.log(`  → Option has ${option.subchoices.length} subchoices, looking for selected one...`);
+
+        // Find which subchoice was selected from flags
+        const selectedFlag = selectedOptionsFlags.find(flag => flag.name === option.name);
+        if (selectedFlag && selectedFlag.selectedSubchoice) {
+          const selectedSubchoice = option.subchoices.find(sub => sub.id === selectedFlag.selectedSubchoice);
+
+          if (selectedSubchoice) {
+            console.log(`✓ Applying subchoice: ${selectedSubchoice.name} (${selectedSubchoice.id})`);
+            console.log(`  → Data code: ${selectedSubchoice.data}`);
+
+            // Check if this contains an ability code (XIME=1, ZINE=2, etc.)
+            const hasAbilityCode = selectedSubchoice.data && selectedSubchoice.data.match(/[XZ][ID][MN]E=\d+/);
+
+            const subchoiceDelta = parseDataCode(selectedSubchoice.data);
+
+            // If abilities were added, use the SUBCHOICE's name and description
+            if (hasAbilityCode && subchoiceDelta.abilities && subchoiceDelta.abilities.length > 0) {
+              subchoiceDelta.abilities.forEach(ability => {
+                ability.name = selectedSubchoice.name || 'Unknown Ability';
+                ability.description = selectedSubchoice.description || '';
+              });
+            }
+
+            console.log(`  → Generated delta:`, subchoiceDelta);
+
+            mergeDeltas(subchoiceDelta, delta);
+          } else {
+            console.log(`⚠ Could not find subchoice "${selectedFlag.selectedSubchoice}" for option "${option.name}"`);
+          }
+        } else {
+          console.log(`⚠ No subchoice selected for option "${option.name}" that requires choice`);
+        }
+      } else if (option.data) {
+        // Regular option with direct data code
+        console.log(`✓ Applying racial trait: ${option.name}`);
+        console.log(`  → Data code: ${option.data}`);
+
+        // Check if this contains an ability code (XIME=1, ZINE=2, etc.)
+        const hasAbilityCode = option.data.match(/[XZ][ID][MN]E=\d+/);
+
+        const optionDelta = parseDataCode(option.data);
+
+        // If abilities were added, use the OPTION's name and description
+        if (hasAbilityCode && optionDelta.abilities && optionDelta.abilities.length > 0) {
+          optionDelta.abilities.forEach(ability => {
+            ability.name = option.name || 'Unknown Ability';
+            ability.description = option.description || '';
+          });
+        }
+
+        console.log(`  → Generated delta:`, optionDelta);
+
+        mergeDeltas(optionDelta, delta);
+      } else {
+        console.log(`ℹ Racial trait "${option.name}" has no mechanical effects (no data code)`);
+      }
+    }
+
+    // Size-based skill modifications are handled automatically through ancestry data codes
+    // (e.g., SSA=Y:SSB=Y:SSC=Y:SSD=Y:SSE=X:SSF=X:SSG=X:SSH=X for Small size)
+    // No additional processing needed here
+  }
+
+  console.log('=== ANCESTRY PARSING COMPLETE ===');
 }
 
 /**
@@ -166,9 +250,6 @@ export function parseModules(actor, delta) {
 
   // Get all modules from the actor
   const modules = actor.items?.filter(item => item.type === 'module') || [];
-
-  console.log('Found modules:', modules.length);
-
   for (const module of modules) {
     console.log('Processing module:', module.name);
 
@@ -178,30 +259,99 @@ export function parseModules(actor, delta) {
     // Get selected options
     const options = module.system?.options || [];
     const selectedOptions = options.filter(option => option.selected);
-
-    console.log(`Module ${module.name}: ${selectedOptions.length} selected options`);
-
     // Parse each selected option and apply directly to the delta
     for (const option of selectedOptions) {
       if (option.data) {
-        console.log(`✓ Parsing option: ${option.name} with data: ${option.data}`);
+        // Check if this contains an ability code (XIME=1, ZINE=2, etc.)
+        const hasAbilityCode = option.data.match(/[XZ][ID][MN]E=\d+/);
 
-        // Split data by colons and parse each part
-        const dataParts = option.data.split(':').filter(part => part.trim());
-        console.log(`  → Split into ${dataParts.length} data codes:`, dataParts);
+        if (hasAbilityCode) {
+          // Parse the data code
+          const optionDelta = parseDataCode(option.data);
 
-        const optionDelta = parseDataCode(option.data);
-        console.log(`  → Generated delta:`, optionDelta);
+          // If abilities were added, use the OPTION's name and description
+          if (optionDelta.abilities && optionDelta.abilities.length > 0) {
+            optionDelta.abilities.forEach(ability => {
+              ability.name = option.name || 'Unknown Ability'; // Use the OPTION's name field
+              ability.description = option.description || ''; // Use the OPTION's description field
+            });
+          }
 
-        // Merge this option's delta into the main delta
-        mergeDeltas(optionDelta, delta);
+          mergeDeltas(optionDelta, delta);
+        } else {
+          // Normal parsing for non-ability data
+          const optionDelta = parseDataCode(option.data);
+          mergeDeltas(optionDelta, delta);
+        }
       } else {
-        console.log(`✗ Skipping option: ${option.name} (no data code)`);
+        //console.log(`✗ Skipping option: ${option.name} (no data code)`);
       }
     }
   }
 
   console.log('Module parsing complete.');
+}
+
+/**
+ * Parse traits and collect them by category
+ * @param {Object} actor - The actor to parse
+ * @param {Object} delta - The delta object to mutate
+ */
+export function parseTraits(actor, delta) {
+  console.log('=== PARSING TRAITS ===');
+  console.log('Actor name:', actor.name);
+
+  if (!delta.traits || delta.traits.length === 0) {
+    console.log('No traits to parse');
+    return;
+  }
+
+  // Initialize trait collections if not present
+  if (!delta.traitCollections) {
+    delta.traitCollections = {
+      ancestry: [],
+      general: [],
+      crafting: []
+    };
+  }
+
+  // Get all modules from the actor to extract trait information
+  const modules = actor.items?.filter(item => item.type === 'module') || [];
+
+  console.log(`Found ${delta.traits.length} trait markers to process`);
+
+  for (const traitMarker of delta.traits) {
+    console.log(`Processing trait marker: ${traitMarker.marker} (${traitMarker.type})`);
+
+    // Find modules that contain this trait marker
+    for (const module of modules) {
+      const options = module.system?.options || [];
+      const selectedOptions = options.filter(option => option.selected && option.data);
+
+      for (const option of selectedOptions) {
+        // Check if this option contains the trait marker
+        if (option.data.includes(traitMarker.marker)) {
+          console.log(`Found trait in module "${module.name}", option "${option.name}"`);
+
+          // Create trait object
+          const trait = {
+            name: option.name,
+            description: option.description,
+            source: module.name,
+            marker: traitMarker.marker,
+            moduleId: module._id,
+            optionId: option._id || option.name
+          };
+
+          // Add to appropriate collection
+          delta.traitCollections[traitMarker.type].push(trait);
+        }
+      }
+    }
+  }
+
+  console.log('Trait collections:', delta.traitCollections);
+  console.log('=== TRAIT PARSING COMPLETE ===');
 }
 
 /**
@@ -215,10 +365,10 @@ export function applyParsedEffectsToCharacter(actor, delta) {
   // Convert FoundryVTT actor system to format expected by applyDeltaToCharacter
   const character = {
     attributes: actor.system.attributes || {},
-    skills: actor.system.skills || {},
-    weaponSkills: actor.system.weaponSkills || {},
-    magicSkills: actor.system.magicSkills || {},
-    craftingSkills: actor.system.craftingSkills || {},
+    skills: actor.system.basic || {},  // FoundryVTT stores basic skills in 'basic', not 'skills'
+    weaponSkills: actor.system.weapon || {},  // FoundryVTT stores weapon skills in 'weapon'
+    magicSkills: actor.system.magic || {},   // FoundryVTT stores magic skills in 'magic'
+    craftingSkills: actor.system.crafting || {},  // FoundryVTT stores crafting skills in 'crafting'
     mitigation: actor.system.mitigation || {},
     resources: actor.system.resources || {},
     movement: actor.system.movement || 0,
@@ -232,10 +382,10 @@ export function applyParsedEffectsToCharacter(actor, delta) {
   // Convert back and update the actor
   const updateData = {
     'system.attributes': character.attributes,
-    'system.skills': character.skills,
-    'system.weaponSkills': character.weaponSkills,
-    'system.magicSkills': character.magicSkills,
-    'system.craftingSkills': character.craftingSkills,
+    'system.basic': character.skills,        // Convert back to FoundryVTT structure
+    'system.weapon': character.weaponSkills,  // Convert back to FoundryVTT structure
+    'system.magic': character.magicSkills,   // Convert back to FoundryVTT structure
+    'system.crafting': character.craftingSkills,  // Convert back to FoundryVTT structure
     'system.mitigation': character.mitigation,
     'system.resources': character.resources,
     'system.movement': character.movement,
@@ -312,13 +462,14 @@ export function parseAndApplyCharacterEffectsInPlace(actor) {
  */
 export async function parseAndApplyCharacterEffects(actor) {
   try {
-    console.log('Starting full character parsing with reset for:', actor.name);
-
     // First, reset all calculated values to base (like prepareBaseData does)
     await resetCharacterToBase(actor);
 
     // Parse all character effects
     const combinedDelta = parseCharacter(actor);
+
+    // Parse and create ability items
+    await parseAbilities(actor, combinedDelta);
 
     // Apply effects to character
     const updateData = applyParsedEffectsToCharacter(actor, combinedDelta);
@@ -357,32 +508,40 @@ async function resetCharacterToBase(actor) {
   // Reset health max to base (will be recalculated)
   updateData['system.resources.health.max'] = 0;
 
-  // Reset all skills to zero
-  if (actor.system.skills) {
-    Object.keys(actor.system.skills).forEach(skillKey => {
-      updateData[`system.skills.${skillKey}.value`] = 0;
-      updateData[`system.skills.${skillKey}.diceTierModifier`] = 0;
+  // Reset basic skills to zero (stored in system.basic in FoundryVTT)
+  if (actor.system.basic) {
+    Object.keys(actor.system.basic).forEach(skillKey => {
+      updateData[`system.basic.${skillKey}.value`] = 0;
+      if (actor.system.basic[skillKey].diceTierModifier !== undefined) {
+        updateData[`system.basic.${skillKey}.diceTierModifier`] = 0;
+      }
     });
   }
 
-  // Reset weapon/magic/crafting skills to base values
-  ['weaponSkills', 'magicSkills', 'craftingSkills'].forEach(category => {
-    if (actor.system[category]) {
-      Object.keys(actor.system[category]).forEach(skillKey => {
-        const skill = actor.system[category][skillKey];
+  // Reset weapon/magic/crafting skills to base values (using correct FoundryVTT structure)
+  const skillCategories = [
+    { system: 'weapon', name: 'weapon' },
+    { system: 'magic', name: 'magic' },
+    { system: 'crafting', name: 'crafting' }
+  ];
 
-        updateData[`system.${category}.${skillKey}.value`] = 0;
-        updateData[`system.${category}.${skillKey}.diceTierModifier`] = 0;
+  skillCategories.forEach(({ system: systemKey, name: categoryName }) => {
+    if (actor.system[systemKey]) {
+      Object.keys(actor.system[systemKey]).forEach(skillKey => {
+        const skill = actor.system[systemKey][skillKey];
+
+        updateData[`system.${systemKey}.${skillKey}.value`] = 0;
+        updateData[`system.${systemKey}.${skillKey}.diceTierModifier`] = 0;
 
         // Reset talent to base talent (character creation choice) if it exists
         if (skill.baseTalent !== undefined) {
-          updateData[`system.${category}.${skillKey}.talent`] = skill.baseTalent;
-          console.log(`  Reset ${category}.${skillKey} talent to base: ${skill.baseTalent}`);
+          updateData[`system.${systemKey}.${skillKey}.talent`] = skill.baseTalent;
+          console.log(`  Reset ${categoryName}.${skillKey} talent to base: ${skill.baseTalent}`);
         } else {
           // If no baseTalent stored, use current talent as base and store it
-          updateData[`system.${category}.${skillKey}.baseTalent`] = skill.talent || 0;
-          updateData[`system.${category}.${skillKey}.talent`] = skill.talent || 0;
-          console.log(`  Stored base talent for ${category}.${skillKey}: ${skill.talent || 0}`);
+          updateData[`system.${systemKey}.${skillKey}.baseTalent`] = skill.talent || 0;
+          updateData[`system.${systemKey}.${skillKey}.talent`] = skill.talent || 0;
+          console.log(`  Stored base talent for ${categoryName}.${skillKey}: ${skill.talent || 0}`);
         }
       });
     }
@@ -443,5 +602,175 @@ export async function migrateCharacterBaseTalents(actor) {
     console.log('Base talent migration complete for:', actor.name);
   } else {
     console.log('No migration needed for:', actor.name);
+  }
+}
+
+/**
+ * Parse abilities (actions/reactions/passives) and create items
+ * @param {Object} actor - The actor to process
+ * @param {Object} delta - The delta containing abilities to process
+ */
+export async function parseAbilities(actor, delta) {
+  console.log('=== PARSING ABILITIES ===');
+  console.log('Actor name:', actor.name);
+
+  // Prevent infinite loops during item creation
+  if (actor._isCreatingAbilities) {
+    console.log('Skipping ability parsing (already creating abilities)');
+    return;
+  }
+
+  if (!delta.abilities || delta.abilities.length === 0) {
+    console.log('No abilities to parse');
+    return;
+  }
+
+  console.log(`Found ${delta.abilities.length} abilities to process:`, delta.abilities);
+
+  // Set flag to prevent re-parsing during item creation
+  actor._isCreatingAbilities = true;
+
+  try {
+    for (const ability of delta.abilities) {
+      await processAbility(actor, ability);
+    }
+  } finally {
+    // Always clear the flag
+    actor._isCreatingAbilities = false;
+  }
+
+  console.log('=== ABILITY PARSING COMPLETE ===');
+}
+
+/**
+ * Process a single ability and create/update the corresponding item
+ * @param {Object} actor - The actor to process
+ * @param {Object} ability - The ability data from delta
+ */
+async function processAbility(actor, ability) {
+  console.log(`Processing ability:`, ability);
+
+  const { type, daily, magic, energy, name, description } = ability;
+
+  // Use the provided name or generate one if not available
+  const abilityName = name || (() => {
+    const dailyText = daily ? 'Daily' : '';
+    const magicText = magic ? 'Magic' : '';
+    const parts = [dailyText, magicText, `${type.charAt(0).toUpperCase() + type.slice(1)} Ability`].filter(part => part);
+    return parts.join(' ');
+  })();
+
+  // Try to find the ability in compendiums first
+  let abilityData = await findAbilityInCompendium(type, daily, magic, energy, abilityName);
+
+  if (!abilityData) {
+    // Create a basic ability item if not found in compendium
+    abilityData = {
+      name: abilityName,
+      type: type,
+      system: {
+        description: description || '', // Use the description from the module option
+        source: "Character Progression",
+        energy: energy,
+        daily: daily,
+        magic: magic,
+        used: false,
+        abilityType: type,
+        anyventure_id: `generated_${type}_${Date.now()}` // Temporary ID
+      }
+    };
+  }
+
+  // Check if this ability already exists on the character (by anyventure_id or name)
+  const existingAbility = actor.items.find(item =>
+    (item.system?.anyventure_id && item.system.anyventure_id === abilityData.system.anyventure_id) ||
+    (item.type === type && item.name === abilityData.name)
+  );
+
+  if (existingAbility) {
+    console.log(`Ability "${abilityData.name}" already exists, skipping creation`);
+    return;
+  }
+
+  console.log(`Creating ability item:`, abilityData);
+
+  try {
+    const createdItem = await actor.createEmbeddedDocuments('Item', [abilityData]);
+    console.log(`✓ Created ability: ${abilityData.name}`);
+  } catch (error) {
+    console.error(`✗ Failed to create ability "${abilityData.name}":`, error);
+  }
+}
+
+/**
+ * Search for an ability in compendiums
+ * @param {string} type - The ability type (action, reaction, passive)
+ * @param {boolean} daily - Whether it's a daily ability
+ * @param {boolean} magic - Whether it's a magical ability
+ * @param {number} energy - Energy cost
+ * @param {string} name - The name of the ability
+ * @returns {Object|null} - The ability data if found, null otherwise
+ */
+async function findAbilityInCompendium(type, daily, magic, energy, name) {
+  console.log(`Searching compendiums for ability: "${name}" (${type}, daily: ${daily}, magic: ${magic}, energy: ${energy})`);
+
+  try {
+    // Look for actions/reactions/passives compendium in anyventure-core-data
+    const pack = game.packs.get('anyventure-core-data.actions') ||
+                 game.packs.get('anyventure-core-data.abilities');
+
+    if (!pack) {
+      console.log('No abilities compendium found, will create basic ability');
+      return null;
+    }
+
+    // Search the compendium for abilities of the specified type
+    const packContent = await pack.getDocuments();
+
+    // Look for ability matching type, daily, magic, and energy properties
+    const matchingAbility = packContent.find(item =>
+      item.type === type &&
+      item.system?.abilityType === type &&
+      item.system?.daily === daily &&
+      item.system?.magic === magic &&
+      item.system?.energy === energy
+    );
+
+    // If no exact match, look for any ability of the correct type as fallback
+    const fallbackAbility = !matchingAbility ? packContent.find(item =>
+      item.type === type &&
+      item.system?.abilityType === type
+    ) : null;
+
+    const abilityToUse = matchingAbility || fallbackAbility;
+
+    if (abilityToUse) {
+      const exactMatch = !!matchingAbility;
+      console.log(`Found ability in compendium: ${abilityToUse.name} (${exactMatch ? 'exact match' : 'fallback match'})`);
+
+      // Convert to plain object for item creation
+      const abilityData = {
+        name: abilityToUse.name,
+        type: abilityToUse.type,
+        system: abilityToUse.system.toObject ? abilityToUse.system.toObject() : { ...abilityToUse.system }
+      };
+
+      // If using fallback, update the properties to match what was requested
+      if (!exactMatch) {
+        abilityData.system.daily = daily;
+        abilityData.system.magic = magic;
+        abilityData.system.energy = energy;
+        console.log(`Updated fallback ability properties: daily=${daily}, magic=${magic}, energy=${energy}`);
+      }
+
+      return abilityData;
+    }
+
+    console.log(`No matching ${type} ability found in compendium`);
+    return null;
+
+  } catch (error) {
+    console.error('Error searching compendium for abilities:', error);
+    return null;
   }
 }

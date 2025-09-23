@@ -30,8 +30,6 @@ export class AnyventureActor extends Actor {
    * This runs before embedded documents and active effects
    */
   _prepareCharacterBaseData() {
-    console.log('Preparing base data for:', this.name);
-
     // Don't process if character isn't fully created yet
     if (!this.system.created) {
       return;
@@ -208,7 +206,6 @@ export class AnyventureActor extends Actor {
    * This runs after base data and embedded documents
    */
   _prepareCharacterData(actorData) {
-    console.log("PREPARE DERIVED DATA");
     if (actorData.type !== 'character') return;
 
     const systemData = actorData.system;
@@ -239,7 +236,6 @@ export class AnyventureActor extends Actor {
     // - Weapon bonuses/penalties
     // - Armor effects
     // - Equipment-based skill modifiers
-    console.log('Applying equipment bonuses (placeholder)');
   }
 
   /**
@@ -252,7 +248,6 @@ export class AnyventureActor extends Actor {
     // - Status effects
     // - Temporary bonuses/penalties
     // - Conditional modifiers
-    console.log('Applying conditions (placeholder)');
   }
 
   /**
@@ -349,9 +344,35 @@ export class AnyventureActor extends Actor {
    * Calculate movement values
    */
   _calculateMovement(systemData) {
-    // Set current movement to standard if not already set
-    if (!systemData.movement.current) {
-      systemData.movement.current = systemData.movement.standard;
+    // Handle both old (number) and new (object) movement formats
+    if (typeof systemData.movement === 'number') {
+      // Convert old number format to new object format matching website structure
+      const movementValue = systemData.movement;
+      systemData.movement = {
+        walk: movementValue,
+        swim: 0,
+        climb: 0,
+        fly: 0
+      };
+    } else if (systemData.movement && typeof systemData.movement === 'object') {
+      // Ensure walk movement is set if not already set
+      if (systemData.movement.walk === undefined) {
+        systemData.movement.walk = 5;
+      }
+      // Handle old "standard/current" format conversion
+      if (systemData.movement.standard !== undefined) {
+        systemData.movement.walk = systemData.movement.standard;
+        delete systemData.movement.standard;
+        delete systemData.movement.current;
+      }
+    } else {
+      // Create default movement object if movement is undefined
+      systemData.movement = {
+        walk: 5,
+        swim: 0,
+        climb: 0,
+        fly: 0
+      };
     }
   }
 
@@ -440,7 +461,6 @@ export class AnyventureActor extends Actor {
       actor: this,
       rollCallback: (roll, data) => {
         // Optional callback for additional processing
-        console.log(`${skillName} roll completed:`, roll.total, data);
       }
     });
   }

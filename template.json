@@ -53,8 +53,7 @@
           }
         },
         "movement": {
-          "standard": 5,
-          "current": 5,
+          "walk": 5,
           "swim": 0,
           "climb": 0,
           "fly": 0
@@ -244,6 +243,10 @@
           "vocals": {
             "value": 0,
             "talent": 0
+          },
+          "brass": {
+            "value": 0,
+            "talent": 0
           }
         }
       },
@@ -299,7 +302,7 @@
     }
   },
   "Item": {
-    "types": ["module", "ancestry", "culture", "trait", "item", "spell", "language"],
+    "types": ["module", "ancestry", "culture", "trait", "item", "spell", "language", "action", "reaction", "passive"],
     "templates": {
       "base": {
         "description": "",
@@ -309,6 +312,13 @@
         "weight": 0,
         "value": 0,
         "rarity": "common"
+      },
+      "ability": {
+        "energy": 0,
+        "daily": false,
+        "used": false,
+        "anyventure_id": "",
+        "magic": false
       }
     },
     "module": {
@@ -476,6 +486,18 @@
       "templates": ["base"],
       "magic": 0,
       "talent": 0
+    },
+    "action": {
+      "templates": ["base", "ability"],
+      "abilityType": "action"
+    },
+    "reaction": {
+      "templates": ["base", "ability"],
+      "abilityType": "reaction"
+    },
+    "passive": {
+      "templates": ["base", "ability"],
+      "abilityType": "passive"
     }
   }
 }

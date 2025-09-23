@@ -24,7 +24,7 @@
   /* ----------------------------------------- */
   
   &.item {
-    .window-content {
+    .window-content { 
       display: flex;
       flex-direction: column;
     }
@@ -299,7 +299,7 @@
   }
 
   .character-header {
-    padding: $spacing-lg;
+    padding: $spacing-md $spacing-lg $spacing-lg $spacing-lg;
     background: linear-gradient(135deg, $purple-dark 0%, $purple-medium 100%);
     border-bottom: 1px solid $border-gold;
     text-align: center;
@@ -322,7 +322,7 @@
     }
 
     .charname {
-      margin: 0;
+      margin: $spacing-md 0 0 0;
       
       input {
         background: transparent;
@@ -357,7 +357,7 @@
   .resource-group {
     display: flex;
     flex-direction: column;
-    gap: $spacing-md;
+    gap: 6px;
   }
 
   .resource-bar {
@@ -477,8 +477,7 @@
   .mitigations-container {
     padding: $spacing-md;
     background: rgba($purple-darkest, 0.2);
-    flex: 1;
-    overflow-y: auto;
+    flex: 0 0 auto;
 
     .section-header {
       color: $gold-bright;
@@ -568,6 +567,99 @@
       }
 
       &.resist-value {
+        color: $gold-muted;
+        font-weight: bold;
+      }
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Movement Table                           */
+  /* ----------------------------------------- */
+
+  .movement-container {
+    padding: $spacing-md;
+    background: rgba($purple-darkest, 0.2);
+    flex: 0 0 auto;
+
+    .section-header {
+      color: $text-gold;
+      font-size: $font-size-small;
+      margin: 0 0 $spacing-md 0;
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      i {
+        font-size: $font-size-normal;
+      }
+    }
+  }
+
+  .movement-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: rgba($purple-darkest, 0.5);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-md;
+    overflow: hidden;
+
+    thead {
+      background: $purple-medium;
+
+      th {
+        padding: $spacing-xs $spacing-sm;
+        color: $text-gold;
+        font-weight: bold;
+        font-size: $font-size-tiny;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid $border-gold;
+      }
+    }
+
+    tbody {
+      tr {
+        transition: $transition-fast;
+
+        &:hover {
+          background: $bg-hover;
+        }
+
+        &:not(:last-child) td {
+          border-bottom: 1px solid $border-light;
+        }
+      }
+    }
+
+    td {
+      padding: $spacing-xs $spacing-sm;
+      text-align: center;
+      font-size: $font-size-medium;
+
+      &.movement-type {
+        text-align: left;
+        color: $text-medium;
+        font-weight: 500;
+
+        i {
+          margin-right: $spacing-xs;
+          color: $gold-muted;
+          width: 12px;
+          font-size: $font-size-tiny;
+          text-align: center;
+        }
+      }
+
+      &.movement-value {
+        color: $gold-muted;
+        font-weight: bold;
+      }
+
+      &.sprint-value {
         color: $gold-muted;
         font-weight: bold;
       }
@@ -1012,6 +1104,14 @@
         margin-left: $spacing-xs;
         min-width: 40px;
         display: inline-block;
+
+        &.skill-upgraded {
+          color: #28a745; // Green for upgraded skills
+        }
+
+        &.skill-downgraded {
+          color: #dc3545; // Red for downgraded skills
+        }
       }
     }
   }
@@ -1022,6 +1122,20 @@
 
   .specialized-skills {
     margin-top: $spacing-md;
+  }
+
+  // Ensure skills tab scrolls like Equipment tab
+  .tab.skills.active {
+    display: flex; // only when active; otherwise tabs stay hidden
+    flex-direction: column;
+    min-height: 0; // allow children to shrink and scroll
+    overflow-y: auto; // scroll the tab like equipment
+    overflow-x: hidden;
+
+    .skills-page {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
   }
 
   .skill-category-block {
@@ -1078,6 +1192,18 @@
       cursor: pointer;
       font-weight: 500;
       font-size: $font-size-medium;
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+
+      .skill-icon {
+        width: 24px;
+        height: 24px;
+        margin-right: $spacing-xs;
+        vertical-align: middle;
+        display: inline-block;
+        flex: 0 0 24px;
+      }
     }
 
     .skill-value-group {
@@ -1125,7 +1251,37 @@
         margin-left: $spacing-xs;
         min-width: 40px;
         display: inline-block;
+
+        &.skill-upgraded {
+          color: #28a745; // Green for upgraded skills
+        }
+
+        &.skill-downgraded {
+          color: #dc3545; // Red for downgraded skills
+        }
       }
+    }
+
+    .skill-controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 24px;
+
+      a {
+        color: $gold-muted;
+        cursor: pointer;
+        transition: $transition-fast;
+      }
+
+      a:hover {
+        color: $gold-bright;
+      }
+    }
+
+    .skill-controls--spacer {
+      pointer-events: none;
+      opacity: 0;
     }
   }
 
@@ -2387,6 +2543,250 @@
           color: $gold-medium;
         }
       }
+    }
+  }
+
+  // Traits section styling
+  .traits-modules-section {
+    .tab.traits {
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 8px;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: rgba($purple-dark, 0.2);
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba($gold-medium, 0.6);
+        border-radius: 3px;
+
+        &:hover {
+          background: rgba($gold-medium, 0.8);
+        }
+      }
+    }
+
+    .trait-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+
+      .trait-item {
+        display: flex;
+        align-items: flex-start;
+        background: linear-gradient(135deg, $purple-dark, rgba($purple-dark, 0.9));
+        border: 1px solid rgba($gold-medium, 0.3);
+        border-radius: 4px;
+        padding: 6px 10px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, rgba($purple-dark, 0.9), $purple-dark);
+          border-color: rgba($gold-medium, 0.5);
+        }
+
+        .trait-content {
+          flex: 1;
+          min-width: 0;
+
+          .trait-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: $gold-medium;
+            margin: 0 0 2px 0;
+            line-height: 1.2;
+          }
+
+          .trait-description {
+            font-size: 9px;
+            color: $text-light;
+            margin: 0;
+            line-height: 1.3;
+            word-wrap: break-word;
+          }
+        }
+      }
+
+      .trait-empty {
+        text-align: center;
+        color: #6c757d;
+        font-style: italic;
+        font-size: 10px;
+        padding: 10px;
+        background: #f8f9fa;
+        border: 1px dashed #dee2e6;
+        border-radius: 4px;
+      }
+    }
+
+    .trait-category {
+      margin-bottom: 12px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .trait-category-header {
+        font-size: 12px;
+        font-weight: 600;
+        color: #495057;
+        margin: 0 0 6px 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        i {
+          font-size: 11px;
+          color: #6c757d;
+        }
+      }
+    }
+  }
+
+  // Ability items in Moves tab
+  .moves-section {
+    .ability-item {
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, $purple-dark, rgba($purple-dark, 0.9));
+      border: 1px solid rgba($gold-medium, 0.3);
+      border-radius: 4px;
+      padding: 8px;
+      margin-bottom: 8px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: linear-gradient(135deg, rgba($purple-dark, 0.9), $purple-dark);
+        border-color: rgba($gold-medium, 0.5);
+      }
+
+      .ability-icon {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        margin-right: 10px;
+
+        img {
+          width: 32px;
+          height: 32px;
+          border: 1px solid rgba($gold-medium, 0.3);
+          border-radius: 2px;
+          object-fit: cover;
+        }
+      }
+
+      .ability-content {
+        flex: 1;
+        min-width: 0;
+
+        .ability-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 4px;
+
+          .ability-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: $gold-medium;
+            margin: 0;
+            flex: 0 0 auto;
+          }
+
+          .ability-energy {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 10px;
+            color: $text-light;
+            flex: 0 0 auto;
+
+            i {
+              font-size: 9px;
+              color: $gold-medium;
+            }
+          }
+
+          .ability-tags {
+            display: flex;
+            gap: 4px;
+            flex: 0 0 auto;
+
+            .daily-badge, .magic-badge {
+              padding: 2px 6px;
+              border-radius: 3px;
+              font-size: 9px;
+              font-weight: 600;
+              text-transform: uppercase;
+            }
+
+            .daily-badge {
+              background: rgba($gold-dark, 0.3);
+              color: $gold-medium;
+              border: 1px solid rgba($gold-medium, 0.4);
+            }
+
+            .magic-badge {
+              background: rgba($purple-medium, 0.3);
+              color: $text-light;
+              border: 1px solid rgba($purple-medium, 0.4);
+            }
+          }
+        }
+
+        .ability-description {
+          font-size: 11px;
+          color: $text-light;
+          margin: 0;
+          line-height: 1.3;
+        }
+      }
+
+      .ability-controls {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: 10px;
+
+        .item-control {
+          display: inline-block;
+          width: 24px;
+          height: 24px;
+          line-height: 24px;
+          text-align: center;
+          color: $text-medium;
+          cursor: pointer;
+          transition: color 0.2s ease;
+
+          &:hover {
+            color: $gold-medium;
+          }
+
+          &.item-delete:hover {
+            color: #e74c3c;
+          }
+
+          i {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+
+    .empty-message {
+      text-align: center;
+      color: $text-medium;
+      font-style: italic;
+      padding: 20px;
+      font-size: 12px;
     }
   }
 }

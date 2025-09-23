@@ -41,6 +41,41 @@ Hooks.once('init', async function() {
     makeDefault: true 
   });
 
+  // Core Handlebars helpers needed by preloaded templates
+  Handlebars.registerHelper('sum', function(a, b) {
+    const numA = Number(a) || 0;
+    const numB = Number(b) || 0;
+    return numA + numB;
+  });
+
+  Handlebars.registerHelper('subtract', function(a, b) {
+    const numA = Number(a) || 0;
+    const numB = Number(b) || 0;
+    return numA - numB;
+  });
+
+  Handlebars.registerHelper('eq', function(a, b) {
+    return a === b;
+  });
+
+  Handlebars.registerHelper('lt', function(a, b) {
+    return Number(a) < Number(b);
+  });
+
+  Handlebars.registerHelper('times', function(n, block) {
+    let accum = '';
+    for (let i = 0; i < n; i++) {
+      const data = Handlebars.createFrame(block.data || {});
+      data.index = i;
+      accum += block.fn(i, { data });
+    }
+    return accum;
+  });
+
+  Handlebars.registerHelper('starFilled', function(index, talent) {
+    return Number(index) < Number(talent);
+  });
+
   // Preload Handlebars templates
   return preloadHandlebarsTemplates();
 });
@@ -293,6 +328,45 @@ Hooks.once('ready', async function() {
     return dice[Math.min(level, 6)] || 'd4';
   });
 
+  // Helper for skill dice with upgrade/downgrade support (using diceTierModifier)
+  Handlebars.registerHelper('skillDieWithUpgrade', function(level, diceTierModifier) {
+    // Dice progression table: [downgraded, base, upgraded]
+    const diceTable = [
+      ['d2', 'd4', 'd6'],   // Level 0
+      ['d4', 'd6', 'd8'],   // Level 1
+      ['d6', 'd8', 'd10'],  // Level 2
+      ['d8', 'd10', 'd12'], // Level 3
+      ['d10', 'd12', 'd16'], // Level 4
+      ['d12', 'd16', 'd20'], // Level 5
+      ['d16', 'd20', 'd30']  // Level 6
+    ];
+
+    const skillLevel = Math.min(Math.max(level || 0, 0), 6);
+    const tierModifier = diceTierModifier || 0;
+    const upgradeLevel = Math.min(Math.max(tierModifier + 1, 0), 2); // Convert -1,0,1 to 0,1,2
+
+    return diceTable[skillLevel][upgradeLevel];
+  });
+
+  // Helper for skill upgrade CSS class (using diceTierModifier)
+  Handlebars.registerHelper('skillUpgradeClass', function(diceTierModifier) {
+    const tierModifier = diceTierModifier || 0;
+    if (tierModifier > 0) return 'skill-upgraded';
+    if (tierModifier < 0) return 'skill-downgraded';
+    return '';
+  });
+
+  // Helper to remove action/reaction prefix from ability names
+  Handlebars.registerHelper('removeActionPrefix', function(name) {
+    if (!name) return '';
+    // If the name contains a colon, return everything after it (trimmed)
+    if (name.includes(':')) {
+      return name.split(':').slice(1).join(':').trim();
+    }
+    // Otherwise return the full name
+    return name;
+  });
+
   // Helper for checking if module option is selected
   Handlebars.registerHelper('isSelected', function(option) {
     return option.selected === true;
@@ -321,6 +395,13 @@ Hooks.once('ready', async function() {
     return a - b;
   });
 
+  // Helper for addition
+  Handlebars.registerHelper('sum', function(a, b) {
+    const numA = Number(a) || 0;
+    const numB = Number(b) || 0;
+    return numA + numB;
+  });
+
   // Helper for calculating percentage
   Handlebars.registerHelper('percentage', function(value, max) {
     if (!max || max === 0) return 0;
@@ -328,12 +409,25 @@ Hooks.once('ready', async function() {
   });
 
   // Helper for iterating a specific number of times
+  // Provides an @index inside the block (0..n-1)
   Handlebars.registerHelper('times', function(n, block) {
     let accum = '';
     for (let i = 0; i < n; i++) {
-      accum += block.fn(i);
+      const data = Handlebars.createFrame(block.data || {});
+      data.index = i;
+      accum += block.fn(i, { data });
     }
     return accum;
+  });
+
+  // Comparison helper: less-than
+  Handlebars.registerHelper('lt', function(a, b) {
+    return Number(a) < Number(b);
+  });
+
+  // Helper: is star filled given index and talent
+  Handlebars.registerHelper('starFilled', function(index, talent) {
+    return Number(index) < Number(talent);
   });
 
   // Helper to check if any skill in a category has talent > 0
@@ -353,6 +447,12 @@ Hooks.once('ready', async function() {
 
     const grouped = {};
     options.forEach(option => {
+      // Safety check: ensure option and location exist
+      if (!option || !option.location || typeof option.location !== 'string') {
+        console.warn('Invalid option found in groupByTier:', option);
+        return;
+      }
+
       const tierMatch = option.location.match(/^(\d+)/);
       if (tierMatch) {
         const tier = tierMatch[1];
@@ -459,7 +559,8 @@ async function preloadHandlebarsTemplates() {
     "systems/anyventure/templates/partials/spells.hbs",
     "systems/anyventure/templates/partials/modules.hbs",
     "systems/anyventure/templates/partials/mitigations.hbs",
-    
+    "systems/anyventure/templates/partials/movement.hbs",
+
     // Item Partial templates
     "systems/anyventure/templates/partials/items/item-header.hbs",
     "systems/anyventure/templates/partials/items/basic-info.hbs",

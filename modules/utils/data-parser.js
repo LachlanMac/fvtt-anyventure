@@ -134,6 +134,12 @@ export function createEmptyDelta() {
     // Immunities (I-series)
     immunities: [],
 
+    // Special abilities (XINE, YINE, ZINE)
+    abilities: [],
+
+    // Traits (TA, TG, TC)
+    traits: [],
+
     // Conditionals (C-series)
     conditionals: {
       noArmor: [],
@@ -235,6 +241,50 @@ function parseIndividualEffect(effect, delta) {
   const conditionalMatch = effect.match(/^C([A-G])\[([^\]]+)\]$/);
   if (conditionalMatch) {
     parseConditionalEffect(conditionalMatch, delta);
+    return;
+  }
+
+  // Handle trait markers
+  const traitMatch = effect.match(/^(T[AGC])$/);
+  if (traitMatch) {
+    const traitType = traitMatch[1];
+    console.log(`[DataParser] Trait marker: ${traitType}`);
+
+    // Collect trait information for later processing
+    if (!delta.traits) delta.traits = [];
+    delta.traits.push({
+      type: traitType === 'TA' ? 'ancestry' : traitType === 'TG' ? 'general' : 'crafting',
+      marker: traitType
+    });
+    return;
+  }
+
+  // Handle personality marker (legacy)
+  if (effect === 'TP') {
+    console.log(`[DataParser] Personality marker: TP (no mechanical effect)`);
+    return;
+  }
+
+  // Handle special action/reaction abilities (format: XIME=2, ZINE=1, etc.)
+  // Note: This should not be called directly - abilities should be parsed with their names
+  const abilityMatch = effect.match(/^([XZ])([ID])([MN])E=(\d+)$/);
+  if (abilityMatch) {
+    const [_, type, frequency, magicType, energy] = abilityMatch;
+    const abilityType = type === 'X' ? 'action' : 'reaction';
+    const isDaily = frequency === 'D';
+    const isMagic = magicType === 'M';
+
+    console.log(`[DataParser] Special ability code without name: ${effect} (${abilityType}, ${isDaily ? 'daily' : 'non-daily'}, ${isMagic ? 'magic' : 'non-magic'}, ${energy} energy)`);
+
+    // These don't have direct mechanical stat effects, they grant abilities
+    if (!delta.abilities) delta.abilities = [];
+    delta.abilities.push({
+      type: abilityType,
+      daily: isDaily,
+      magic: isMagic,
+      energy: parseInt(energy),
+      name: null // Name should be provided separately
+    });
     return;
   }
 

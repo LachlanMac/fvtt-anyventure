@@ -1,0 +1,38 @@
+{{!-- Movement Table --}}
+<div class="movement-container">
+  <h3 class="section-header">
+    <i class="fas fa-running"></i>
+    Movement
+  </h3>
+  <table class="movement-table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Normal</th>
+        <th>Sprint</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="movement-type"><i class="fas fa-walking"></i> Walk</td>
+        <td class="movement-value">{{system.movement.walk}}</td>
+        <td class="sprint-value">{{multiply system.movement.walk 2}}</td>
+      </tr>
+      <tr>
+        <td class="movement-type"><i class="fas fa-swimmer"></i> Swim</td>
+        <td class="movement-value">{{system.movement.swim}}</td>
+        <td class="sprint-value">{{multiply system.movement.swim 2}}</td>
+      </tr>
+      <tr>
+        <td class="movement-type"><i class="fas fa-mountain"></i> Climb</td>
+        <td class="movement-value">{{system.movement.climb}}</td>
+        <td class="sprint-value">{{multiply system.movement.climb 2}}</td>
+      </tr>
+      <tr>
+        <td class="movement-type"><i class="fas fa-feather"></i> Fly</td>
+        <td class="movement-value">{{system.movement.fly}}</td>
+        <td class="sprint-value">{{multiply system.movement.fly 2}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
