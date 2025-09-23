@@ -1,0 +1,166 @@
+<form class="{{cssClass}} {{item.type}} flexcol" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  {{> "systems/anyventure/templates/partials/items/item-header.hbs"}}
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="basic">Basic</a>
+    <a class="item" data-tab="properties">Properties</a>
+    <a class="item" data-tab="effects">Effects</a>
+    <a class="item" data-tab="description">Description</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    {{!-- Basic Tab --}}
+    <div class="tab" data-group="primary" data-tab="basic">
+      <div class="item-basic-info">
+
+        <div class="form-group">
+          <label>Item Type</label>
+          <select name="system.itemType">
+            <option value="tool" {{#if (eq system.itemType "tool")}}selected{{/if}}>Tool</option>
+            <option value="consumable" {{#if (eq system.itemType "consumable")}}selected{{/if}}>Consumable</option>
+            <option value="crafting" {{#if (eq system.itemType "crafting")}}selected{{/if}}>Crafting Material</option>
+            <option value="treasure" {{#if (eq system.itemType "treasure")}}selected{{/if}}>Treasure</option>
+            <option value="misc" {{#if (eq system.itemType "misc")}}selected{{/if}}>Miscellaneous</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Weight</label>
+          <input type="number" name="system.weight" value="{{system.weight}}" step="0.1" placeholder="0"/>
+        </div>
+
+        <div class="form-group">
+          <label>Value (coins)</label>
+          <input type="number" name="system.value" value="{{system.value}}" placeholder="0"/>
+        </div>
+
+        <div class="form-group">
+          <label>Rarity</label>
+          <select name="system.rarity">
+            <option value="common" {{#if (eq system.rarity "common")}}selected{{/if}}>Common</option>
+            <option value="uncommon" {{#if (eq system.rarity "uncommon")}}selected{{/if}}>Uncommon</option>
+            <option value="rare" {{#if (eq system.rarity "rare")}}selected{{/if}}>Rare</option>
+            <option value="legendary" {{#if (eq system.rarity "legendary")}}selected{{/if}}>Legendary</option>
+          </select>
+        </div>
+
+        {{#if (eq system.itemType "consumable")}}
+        <div class="form-group">
+          <label>Consumable Category</label>
+          <select name="system.consumable_category">
+            <option value="potion" {{#if (eq system.consumable_category "potion")}}selected{{/if}}>Potion</option>
+            <option value="food" {{#if (eq system.consumable_category "food")}}selected{{/if}}>Food</option>
+            <option value="poison" {{#if (eq system.consumable_category "poison")}}selected{{/if}}>Poison</option>
+            <option value="scroll" {{#if (eq system.consumable_category "scroll")}}selected{{/if}}>Scroll</option>
+            <option value="bomb" {{#if (eq system.consumable_category "bomb")}}selected{{/if}}>Bomb</option>
+            <option value="other" {{#if (eq system.consumable_category "other")}}selected{{/if}}>Other</option>
+          </select>
+        </div>
+        {{/if}}
+
+        <div class="form-group">
+          <label>Source</label>
+          <input type="text" name="system.source" value="{{system.source}}" placeholder="Source book or origin"/>
+        </div>
+
+      </div>
+    </div>
+
+    {{!-- Properties Tab --}}
+    <div class="tab" data-group="primary" data-tab="properties">
+      <div class="item-properties">
+
+        {{!-- Resource Bonuses --}}
+        {{> "systems/anyventure/templates/partials/items/resource-bonuses.hbs"}}
+
+        {{!-- Skill Bonuses --}}
+        {{> "systems/anyventure/templates/partials/items/skill-bonuses.hbs"}}
+
+        {{!-- Mitigation --}}
+        {{> "systems/anyventure/templates/partials/items/mitigation.hbs"}}
+
+        {{!-- Special Properties --}}
+        <div class="special-properties">
+          <h3>Special Properties</h3>
+          <div class="form-group">
+            <label>Encumbrance Penalty</label>
+            <input type="number" name="system.encumbrance_penalty" value="{{system.encumbrance_penalty}}" placeholder="0"/>
+            <small>Movement penalty when carried</small>
+          </div>
+
+          <div class="form-group">
+            <label>Properties Text</label>
+            <textarea name="system.properties" placeholder="Special properties, abilities, or notes">{{system.properties}}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" name="system.magical" {{#if system.magical}}checked{{/if}}/>
+              Magical Item
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" name="system.consumable" {{#if system.consumable}}checked{{/if}}/>
+              Single Use / Consumable
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {{!-- Effects Tab --}}
+    <div class="tab" data-group="primary" data-tab="effects">
+      <div class="item-effects">
+        <h3>Item Effects</h3>
+        <div class="effects-container">
+          {{#each system.effects as |effect index|}}
+          <div class="effect-item" data-index="{{index}}">
+            <div class="effect-header">
+              <input type="text" name="system.effects.{{index}}.name" value="{{effect.name}}" placeholder="Effect Name"/>
+              <button type="button" class="effect-delete" title="Delete Effect">×</button>
+            </div>
+            <div class="effect-fields">
+              <div class="form-group">
+                <label>Type</label>
+                <select name="system.effects.{{index}}.type">
+                  <option value="passive" {{#if (eq effect.type "passive")}}selected{{/if}}>Passive</option>
+                  <option value="active" {{#if (eq effect.type "active")}}selected{{/if}}>Active</option>
+                  <option value="triggered" {{#if (eq effect.type "triggered")}}selected{{/if}}>Triggered</option>
+                  <option value="consumable" {{#if (eq effect.type "consumable")}}selected{{/if}}>Consumable</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Duration</label>
+                <input type="text" name="system.effects.{{index}}.duration" value="{{effect.duration}}" placeholder="Duration (e.g., 1 hour, permanent)"/>
+              </div>
+              <div class="form-group">
+                <label>Description</label>
+                <textarea name="system.effects.{{index}}.description" placeholder="Effect description">{{effect.description}}</textarea>
+              </div>
+              <div class="form-group">
+                <label>Mechanical Data</label>
+                <input type="text" name="system.effects.{{index}}.data" value="{{effect.data}}" placeholder="Mechanical data string"/>
+              </div>
+            </div>
+          </div>
+          {{/each}}
+          <button type="button" class="add-effect" data-action="add-item-effect">Add New Effect</button>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Description Tab --}}
+    <div class="tab" data-group="primary" data-tab="description">
+      {{> "systems/anyventure/templates/partials/items/description.hbs"}}
+    </div>
+
+  </section>
+</form>

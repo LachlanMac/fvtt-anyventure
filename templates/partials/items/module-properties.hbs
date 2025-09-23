@@ -1,0 +1,136 @@
+{{!-- Module Properties Partial --}}
+<div class="module-properties-section">
+  <h3>Module Properties</h3>
+  
+  <div class="module-fields">
+    <div class="form-group">
+      <label>Ruleset</label>
+      <input type="number" name="system.ruleset" value="{{system.ruleset}}" data-dtype="Number" placeholder="1"/>
+    </div>
+    
+    <div class="form-group">
+      <label>Anyventure ID</label>
+      <input type="text" name="system.anyventure_id" value="{{system.anyventure_id}}" placeholder="Module ID"/>
+    </div>
+  </div>
+
+  {{!-- Module Options Grid --}}
+  <div class="module-options">
+    <h3>Module Options</h3>
+    
+    {{!-- Tier 1 --}}
+    <div class="module-tier">
+      <h4>Tier 1 (1 Point)</h4>
+      <div class="module-option">
+        <input type="checkbox" name="system.options.option_1.selected" {{#if system.options.option_1.selected}}checked{{/if}}/>
+        <div class="option-details">
+          <input type="text" name="system.options.option_1.name" value="{{system.options.option_1.name}}" placeholder="Option Name"/>
+          <textarea name="system.options.option_1.description" placeholder="Option Description">{{system.options.option_1.description}}</textarea>
+          <input type="text" name="system.options.option_1.data" value="{{system.options.option_1.data}}" placeholder="Option Data"/>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Tier 2 --}}
+    <div class="module-tier">
+      <h4>Tier 2 (2 Points - Choose One)</h4>
+      <div class="module-option">
+        <input type="radio" name="tier2" value="option_2a" {{#if system.options.option_2a.selected}}checked{{/if}}/>
+        <div class="option-details">
+          <input type="text" name="system.options.option_2a.name" value="{{system.options.option_2a.name}}" placeholder="Option 2A Name"/>
+          <textarea name="system.options.option_2a.description" placeholder="Option 2A Description">{{system.options.option_2a.description}}</textarea>
+          <input type="text" name="system.options.option_2a.data" value="{{system.options.option_2a.data}}" placeholder="Option 2A Data"/>
+        </div>
+      </div>
+      <div class="module-option">
+        <input type="radio" name="tier2" value="option_2b" {{#if system.options.option_2b.selected}}checked{{/if}}/>
+        <div class="option-details">
+          <input type="text" name="system.options.option_2b.name" value="{{system.options.option_2b.name}}" placeholder="Option 2B Name"/>
+          <textarea name="system.options.option_2b.description" placeholder="Option 2B Description">{{system.options.option_2b.description}}</textarea>
+          <input type="text" name="system.options.option_2b.data" value="{{system.options.option_2b.data}}" placeholder="Option 2B Data"/>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Tier 3 --}}
+    <div class="module-tier">
+      <h4>Tier 3 (3 Points)</h4>
+      <div class="module-option">
+        <input type="checkbox" name="system.options.option_3.selected" {{#if system.options.option_3.selected}}checked{{/if}}/>
+        <div class="option-details">
+          <input type="text" name="system.options.option_3.name" value="{{system.options.option_3.name}}" placeholder="Option Name"/>
+          <textarea name="system.options.option_3.description" placeholder="Option Description">{{system.options.option_3.description}}</textarea>
+          <input type="text" name="system.options.option_3.data" value="{{system.options.option_3.data}}" placeholder="Option Data"/>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Tier 4 --}}
+    <div class="module-tier">
+      <h4>Tier 4 (4 Points - Choose One)</h4>
+      <div class="module-option">
+        <input type="radio" name="tier4" value="option_4a" {{#if system.options.option_4a.selected}}checked{{/if}}/>
+        <div class="option-details">
+          <input type="text" name="system.options.option_4a.name" value="{{system.options.option_4a.name}}" placeholder="Option 4A Name"/>
+          <textarea name="system.options.option_4a.description" placeholder="Option 4A Description">{{system.options.option_4a.description}}</textarea>
+          <input type="text" name="system.options.option_4a.data" value="{{system.options.option_4a.data}}" placeholder="Option 4A Data"/>
+        </div>
+      </div>
+      <div class="module-option">
+        <input type="radio" name="tier4" value="option_4b" {{#if system.options.option_4b.selected}}checked{{/if}}/>
+        <div class="option-details">
+          <input type="text" name="system.options.option_4b.name" value="{{system.options.option_4b.name}}" placeholder="Option 4B Name"/>
+          <textarea name="system.options.option_4b.description" placeholder="Option 4B Description">{{system.options.option_4b.description}}</textarea>
+          <input type="text" name="system.options.option_4b.data" value="{{system.options.option_4b.data}}" placeholder="Option 4B Data"/>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Tier 5 --}}
+    <div class="module-tier">
+      <h4>Tier 5 (5 Points)</h4>
+      <div class="module-option">
+        <input type="checkbox" name="system.options.option_5.selected" {{#if system.options.option_5.selected}}checked{{/if}}/>
+        <div class="option-details">
+          <input type="text" name="system.options.option_5.name" value="{{system.options.option_5.name}}" placeholder="Option Name"/>
+          <textarea name="system.options.option_5.description" placeholder="Option Description">{{system.options.option_5.description}}</textarea>
+          <input type="text" name="system.options.option_5.data" value="{{system.options.option_5.data}}" placeholder="Option Data"/>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Tier 6 --}}
+    <div class="module-tier">
+      <h4>Tier 6 (6 Points - Choose One)</h4>
+      <div class="module-option">
+        <input type="radio" name="tier6" value="option_6a" {{#if system.options.option_6a.selected}}checked{{/if}}/>
+        <div class="option-details">
+          <input type="text" name="system.options.option_6a.name" value="{{system.options.option_6a.name}}" placeholder="Option 6A Name"/>
+          <textarea name="system.options.option_6a.description" placeholder="Option 6A Description">{{system.options.option_6a.description}}</textarea>
+          <input type="text" name="system.options.option_6a.data" value="{{system.options.option_6a.data}}" placeholder="Option 6A Data"/>
+        </div>
+      </div>
+      <div class="module-option">
+        <input type="radio" name="tier6" value="option_6b" {{#if system.options.option_6b.selected}}checked{{/if}}/>
+        <div class="option-details">
+          <input type="text" name="system.options.option_6b.name" value="{{system.options.option_6b.name}}" placeholder="Option 6B Name"/>
+          <textarea name="system.options.option_6b.description" placeholder="Option 6B Description">{{system.options.option_6b.description}}</textarea>
+          <input type="text" name="system.options.option_6b.data" value="{{system.options.option_6b.data}}" placeholder="Option 6B Data"/>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Tier 7 --}}
+    <div class="module-tier">
+      <h4>Tier 7 (7 Points)</h4>
+      <div class="module-option">
+        <input type="checkbox" name="system.options.option_7.selected" {{#if system.options.option_7.selected}}checked{{/if}}/>
+        <div class="option-details">
+          <input type="text" name="system.options.option_7.name" value="{{system.options.option_7.name}}" placeholder="Option Name"/>
+          <textarea name="system.options.option_7.description" placeholder="Option Description">{{system.options.option_7.description}}</textarea>
+          <input type="text" name="system.options.option_7.data" value="{{system.options.option_7.data}}" placeholder="Option Data"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,57 @@
+{{!-- Special Properties Partial --}}
+<div class="special-properties-section">
+  {{!-- Detection Abilities --}}
+  {{#if system.detections}}
+  <div class="detection-section">
+    <h3>Detection Abilities</h3>
+    <div class="detection-grid">
+      {{#each system.detections as |value type|}}
+      <div class="form-group">
+        <label for="system.detections.{{type}}">{{capitalize type}}</label>
+        {{#if (or (includes type "vision") (includes type "sight") (includes type "range"))}}
+        <select name="system.detections.{{type}}">
+          <option value="0" {{#if (eq value 0)}}selected{{/if}}>None</option>
+          <option value="1" {{#if (eq value 1)}}selected{{/if}}>Adjacent</option>
+          <option value="2" {{#if (eq value 2)}}selected{{/if}}>Nearby</option>
+          <option value="3" {{#if (eq value 3)}}selected{{/if}}>Very Short</option>
+          <option value="4" {{#if (eq value 4)}}selected{{/if}}>Short</option>
+          <option value="5" {{#if (eq value 5)}}selected{{/if}}>Moderate</option>
+          <option value="6" {{#if (eq value 6)}}selected{{/if}}>Distant</option>
+          <option value="7" {{#if (eq value 7)}}selected{{/if}}>Remote</option>
+          <option value="8" {{#if (eq value 8)}}selected{{/if}}>Unlimited</option>
+        </select>
+        {{else}}
+        <input type="number" name="system.detections.{{type}}" value="{{value}}" placeholder="0"/>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+
+  {{!-- Condition Immunities --}}
+  {{#if system.immunities}}
+  <div class="immunities-section">
+    <h3>Condition Immunities</h3>
+    <div class="immunities-grid">
+      {{#each system.immunities as |immune condition|}}
+      <div class="immunity-item">
+        <label>
+          <input type="checkbox" name="system.immunities.{{condition}}" {{#if immune}}checked{{/if}}/>
+          {{capitalize condition}}
+        </label>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+
+  {{!-- Special Notes --}}
+  <div class="special-notes">
+    <h3>Special Properties</h3>
+    <div class="form-group stacked">
+      <label for="system.special">Notes</label>
+      <textarea name="system.special" placeholder="Any special properties or notes about this item">{{system.special}}</textarea>
+    </div>
+  </div>
+</div>

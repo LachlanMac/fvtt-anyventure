@@ -1,0 +1,76 @@
+{{!-- Weapon Damage Properties Partial --}}
+<div class="weapon-damage-section">
+  {{!-- Primary Damage --}}
+  <div class="damage-section">
+    <h3>Primary Damage</h3>
+    <div class="damage-fields">
+      <div class="form-group">
+        <label>Base Damage</label>
+        <input type="text" name="system.weapon_data.primary.damage" value="{{system.weapon_data.primary.damage}}" data-dtype="String" placeholder="3"/>
+      </div>
+      <div class="form-group">
+        <label>Extra Damage</label>
+        <input type="text" name="system.weapon_data.primary.damage_extra" value="{{system.weapon_data.primary.damage_extra}}" data-dtype="String" placeholder="2"/>
+      </div>
+      <div class="form-group">
+        <label>Damage Type</label>
+        <select name="system.weapon_data.primary.damage_type" data-dtype="String">
+          {{#each damageTypes as |type|}}
+          <option value="{{type}}" {{#if (eq ../system.weapon_data.primary.damage_type type)}}selected{{/if}}>{{capitalize type}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select name="system.weapon_data.primary.category" data-dtype="String">
+          {{#each damageCategories as |category|}}
+          <option value="{{category.value}}" {{#if (eq ../system.weapon_data.primary.category category.value)}}selected{{/if}}>{{category.label}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+    
+    <div class="range-fields">
+      <div class="form-group">
+        <label>Min Range</label>
+        <input type="number" name="system.weapon_data.primary.min_range" value="{{system.weapon_data.primary.min_range}}" data-dtype="Number" placeholder="0"/>
+      </div>
+      <div class="form-group">
+        <label>Max Range</label>
+        <input type="number" name="system.weapon_data.primary.max_range" value="{{system.weapon_data.primary.max_range}}" data-dtype="Number" placeholder="0"/>
+      </div>
+    </div>
+  </div>
+
+  {{!-- Secondary Damage --}}
+  <div class="damage-section">
+    <h3>Secondary Damage</h3>
+    <div class="damage-fields">
+      <div class="form-group">
+        <label>Base Damage</label>
+        <input type="text" name="system.weapon_data.secondary.damage" value="{{system.weapon_data.secondary.damage}}" data-dtype="String" placeholder="0"/>
+      </div>
+      <div class="form-group">
+        <label>Extra Damage</label>
+        <input type="text" name="system.weapon_data.secondary.damage_extra" value="{{system.weapon_data.secondary.damage_extra}}" data-dtype="String" placeholder="0"/>
+      </div>
+      <div class="form-group">
+        <label>Damage Type</label>
+        <select name="system.weapon_data.secondary.damage_type" data-dtype="String">
+          <option value="none">None</option>
+          {{#each damageTypes as |type|}}
+          <option value="{{type}}" {{#if (eq ../system.weapon_data.secondary.damage_type type)}}selected{{/if}}>{{capitalize type}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select name="system.weapon_data.secondary.category" data-dtype="String">
+          {{#each damageCategories as |category|}}
+          <option value="{{category.value}}" {{#if (eq ../system.weapon_data.secondary.category category.value)}}selected{{/if}}>{{category.label}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+  </div>
+</div>

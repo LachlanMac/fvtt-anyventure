@@ -1,0 +1,131 @@
+<form class="{{cssClass}} {{item.type}} flexcol" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  {{> "systems/anyventure/templates/partials/items/item-header.hbs"}}
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="basic">Basic</a>
+    <a class="item" data-tab="benefits">Benefits</a>
+    <a class="item" data-tab="restrictions">Restrictions</a>
+    <a class="item" data-tab="description">Description</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    {{!-- Basic Tab --}}
+    <div class="tab" data-group="primary" data-tab="basic">
+      <div class="culture-basic-info">
+
+        <div class="form-group">
+          <label>Source</label>
+          <input type="text" name="system.source" value="{{system.source}}" placeholder="Source book or origin"/>
+        </div>
+
+        <div class="form-group">
+          <label>Starting Items</label>
+          <textarea name="system.startingItems" placeholder="List of starting items for this culture">{{#each system.startingItems}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</textarea>
+          <small>Comma-separated list of starting equipment</small>
+        </div>
+
+      </div>
+    </div>
+
+    {{!-- Benefits Tab --}}
+    <div class="tab" data-group="primary" data-tab="benefits">
+      <div class="culture-benefits">
+        <h3>Cultural Benefits</h3>
+        <div class="benefits-container">
+          {{#each system.benefits as |benefit index|}}
+          <div class="benefit-item" data-index="{{index}}">
+            <div class="benefit-header">
+              <input type="text" name="system.benefits.{{index}}.name" value="{{benefit.name}}" placeholder="Benefit Name"/>
+              <button type="button" class="benefit-delete" title="Delete Benefit">×</button>
+            </div>
+            <textarea name="system.benefits.{{index}}.description" placeholder="Benefit Description">{{benefit.description}}</textarea>
+            <div class="benefit-data">
+              <label>Mechanical Effect</label>
+              <input type="text" name="system.benefits.{{index}}.effect" value="{{benefit.effect}}" placeholder="Mechanical effect (e.g., +1 to specific checks)"/>
+            </div>
+          </div>
+          {{/each}}
+          <button type="button" class="add-benefit" data-action="add-culture-benefit">Add New Benefit</button>
+        </div>
+
+        <div class="culture-options">
+          <h3>Cultural Options</h3>
+          <div class="options-container">
+            {{#each system.options as |option index|}}
+            <div class="option-item" data-index="{{index}}">
+              <div class="option-header">
+                <input type="text" name="system.options.{{index}}.name" value="{{option.name}}" placeholder="Option Name"/>
+                <button type="button" class="option-delete" title="Delete Option">×</button>
+              </div>
+              <textarea name="system.options.{{index}}.description" placeholder="Option Description">{{option.description}}</textarea>
+              <div class="option-data">
+                <label>Mechanical Data</label>
+                <input type="text" name="system.options.{{index}}.data" value="{{option.data}}" placeholder="Data string"/>
+              </div>
+              <div class="option-meta">
+                <label>
+                  <input type="checkbox" name="system.options.{{index}}.requiresChoice" {{#if option.requiresChoice}}checked{{/if}}/>
+                  Requires Choice
+                </label>
+                {{#if option.requiresChoice}}
+                <input type="text" name="system.options.{{index}}.choiceType" value="{{option.choiceType}}" placeholder="Choice Type"/>
+                {{/if}}
+              </div>
+            </div>
+            {{/each}}
+            <button type="button" class="add-option" data-action="add-culture-option">Add New Option</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Restrictions Tab --}}
+    <div class="tab" data-group="primary" data-tab="restrictions">
+      <div class="culture-restrictions">
+        <h3>Cultural Restrictions</h3>
+        <div class="restrictions-container">
+          {{#each system.culturalRestrictions as |restriction index|}}
+          <div class="restriction-item" data-index="{{index}}">
+            <div class="restriction-header">
+              <input type="text" name="system.culturalRestrictions.{{index}}.name" value="{{restriction.name}}" placeholder="Restriction Name"/>
+              <button type="button" class="restriction-delete" title="Delete Restriction">×</button>
+            </div>
+            <textarea name="system.culturalRestrictions.{{index}}.description" placeholder="Restriction Description">{{restriction.description}}</textarea>
+            <div class="restriction-type">
+              <label>Type</label>
+              <select name="system.culturalRestrictions.{{index}}.type">
+                <option value="social" {{#if (eq restriction.type "social")}}selected{{/if}}>Social</option>
+                <option value="behavioral" {{#if (eq restriction.type "behavioral")}}selected{{/if}}>Behavioral</option>
+                <option value="magical" {{#if (eq restriction.type "magical")}}selected{{/if}}>Magical</option>
+                <option value="equipment" {{#if (eq restriction.type "equipment")}}selected{{/if}}>Equipment</option>
+                <option value="other" {{#if (eq restriction.type "other")}}selected{{/if}}>Other</option>
+              </select>
+            </div>
+            <div class="restriction-severity">
+              <label>Severity</label>
+              <select name="system.culturalRestrictions.{{index}}.severity">
+                <option value="minor" {{#if (eq restriction.severity "minor")}}selected{{/if}}>Minor</option>
+                <option value="moderate" {{#if (eq restriction.severity "moderate")}}selected{{/if}}>Moderate</option>
+                <option value="major" {{#if (eq restriction.severity "major")}}selected{{/if}}>Major</option>
+                <option value="absolute" {{#if (eq restriction.severity "absolute")}}selected{{/if}}>Absolute</option>
+              </select>
+            </div>
+          </div>
+          {{/each}}
+          <button type="button" class="add-restriction" data-action="add-culture-restriction">Add New Restriction</button>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Description Tab --}}
+    <div class="tab" data-group="primary" data-tab="description">
+      {{> "systems/anyventure/templates/partials/items/description.hbs"}}
+    </div>
+
+  </section>
+</form>

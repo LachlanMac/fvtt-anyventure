@@ -5,7 +5,8 @@
       "Bash(npm install:*)",
       "Bash(sed:*)",
       "Bash(npx sass:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }

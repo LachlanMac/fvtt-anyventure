@@ -1,5 +1,6 @@
 {{!-- Skills Page --}}
 <div class="skills-page">
+
   {{!-- Skills Grid --}}
   <div class="skills-grid">
     {{!-- Left Column --}}
@@ -233,6 +234,70 @@
         {{/each}}
       </div>
     </div>
+    {{/if}}
+
+    {{!-- Music Skills --}}
+    {{#if (hasAnyTalent skillCategories.music)}}
+    <div class="skill-category-block">
+      <h3 class="category-header">
+        <i class="fas fa-music"></i>
+        Music Skills
+      </h3>
+      <div class="specialized-grid">
+        {{#each skillCategories.music as |skill key|}}
+          {{#if skill.talent}}
+          <div class="specialized-skill">
+            <span class="skill-name rollable skill-roll" data-category="music" data-skill="{{key}}">{{localizeSkill key}}</span>
+            <div class="skill-value-group">
+              <span class="talent-stars-skill">
+                {{#times skill.talent}}
+                  <i class="fas fa-star filled"></i>
+                {{/times}}
+              </span>
+              <span class="skill-modifier">({{skill.value}})</span>
+              <span class="skill-die">{{skill.talent}}{{skillDie skill.value}}</span>
+            </div>
+          </div>
+          {{/if}}
+        {{/each}}
+      </div>
+    </div>
+    {{/if}}
+
+    {{!-- Language Skills --}}
+    {{#if skillCategories.language}}
+    {{#each skillCategories.language as |skill key|}}
+      {{#unless @first}}{{else}}
+      <div class="skill-category-block">
+        <h3 class="category-header">
+          <i class="fas fa-comments"></i>
+          Language Skills
+        </h3>
+        <div class="specialized-grid">
+      {{/unless}}
+          <div class="specialized-skill {{#if skill.magic}}magical-language{{/if}}">
+            <span class="skill-name rollable skill-roll" data-category="language" data-skill="{{key}}" data-item-id="{{skill.itemId}}">
+              {{#if skill.magic}}<i class="fas fa-magic" title="Magical Language"></i>{{/if}}
+              {{skill.name}}
+            </span>
+            <div class="skill-value-group">
+              <span class="talent-stars-skill">
+                {{#times skill.talent}}
+                  <i class="fas fa-star filled"></i>
+                {{/times}}
+                {{#unless skill.talent}}
+                  <span class="no-talent">—</span>
+                {{/unless}}
+              </span>
+              <span class="skill-modifier">({{skill.value}})</span>
+              <span class="skill-die">{{#if skill.talent}}{{skill.talent}}{{skillDie skill.value}}{{else}}—{{/if}}</span>
+            </div>
+          </div>
+      {{#unless @last}}{{else}}
+        </div>
+      </div>
+      {{/unless}}
+    {{/each}}
     {{/if}}
   </div>
 </div>

@@ -347,6 +347,33 @@ Hooks.once('ready', async function() {
     return false;
   });
 
+  // Helper to group module options by tier
+  Handlebars.registerHelper('groupByTier', function(options) {
+    if (!Array.isArray(options)) return {};
+
+    const grouped = {};
+    options.forEach(option => {
+      const tierMatch = option.location.match(/^(\d+)/);
+      if (tierMatch) {
+        const tier = tierMatch[1];
+        if (!grouped[tier]) grouped[tier] = [];
+        grouped[tier].push(option);
+      }
+    });
+
+    return grouped;
+  });
+
+  // Helper to check if tier number is odd
+  Handlebars.registerHelper('isOddTier', function(tier) {
+    return parseInt(tier) % 2 === 1;
+  });
+
+  // Helper to check if module option can be selected (kept for compatibility)
+  Handlebars.registerHelper('canSelectOption', function(item, location) {
+    return true; // Logic moved to JavaScript for better reliability
+  });
+
   console.log('Anyventure | System Ready');
 });
 
@@ -424,7 +451,7 @@ async function preloadHandlebarsTemplates() {
     "systems/anyventure/templates/item/item-armor-sheet.hbs",
     "systems/anyventure/templates/item/item-equipment-sheet.hbs",
     
-    // Partial templates
+    // Actor Partial templates
     "systems/anyventure/templates/partials/skills.hbs",
     "systems/anyventure/templates/partials/biography.hbs",
     "systems/anyventure/templates/partials/equipment.hbs",
@@ -432,5 +459,20 @@ async function preloadHandlebarsTemplates() {
     "systems/anyventure/templates/partials/spells.hbs",
     "systems/anyventure/templates/partials/modules.hbs",
     "systems/anyventure/templates/partials/mitigations.hbs",
+    
+    // Item Partial templates
+    "systems/anyventure/templates/partials/items/item-header.hbs",
+    "systems/anyventure/templates/partials/items/basic-info.hbs",
+    "systems/anyventure/templates/partials/items/resource-bonuses.hbs",
+    "systems/anyventure/templates/partials/items/weapon-full.hbs",
+    "systems/anyventure/templates/partials/items/skill-bonuses.hbs",
+    "systems/anyventure/templates/partials/items/mitigation.hbs",
+    "systems/anyventure/templates/partials/items/special-properties.hbs",
+    "systems/anyventure/templates/partials/items/description.hbs",
+    "systems/anyventure/templates/partials/items/armor-properties.hbs",
+    "systems/anyventure/templates/partials/items/weapon-damage.hbs",
+    "systems/anyventure/templates/partials/items/weapon-properties.hbs",
+    "systems/anyventure/templates/partials/items/module-properties.hbs",
+    "systems/anyventure/templates/partials/items/spell-properties.hbs",
   ]);
 }

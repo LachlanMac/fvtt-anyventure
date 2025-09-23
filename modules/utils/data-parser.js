@@ -1,0 +1,706 @@
+/**
+ * Core Data Code Parser for Anyventure
+ *
+ * This module provides the core data parsing functionality for interpreting
+ * data codes from the datakey.txt specification into structured deltas.
+ */
+
+/**
+ * Create an empty character delta structure
+ */
+export function createEmptyDelta() {
+  return {
+    // Core Attributes (1-5)
+    attributes: {
+      physique: 0,
+      finesse: 0,
+      mind: 0,
+      knowledge: 0,
+      social: 0
+    },
+
+    // Basic Skills (SSA-SST)
+    skills: {
+      fitness: 0,
+      deflection: 0,
+      might: 0,
+      endurance: 0,
+      evasion: 0,
+      stealth: 0,
+      coordination: 0,
+      thievery: 0,
+      resilience: 0,
+      concentration: 0,
+      senses: 0,
+      logic: 0,
+      wildcraft: 0,
+      academics: 0,
+      magic: 0,
+      medicine: 0,
+      expression: 0,
+      presence: 0,
+      insight: 0,
+      persuasion: 0
+    },
+
+    // Skill Dice Tier Modifiers (X = +1, Y = -1)
+    skillDiceTierModifiers: {
+      fitness: 0,
+      deflection: 0,
+      might: 0,
+      endurance: 0,
+      evasion: 0,
+      stealth: 0,
+      coordination: 0,
+      thievery: 0,
+      resilience: 0,
+      concentration: 0,
+      senses: 0,
+      logic: 0,
+      wildcraft: 0,
+      academics: 0,
+      magic: 0,
+      medicine: 0,
+      expression: 0,
+      presence: 0,
+      insight: 0,
+      persuasion: 0
+    },
+
+    // Weapon Skills (WS1-WS6, WT1-WT6)
+    weaponSkills: {
+      unarmed: { skill: 0, talent: 0, diceTierModifier: 0 },
+      throwing: { skill: 0, talent: 0, diceTierModifier: 0 },
+      simpleMeleeWeapons: { skill: 0, talent: 0, diceTierModifier: 0 },
+      simpleRangedWeapons: { skill: 0, talent: 0, diceTierModifier: 0 },
+      complexMeleeWeapons: { skill: 0, talent: 0, diceTierModifier: 0 },
+      complexRangedWeapons: { skill: 0, talent: 0, diceTierModifier: 0 }
+    },
+
+    // Magic Skills (YS1-YS5, YT1-YT5)
+    magicSkills: {
+      black: { skill: 0, talent: 0, diceTierModifier: 0 },
+      primal: { skill: 0, talent: 0, diceTierModifier: 0 },
+      metamagic: { skill: 0, talent: 0, diceTierModifier: 0 },
+      divine: { skill: 0, talent: 0, diceTierModifier: 0 },
+      mysticism: { skill: 0, talent: 0, diceTierModifier: 0 }
+    },
+
+    // Crafting Skills (CS1-CS6, CT1-CT6)
+    craftingSkills: {
+      engineering: { skill: 0, talent: 0, diceTierModifier: 0 },
+      fabrication: { skill: 0, talent: 0, diceTierModifier: 0 },
+      alchemy: { skill: 0, talent: 0, diceTierModifier: 0 },
+      cooking: { skill: 0, talent: 0, diceTierModifier: 0 },
+      glyphcraft: { skill: 0, talent: 0, diceTierModifier: 0 },
+      bioshaping: { skill: 0, talent: 0, diceTierModifier: 0 }
+    },
+
+    // Mitigations (M1-M9, MA)
+    mitigation: {
+      physical: 0,
+      heat: 0,
+      cold: 0,
+      electric: 0,
+      dark: 0,
+      divine: 0,
+      aetheric: 0,
+      psychic: 0,
+      toxic: 0,
+      true: 0
+    },
+
+    // Resources (A1-A9)
+    resources: {
+      health: 0,
+      resolve: 0,
+      energy: 0,
+      healthRegen: 0,
+      resolveRegen: 0,
+      energyRegen: 0,
+      maxMorale: 0,
+      spellCapacity: 0,
+      manaPoints: 0
+    },
+
+    // Movement (K1-K4)
+    movement: {
+      walk: 0,
+      swim: 0,
+      climb: 0,
+      fly: 0
+    },
+
+    // Immunities (I-series)
+    immunities: [],
+
+    // Conditionals (C-series)
+    conditionals: {
+      noArmor: [],
+      lightArmor: [],
+      heavyArmor: [],
+      anyArmor: [],
+      anyShield: [],
+      lightShield: [],
+      heavyShield: []
+    }
+  };
+}
+
+/**
+ * Parse a single data code string and return the delta to apply
+ * @param {string} dataCode - The data code to parse (e.g. "SSA=1:WT3=2:M1=3")
+ * @returns {Object} - Delta object with bonuses to apply
+ */
+export function parseDataCode(dataCode) {
+  if (!dataCode || typeof dataCode !== 'string') {
+    return createEmptyDelta();
+  }
+
+  const delta = createEmptyDelta();
+
+  // Split by colon for multiple effects
+  const effects = dataCode.split(':').map(e => e.trim()).filter(e => e);
+
+  for (const effect of effects) {
+    parseIndividualEffect(effect, delta);
+  }
+
+  return delta;
+}
+
+/**
+ * Parse an individual effect and apply it to the delta
+ * @param {string} effect - Single effect string (e.g. "SSA=1")
+ * @param {Object} delta - Delta object to modify
+ */
+function parseIndividualEffect(effect, delta) {
+  // Skills (S) - SSA=1, ST1=1, SSA=X, SSA=Y
+  const skillMatch = effect.match(/^S([ST])([A-T0-9])=(-?\d+|[XY])$/);
+  if (skillMatch) {
+    parseSkillEffect(skillMatch, delta);
+    return;
+  }
+
+  // Weapons (W) - WS1=1, WT3=1, WS1=X, WS1=Y
+  const weaponMatch = effect.match(/^W([ST])([1-6])=(-?\d+|[XY])$/);
+  if (weaponMatch) {
+    parseWeaponEffect(weaponMatch, delta);
+    return;
+  }
+
+  // Magic (Y) - YS1=1, YT3=1
+  const magicMatch = effect.match(/^Y([ST])([1-5])=(-?\d+|[XY])$/);
+  if (magicMatch) {
+    parseMagicEffect(magicMatch, delta);
+    return;
+  }
+
+  // Crafting (C) - CS1=1, CT3=1, CS1=X, CS1=Y
+  const craftingMatch = effect.match(/^C([ST])([1-6])=(-?\d+|[XY])$/);
+  if (craftingMatch) {
+    parseCraftingEffect(craftingMatch, delta);
+    return;
+  }
+
+  // Mitigations (M) - M1=1, M9=2, MA=1
+  const mitigationMatch = effect.match(/^M([1-9A])=(-?\d+)$/);
+  if (mitigationMatch) {
+    parseMitigationEffect(mitigationMatch, delta);
+    return;
+  }
+
+  // Auto/Resources (A) - A1=1, A9=2
+  const autoMatch = effect.match(/^A([1-9A-HMZ])=(-?\d+)$/);
+  if (autoMatch) {
+    parseAutoEffect(autoMatch, delta);
+    return;
+  }
+
+  // Movement (K) - K1=2, K4=6
+  const movementMatch = effect.match(/^K([1-4])=(-?\d+)$/);
+  if (movementMatch) {
+    parseMovementEffect(movementMatch, delta);
+    return;
+  }
+
+  // Immunities (I) - IA=1, IB=1
+  const immunityMatch = effect.match(/^I([A-Z])=1$/);
+  if (immunityMatch) {
+    parseImmunityEffect(immunityMatch, delta);
+    return;
+  }
+
+  // Conditionals (CC[M1=1,SSE=1], CA[SSE=1], etc.)
+  const conditionalMatch = effect.match(/^C([A-G])\[([^\]]+)\]$/);
+  if (conditionalMatch) {
+    parseConditionalEffect(conditionalMatch, delta);
+    return;
+  }
+
+  // Log unrecognized effects for debugging
+  console.warn(`[DataParser] Unrecognized effect: ${effect}`);
+}
+
+/**
+ * Parse skill effects like SSA=1, ST1=1, SSA=X
+ */
+function parseSkillEffect([_, type, code, valueStr], delta) {
+  const value = isNaN(parseInt(valueStr)) ? valueStr : parseInt(valueStr);
+
+  if (type === 'S') { // Skill value or dice tier modifier
+    if (/^[1-5]$/.test(code)) {
+      // Attribute skill (SS1=1 for Physique)
+      const attributeMap = { '1': 'physique', '2': 'finesse', '3': 'mind', '4': 'knowledge', '5': 'social' };
+      const attrName = attributeMap[code];
+      if (attrName && typeof value === 'number') {
+        delta.attributes[attrName] += value;
+      }
+    } else {
+      // Regular skill (SSA=1 for Fitness or SSA=X for dice tier upgrade)
+      const skillMap = {
+        'A': 'fitness', 'B': 'deflection', 'C': 'might', 'D': 'endurance',
+        'E': 'evasion', 'F': 'stealth', 'G': 'coordination', 'H': 'thievery',
+        'I': 'resilience', 'J': 'concentration', 'K': 'senses', 'L': 'logic',
+        'M': 'wildcraft', 'N': 'academics', 'O': 'magic', 'P': 'medicine',
+        'Q': 'expression', 'R': 'presence', 'S': 'insight', 'T': 'persuasion'
+      };
+
+      const skillName = skillMap[code];
+      if (skillName) {
+        if (typeof value === 'string' && (value === 'X' || value === 'Y')) {
+          // Handle dice tier modifications
+          const modifier = value === 'X' ? 1 : -1;
+          delta.skillDiceTierModifiers[skillName] += modifier;
+        } else if (typeof value === 'number') {
+          delta.skills[skillName] += value;
+        }
+      }
+    }
+  }
+  // Note: Attribute talents (ST1=1) are not implemented in current system
+}
+
+/**
+ * Parse weapon effects like WS1=1, WT3=1, WS1=X
+ */
+function parseWeaponEffect([_, type, code, valueStr], delta) {
+  const value = isNaN(parseInt(valueStr)) ? valueStr : parseInt(valueStr);
+
+  const weaponMap = {
+    '1': 'unarmed',
+    '2': 'throwing',
+    '3': 'simpleMeleeWeapons',
+    '4': 'simpleRangedWeapons',
+    '5': 'complexMeleeWeapons',
+    '6': 'complexRangedWeapons'
+  };
+
+  const weaponName = weaponMap[code];
+  if (!weaponName) return;
+
+  if (type === 'S') { // Skill value or dice tier modifier
+    if (typeof value === 'string' && (value === 'X' || value === 'Y')) {
+      const modifier = value === 'X' ? 1 : -1;
+      delta.weaponSkills[weaponName].diceTierModifier += modifier;
+    } else if (typeof value === 'number') {
+      delta.weaponSkills[weaponName].skill += value;
+    }
+  } else if (type === 'T') { // Talent value
+    if (typeof value === 'number') {
+      delta.weaponSkills[weaponName].talent += value;
+    }
+  }
+}
+
+/**
+ * Parse magic effects like YS1=1, YT3=1
+ */
+function parseMagicEffect([_, type, code, valueStr], delta) {
+  const value = parseInt(valueStr);
+  if (isNaN(value)) return;
+
+  const magicMap = {
+    '1': 'black',
+    '2': 'primal',
+    '3': 'metamagic',
+    '4': 'divine',
+    '5': 'mysticism'
+  };
+
+  const magicName = magicMap[code];
+  if (!magicName) return;
+
+  if (type === 'S') { // Skill value
+    delta.magicSkills[magicName].skill += value;
+  } else if (type === 'T') { // Talent value
+    delta.magicSkills[magicName].talent += value;
+  }
+}
+
+/**
+ * Parse crafting effects like CS1=1, CT3=1, CS1=X
+ */
+function parseCraftingEffect([_, type, code, valueStr], delta) {
+  const value = isNaN(parseInt(valueStr)) ? valueStr : parseInt(valueStr);
+
+  const craftingMap = {
+    '1': 'engineering',
+    '2': 'fabrication',
+    '3': 'alchemy',
+    '4': 'cooking',
+    '5': 'glyphcraft',
+    '6': 'bioshaping'
+  };
+
+  const craftingName = craftingMap[code];
+  if (!craftingName) return;
+
+  if (type === 'S') { // Skill value or dice tier modifier
+    if (typeof value === 'string' && (value === 'X' || value === 'Y')) {
+      const modifier = value === 'X' ? 1 : -1;
+      delta.craftingSkills[craftingName].diceTierModifier += modifier;
+    } else if (typeof value === 'number') {
+      delta.craftingSkills[craftingName].skill += value;
+    }
+  } else if (type === 'T') { // Talent value
+    if (typeof value === 'number') {
+      delta.craftingSkills[craftingName].talent += value;
+    }
+  }
+}
+
+/**
+ * Parse mitigation effects like M1=1, M9=2, MA=1
+ */
+function parseMitigationEffect([_, code, valueStr], delta) {
+  const value = parseInt(valueStr);
+  if (isNaN(value)) return;
+
+  const mitigationMap = {
+    '1': 'physical', '2': 'heat', '3': 'cold', '4': 'electric',
+    '5': 'dark', '6': 'divine', '7': 'aetheric', '8': 'psychic',
+    '9': 'toxic', 'A': 'true'
+  };
+
+  const mitigationType = mitigationMap[code];
+  if (mitigationType) {
+    delta.mitigation[mitigationType] += value;
+  }
+}
+
+/**
+ * Parse auto/resource effects like A1=1, A9=2
+ */
+function parseAutoEffect([_, code, valueStr], delta) {
+  const value = parseInt(valueStr);
+  if (isNaN(value)) return;
+
+  const autoMap = {
+    '1': 'health', '2': 'resolve', '3': 'energy',
+    '5': 'healthRegen', '6': 'resolveRegen', '7': 'energyRegen',
+    '8': 'maxMorale', '9': 'spellCapacity', 'M': 'manaPoints'
+  };
+
+  if (autoMap[code]) {
+    delta.resources[autoMap[code]] += value;
+  }
+}
+
+/**
+ * Parse movement effects like K1=2, K4=6
+ */
+function parseMovementEffect([_, code, valueStr], delta) {
+  const value = parseInt(valueStr);
+  if (isNaN(value)) return;
+
+  const movementMap = {
+    '1': 'walk', '2': 'swim', '3': 'climb', '4': 'fly'
+  };
+
+  const movementType = movementMap[code];
+  if (movementType) {
+    delta.movement[movementType] += value;
+  }
+}
+
+/**
+ * Parse immunity effects like IA=1, IB=1
+ */
+function parseImmunityEffect([_, code], delta) {
+  const immunityMap = {
+    'A': 'afraid', 'B': 'bleeding', 'C': 'blinded', 'D': 'charmed',
+    'E': 'confused', 'F': 'dazed', 'G': 'deafened', 'H': 'diseased',
+    'I': 'winded', 'J': 'prone', 'K': 'poisoned', 'L': 'muted',
+    'M': 'stunned', 'N': 'impaired', 'O': 'numbed', 'P': 'broken',
+    'Q': 'incapacitated', 'R': 'ignited', 'S': 'hidden', 'T': 'maddened'
+  };
+
+  const immunityType = immunityMap[code];
+  if (immunityType && !delta.immunities.includes(immunityType)) {
+    delta.immunities.push(immunityType);
+  }
+}
+
+/**
+ * Parse conditional effects like CC[M1=1,SSE=1]
+ */
+function parseConditionalEffect([_, conditionType, effectsString], delta) {
+  const conditionMap = {
+    'A': 'noArmor',
+    'B': 'lightArmor',
+    'C': 'heavyArmor',
+    'D': 'anyArmor',
+    'E': 'anyShield',
+    'F': 'lightShield',
+    'G': 'heavyShield'
+  };
+
+  const conditionName = conditionMap[conditionType];
+  if (!conditionName) return;
+
+  const effects = effectsString.split(',').map(e => e.trim());
+
+  for (const effectStr of effects) {
+    // Create a sub-delta for this conditional effect
+    const subDelta = createEmptyDelta();
+    parseIndividualEffect(effectStr, subDelta);
+
+    // Convert non-zero values to conditional effects
+    addNonZeroValuesToConditional(subDelta, delta.conditionals[conditionName]);
+  }
+}
+
+/**
+ * Helper function to add non-zero values from a delta to conditional effects
+ */
+function addNonZeroValuesToConditional(subDelta, conditionalArray) {
+  // Add skills
+  Object.entries(subDelta.skills).forEach(([skill, value]) => {
+    if (value !== 0) {
+      conditionalArray.push({ type: 'skill', subtype: skill, value });
+    }
+  });
+
+  // Add mitigation
+  Object.entries(subDelta.mitigation).forEach(([type, value]) => {
+    if (value !== 0) {
+      conditionalArray.push({ type: 'mitigation', subtype: type, value });
+    }
+  });
+}
+
+/**
+ * Combine multiple deltas into a single delta
+ * @param {Array<Object>} deltas - Array of delta objects to combine
+ * @returns {Object} - Combined delta
+ */
+export function combineDeltas(deltas) {
+  const combined = createEmptyDelta();
+
+  for (const delta of deltas) {
+    // Combine attributes
+    Object.entries(delta.attributes).forEach(([attr, value]) => {
+      combined.attributes[attr] += value;
+    });
+
+    // Combine skills
+    Object.entries(delta.skills).forEach(([skill, value]) => {
+      combined.skills[skill] += value;
+    });
+
+    // Combine skill dice tier modifiers
+    Object.entries(delta.skillDiceTierModifiers).forEach(([skill, modifier]) => {
+      combined.skillDiceTierModifiers[skill] += modifier;
+    });
+
+    // Combine weapon skills
+    Object.entries(delta.weaponSkills).forEach(([weapon, data]) => {
+      combined.weaponSkills[weapon].skill += data.skill;
+      combined.weaponSkills[weapon].talent += data.talent;
+      combined.weaponSkills[weapon].diceTierModifier += data.diceTierModifier;
+    });
+
+    // Combine magic skills
+    Object.entries(delta.magicSkills).forEach(([magic, data]) => {
+      combined.magicSkills[magic].skill += data.skill;
+      combined.magicSkills[magic].talent += data.talent;
+      combined.magicSkills[magic].diceTierModifier += data.diceTierModifier;
+    });
+
+    // Combine crafting skills
+    Object.entries(delta.craftingSkills).forEach(([craft, data]) => {
+      combined.craftingSkills[craft].skill += data.skill;
+      combined.craftingSkills[craft].talent += data.talent;
+      combined.craftingSkills[craft].diceTierModifier += data.diceTierModifier;
+    });
+
+    // Combine mitigation
+    Object.entries(delta.mitigation).forEach(([type, value]) => {
+      combined.mitigation[type] += value;
+    });
+
+    // Combine resources
+    Object.entries(delta.resources).forEach(([resource, value]) => {
+      combined.resources[resource] += value;
+    });
+
+    // Combine movement
+    Object.entries(delta.movement).forEach(([type, value]) => {
+      combined.movement[type] += value;
+    });
+
+    // Combine immunities (merge arrays)
+    delta.immunities.forEach(immunity => {
+      if (!combined.immunities.includes(immunity)) {
+        combined.immunities.push(immunity);
+      }
+    });
+
+    // Combine conditionals
+    Object.entries(delta.conditionals).forEach(([condition, effects]) => {
+      combined.conditionals[condition].push(...effects);
+    });
+  }
+
+  return combined;
+}
+
+/**
+ * Apply a delta to a character object
+ * @param {Object} character - The character to modify
+ * @param {Object} delta - The delta to apply
+ */
+export function applyDeltaToCharacter(character, delta) {
+  // Apply attributes
+  Object.entries(delta.attributes).forEach(([attr, value]) => {
+    if (value !== 0 && character.attributes && character.attributes[attr] !== undefined) {
+      character.attributes[attr] += value;
+    }
+  });
+
+  // Apply skills
+  Object.entries(delta.skills).forEach(([skill, value]) => {
+    if (value !== 0 && character.skills && character.skills[skill]) {
+      character.skills[skill].value += value;
+    }
+  });
+
+  // Apply skill dice tier modifiers
+  Object.entries(delta.skillDiceTierModifiers).forEach(([skill, modifier]) => {
+    if (modifier !== 0 && character.skills && character.skills[skill]) {
+      if (!character.skills[skill].diceTierModifier) {
+        character.skills[skill].diceTierModifier = 0;
+      }
+      character.skills[skill].diceTierModifier += modifier;
+    }
+  });
+
+  // Apply weapon skills
+  Object.entries(delta.weaponSkills).forEach(([weapon, data]) => {
+    if (character.weaponSkills && character.weaponSkills[weapon]) {
+      if (data.skill !== 0) character.weaponSkills[weapon].value += data.skill;
+      if (data.talent !== 0) character.weaponSkills[weapon].talent += data.talent;
+      if (data.diceTierModifier !== 0) {
+        if (!character.weaponSkills[weapon].diceTierModifier) {
+          character.weaponSkills[weapon].diceTierModifier = 0;
+        }
+        character.weaponSkills[weapon].diceTierModifier += data.diceTierModifier;
+      }
+    }
+  });
+
+  // Apply magic skills
+  Object.entries(delta.magicSkills).forEach(([magic, data]) => {
+    if (character.magicSkills && character.magicSkills[magic]) {
+      if (data.skill !== 0) character.magicSkills[magic].value += data.skill;
+      if (data.talent !== 0) character.magicSkills[magic].talent += data.talent;
+      if (data.diceTierModifier !== 0) {
+        if (!character.magicSkills[magic].diceTierModifier) {
+          character.magicSkills[magic].diceTierModifier = 0;
+        }
+        character.magicSkills[magic].diceTierModifier += data.diceTierModifier;
+      }
+    }
+  });
+
+  // Apply crafting skills
+  Object.entries(delta.craftingSkills).forEach(([craft, data]) => {
+    if (character.craftingSkills && character.craftingSkills[craft]) {
+      if (data.skill !== 0) character.craftingSkills[craft].value += data.skill;
+      if (data.talent !== 0) character.craftingSkills[craft].talent += data.talent;
+      if (data.diceTierModifier !== 0) {
+        if (!character.craftingSkills[craft].diceTierModifier) {
+          character.craftingSkills[craft].diceTierModifier = 0;
+        }
+        character.craftingSkills[craft].diceTierModifier += data.diceTierModifier;
+      }
+    }
+  });
+
+  // Apply mitigation
+  Object.entries(delta.mitigation).forEach(([type, value]) => {
+    if (value !== 0) {
+      if (!character.mitigation) character.mitigation = {};
+      character.mitigation[type] = (character.mitigation[type] || 0) + value;
+    }
+  });
+
+  // Apply resources
+  Object.entries(delta.resources).forEach(([resource, value]) => {
+    if (value !== 0) {
+      switch (resource) {
+        case 'health':
+          if (character.resources && character.resources.health) {
+            character.resources.health.max += value;
+          }
+          break;
+        case 'resolve':
+          if (character.resources && character.resources.resolve) {
+            character.resources.resolve.max += value;
+          }
+          break;
+        case 'energy':
+          if (character.resources && character.resources.energy) {
+            character.resources.energy.max += value;
+          }
+          break;
+        case 'spellCapacity':
+          character.spellSlots = (character.spellSlots || 10) + value;
+          break;
+      }
+    }
+  });
+
+  // Apply movement
+  Object.entries(delta.movement).forEach(([type, value]) => {
+    if (value !== 0) {
+      if (type === 'walk') {
+        character.movement += value;
+      } else {
+        // Store for later calculation
+        if (!character.movement_bonuses) character.movement_bonuses = {};
+        character.movement_bonuses[type] = (character.movement_bonuses[type] || 0) + value;
+      }
+    }
+  });
+
+  // Apply immunities
+  if (delta.immunities.length > 0) {
+    if (!character.immunities) character.immunities = [];
+    delta.immunities.forEach(immunity => {
+      if (!character.immunities.includes(immunity)) {
+        character.immunities.push(immunity);
+      }
+    });
+  }
+
+  // Apply conditionals
+  Object.entries(delta.conditionals).forEach(([condition, effects]) => {
+    if (effects.length > 0) {
+      if (!character.conditionals) character.conditionals = {};
+      if (!character.conditionals[condition]) character.conditionals[condition] = [];
+      character.conditionals[condition].push(...effects);
+    }
+  });
+}

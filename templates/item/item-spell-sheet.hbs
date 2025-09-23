@@ -1,0 +1,32 @@
+<form class="{{cssClass}} {{item.type}} flexcol" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  {{> "systems/anyventure/templates/partials/items/item-header.hbs"}}
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="basic">Basic</a>
+    <a class="item" data-tab="properties">Properties</a>
+    <a class="item" data-tab="description">Description</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    {{!-- Basic Tab --}}
+    <div class="tab" data-group="primary" data-tab="basic">
+      {{> "systems/anyventure/templates/partials/items/basic-info.hbs"}}
+    </div>
+
+    {{!-- Properties Tab --}}
+    <div class="tab" data-group="primary" data-tab="properties">
+      {{> "systems/anyventure/templates/partials/items/spell-properties.hbs"}}
+    </div>
+
+    {{!-- Description Tab --}}
+    <div class="tab" data-group="primary" data-tab="description">
+      {{> "systems/anyventure/templates/partials/items/description.hbs"}}
+    </div>
+
+  </section>
+</form>

@@ -112,7 +112,7 @@
       "Physical": "Physical",
       "Heat": "Heat",
       "Cold": "Cold",
-      "Lightning": "Lightning",
+      "Electric": "Electric",
       "Dark": "Dark",
       "Divine": "Divine", 
       "Aether": "Aether",
@@ -140,6 +140,16 @@
       "d12": "d12",
       "d16": "d16",
       "d20": "d20"
-    }
+    },
+    
+    "WeaponAttacks": "Weapon Attacks",
+    "Actions": "Actions",
+    "Reactions": "Reactions",
+    "AttackName": "Attack Name",
+    "ActionName": "Action Name",
+    "ReactionName": "Reaction Name",
+    "AddWeaponAttack": "Add Weapon Attack",
+    "AddAction": "Add Action",
+    "AddReaction": "Add Reaction"
   }
 }

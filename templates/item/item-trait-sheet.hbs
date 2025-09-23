@@ -1,0 +1,112 @@
+<form class="{{cssClass}} {{item.type}} flexcol" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  {{> "systems/anyventure/templates/partials/items/item-header.hbs"}}
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="basic">Basic</a>
+    <a class="item" data-tab="options">Options</a>
+    <a class="item" data-tab="description">Description</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    {{!-- Basic Tab --}}
+    <div class="tab" data-group="primary" data-tab="basic">
+      <div class="trait-basic-info">
+
+        <div class="form-group">
+          <label>Trait Type</label>
+          <select name="system.type">
+            <option value="supernatural" {{#if (eq system.type "supernatural")}}selected{{/if}}>Supernatural</option>
+            <option value="physical" {{#if (eq system.type "physical")}}selected{{/if}}>Physical</option>
+            <option value="mental" {{#if (eq system.type "mental")}}selected{{/if}}>Mental</option>
+            <option value="social" {{#if (eq system.type "social")}}selected{{/if}}>Social</option>
+            <option value="magical" {{#if (eq system.type "magical")}}selected{{/if}}>Magical</option>
+            <option value="curse" {{#if (eq system.type "curse")}}selected{{/if}}>Curse</option>
+            <option value="blessing" {{#if (eq system.type "blessing")}}selected{{/if}}>Blessing</option>
+            <option value="flaw" {{#if (eq system.type "flaw")}}selected{{/if}}>Flaw</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Source</label>
+          <input type="text" name="system.source" value="{{system.source}}" placeholder="Source book or origin"/>
+        </div>
+
+        <div class="form-group">
+          <label>Rarity</label>
+          <select name="system.rarity">
+            <option value="common" {{#if (eq system.rarity "common")}}selected{{/if}}>Common</option>
+            <option value="uncommon" {{#if (eq system.rarity "uncommon")}}selected{{/if}}>Uncommon</option>
+            <option value="rare" {{#if (eq system.rarity "rare")}}selected{{/if}}>Rare</option>
+            <option value="legendary" {{#if (eq system.rarity "legendary")}}selected{{/if}}>Legendary</option>
+            <option value="mythic" {{#if (eq system.rarity "mythic")}}selected{{/if}}>Mythic</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    {{!-- Options Tab --}}
+    <div class="tab" data-group="primary" data-tab="options">
+      <div class="trait-options">
+        <h3>Trait Options</h3>
+        <div class="options-container">
+          {{#each system.options as |option index|}}
+          <div class="trait-option" data-index="{{index}}">
+            <div class="option-header">
+              <input type="text" name="system.options.{{index}}.name" value="{{option.name}}" placeholder="Option Name"/>
+              <button type="button" class="option-delete" title="Delete Option">×</button>
+            </div>
+            <textarea name="system.options.{{index}}.description" placeholder="Option Description">{{option.description}}</textarea>
+            <div class="option-data">
+              <label>Mechanical Data</label>
+              <input type="text" name="system.options.{{index}}.data" value="{{option.data}}" placeholder="Data string (e.g., AS1=1:SSA=1)"/>
+            </div>
+            <div class="option-meta">
+              <label>
+                <input type="checkbox" name="system.options.{{index}}.selected" {{#if option.selected}}checked{{/if}}/>
+                Selected by Default
+              </label>
+              <label>
+                <input type="checkbox" name="system.options.{{index}}.requiresChoice" {{#if option.requiresChoice}}checked{{/if}}/>
+                Requires Choice
+              </label>
+              {{#if option.requiresChoice}}
+              <input type="text" name="system.options.{{index}}.choiceType" value="{{option.choiceType}}" placeholder="Choice Type"/>
+              {{/if}}
+            </div>
+            {{#if option.subchoices}}
+            <div class="subchoices">
+              <h4>Subchoices</h4>
+              {{#each option.subchoices as |subchoice subIndex|}}
+              <div class="subchoice-item">
+                <input type="text" name="system.options.{{../index}}.subchoices.{{subIndex}}.id" value="{{subchoice.id}}" placeholder="Subchoice ID"/>
+                <input type="text" name="system.options.{{../index}}.subchoices.{{subIndex}}.name" value="{{subchoice.name}}" placeholder="Subchoice Name"/>
+                <textarea name="system.options.{{../index}}.subchoices.{{subIndex}}.description" placeholder="Subchoice Description">{{subchoice.description}}</textarea>
+                <input type="text" name="system.options.{{../index}}.subchoices.{{subIndex}}.data" value="{{subchoice.data}}" placeholder="Subchoice Data"/>
+                <button type="button" class="subchoice-delete" title="Delete Subchoice">×</button>
+              </div>
+              {{/each}}
+              <button type="button" class="add-subchoice" data-option-index="{{index}}" data-action="add-trait-subchoice">Add Subchoice</button>
+            </div>
+            {{else}}
+            <button type="button" class="add-subchoice" data-option-index="{{index}}" data-action="add-trait-subchoice">Add Subchoices</button>
+            {{/if}}
+          </div>
+          {{/each}}
+          <button type="button" class="add-option" data-action="add-trait-option">Add New Option</button>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Description Tab --}}
+    <div class="tab" data-group="primary" data-tab="description">
+      {{> "systems/anyventure/templates/partials/items/description.hbs"}}
+    </div>
+
+  </section>
+</form>

@@ -1,0 +1,43 @@
+{{!-- Item Header Partial --}}
+<header class="sheet-header">
+  <div class="header-fields">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="64" width="64"/>
+    <div class="header-details">
+      <h1 class="charname">
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{#if (eq item.type 'ancestry')}}Ancestry Name{{else if (eq item.type 'culture')}}Culture Name{{else if (eq item.type 'trait')}}Trait Name{{else if (eq item.type 'module')}}Module Name{{else if (eq item.type 'spell')}}Spell Name{{else}}Item Name{{/if}}"/>
+      </h1>
+      <div class="item-subtitle">
+        <span class="item-type item-type-{{item.type}}">
+          {{#if (eq item.type 'ancestry')}}Ancestry{{else if (eq item.type 'culture')}}Culture{{else if (eq item.type 'trait')}}Trait{{else if (eq item.type 'module')}}Module{{else if (eq item.type 'spell')}}Spell{{else}}{{item.type}}{{/if}}
+        </span>
+        {{#if system.rarity}}
+        <span class="item-rarity rarity-{{system.rarity}}">{{system.rarity}}</span>
+        {{/if}}
+        {{#if system.moduleType}}
+        <span class="module-type">{{system.moduleType}}</span>
+        {{/if}}
+        {{#if system.magicType}}
+        <span class="magic-type">{{system.magicType}}</span>
+        {{/if}}
+        {{#if system.subschool}}
+        <span class="subschool">{{system.subschool}}</span>
+        {{/if}}
+        {{#if system.itemType}}
+        <span class="item-subtype">{{system.itemType}}</span>
+        {{/if}}
+        {{#if system.type}}
+        <span class="trait-type">{{system.type}}</span>
+        {{/if}}
+        {{#if system.size}}
+        <span class="ancestry-size">{{system.size}}</span>
+        {{/if}}
+      </div>
+      {{#if system.complexity}}
+      <div class="spell-complexity">
+        <span class="complexity-label">Complexity:</span>
+        <span class="complexity-value">{{system.complexity}}</span>
+      </div>
+      {{/if}}
+    </div>
+  </div>
+</header>

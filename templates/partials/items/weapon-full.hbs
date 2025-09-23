@@ -1,0 +1,197 @@
+{{!-- Full Weapon Properties Partial --}}
+<div class="weapon-full-section">
+  {{!-- Weapon Category and Attack Bonus --}}
+  <div class="weapon-category-section">
+    <div class="form-group">
+      <label for="system.weapon_data.category">Weapon Category</label>
+      <select name="system.weapon_data.category">
+        <option value="simpleMeleeWeapons" {{#if (eq system.weapon_data.category "simpleMeleeWeapons")}}selected{{/if}}>Simple Melee</option>
+        <option value="simpleRangedWeapons" {{#if (eq system.weapon_data.category "simpleRangedWeapons")}}selected{{/if}}>Simple Ranged</option>
+        <option value="complexMeleeWeapons" {{#if (eq system.weapon_data.category "complexMeleeWeapons")}}selected{{/if}}>Complex Melee</option>
+        <option value="complexRangedWeapons" {{#if (eq system.weapon_data.category "complexRangedWeapons")}}selected{{/if}}>Complex Ranged</option>
+        <option value="unarmed" {{#if (eq system.weapon_data.category "unarmed")}}selected{{/if}}>Unarmed</option>
+        <option value="throwing" {{#if (eq system.weapon_data.category "throwing")}}selected{{/if}}>Throwing</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="system.bonus_attack">Attack Bonus</label>
+      <input type="number" name="system.bonus_attack" value="{{system.bonus_attack}}" placeholder="0" min="0" max="5"/>
+    </div>
+  </div>
+
+  {{!-- Primary Attack --}}
+  <div class="attack-section primary-attack">
+    <h3>Primary Attack</h3>
+    <div class="attack-grid">
+      <div class="form-group">
+        <label for="system.weapon_data.primary.damage">Damage</label>
+        <input type="text" name="system.weapon_data.primary.damage" value="{{system.weapon_data.primary.damage}}" placeholder="3"/>
+      </div>
+      <div class="form-group">
+        <label for="system.weapon_data.primary.damage_extra">Extra Damage</label>
+        <input type="text" name="system.weapon_data.primary.damage_extra" value="{{system.weapon_data.primary.damage_extra}}" placeholder="2"/>
+      </div>
+      <div class="form-group">
+        <label for="system.weapon_data.primary.damage_type">Damage Type</label>
+        <select name="system.weapon_data.primary.damage_type">
+          <option value="physical" {{#if (eq system.weapon_data.primary.damage_type "physical")}}selected{{/if}}>Physical</option>
+          <option value="heat" {{#if (eq system.weapon_data.primary.damage_type "heat")}}selected{{/if}}>Heat</option>
+          <option value="cold" {{#if (eq system.weapon_data.primary.damage_type "cold")}}selected{{/if}}>Cold</option>
+          <option value="electric" {{#if (eq system.weapon_data.primary.damage_type "electric")}}selected{{/if}}>Electric</option>
+          <option value="dark" {{#if (eq system.weapon_data.primary.damage_type "dark")}}selected{{/if}}>Dark</option>
+          <option value="divine" {{#if (eq system.weapon_data.primary.damage_type "divine")}}selected{{/if}}>Divine</option>
+          <option value="aether" {{#if (eq system.weapon_data.primary.damage_type "aether")}}selected{{/if}}>Aetheric</option>
+          <option value="psychic" {{#if (eq system.weapon_data.primary.damage_type "psychic")}}selected{{/if}}>Psychic</option>
+          <option value="toxic" {{#if (eq system.weapon_data.primary.damage_type "toxic")}}selected{{/if}}>Toxic</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="system.weapon_data.primary.category">Attack Type</label>
+        <select name="system.weapon_data.primary.category">
+          <option value="pierce" {{#if (eq system.weapon_data.primary.category "pierce")}}selected{{/if}}>Pierce</option>
+          <option value="slash" {{#if (eq system.weapon_data.primary.category "slash")}}selected{{/if}}>Slash</option>
+          <option value="blunt" {{#if (eq system.weapon_data.primary.category "blunt")}}selected{{/if}}>Blunt</option>
+          <option value="ranged" {{#if (eq system.weapon_data.primary.category "ranged")}}selected{{/if}}>Ranged</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="system.weapon_data.primary.min_range">Min Range</label>
+        <select name="system.weapon_data.primary.min_range">
+          <option value="0" {{#if (eq system.weapon_data.primary.min_range 0)}}selected{{/if}}>Adjacent</option>
+          <option value="1" {{#if (eq system.weapon_data.primary.min_range 1)}}selected{{/if}}>Nearby</option>
+          <option value="2" {{#if (eq system.weapon_data.primary.min_range 2)}}selected{{/if}}>Very Short</option>
+          <option value="3" {{#if (eq system.weapon_data.primary.min_range 3)}}selected{{/if}}>Short</option>
+          <option value="4" {{#if (eq system.weapon_data.primary.min_range 4)}}selected{{/if}}>Moderate</option>
+          <option value="5" {{#if (eq system.weapon_data.primary.min_range 5)}}selected{{/if}}>Distant</option>
+          <option value="6" {{#if (eq system.weapon_data.primary.min_range 6)}}selected{{/if}}>Remote</option>
+          <option value="7" {{#if (eq system.weapon_data.primary.min_range 7)}}selected{{/if}}>Unlimited</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="system.weapon_data.primary.max_range">Max Range</label>
+        <select name="system.weapon_data.primary.max_range">
+          <option value="0" {{#if (eq system.weapon_data.primary.max_range 0)}}selected{{/if}}>Adjacent</option>
+          <option value="1" {{#if (eq system.weapon_data.primary.max_range 1)}}selected{{/if}}>Nearby</option>
+          <option value="2" {{#if (eq system.weapon_data.primary.max_range 2)}}selected{{/if}}>Very Short</option>
+          <option value="3" {{#if (eq system.weapon_data.primary.max_range 3)}}selected{{/if}}>Short</option>
+          <option value="4" {{#if (eq system.weapon_data.primary.max_range 4)}}selected{{/if}}>Moderate</option>
+          <option value="5" {{#if (eq system.weapon_data.primary.max_range 5)}}selected{{/if}}>Distant</option>
+          <option value="6" {{#if (eq system.weapon_data.primary.max_range 6)}}selected{{/if}}>Remote</option>
+          <option value="7" {{#if (eq system.weapon_data.primary.max_range 7)}}selected{{/if}}>Unlimited</option>
+        </select>
+      </div>
+    </div>
+
+    {{!-- Secondary Damage for Primary Attack --}}
+    {{#if system.weapon_data.primary.secondary_damage}}
+    <div class="secondary-damage">
+      <h4>Secondary Damage</h4>
+      <div class="attack-grid">
+        <div class="form-group">
+          <label for="system.weapon_data.primary.secondary_damage">Damage</label>
+          <input type="number" name="system.weapon_data.primary.secondary_damage" value="{{system.weapon_data.primary.secondary_damage}}" placeholder="0"/>
+        </div>
+        <div class="form-group">
+          <label for="system.weapon_data.primary.secondary_damage_extra">Extra</label>
+          <input type="number" name="system.weapon_data.primary.secondary_damage_extra" value="{{system.weapon_data.primary.secondary_damage_extra}}" placeholder="0"/>
+        </div>
+        <div class="form-group">
+          <label for="system.weapon_data.primary.secondary_damage_type">Type</label>
+          <select name="system.weapon_data.primary.secondary_damage_type">
+            <option value="physical" {{#if (eq system.weapon_data.primary.secondary_damage_type "physical")}}selected{{/if}}>Physical</option>
+            <option value="heat" {{#if (eq system.weapon_data.primary.secondary_damage_type "heat")}}selected{{/if}}>Heat</option>
+            <option value="cold" {{#if (eq system.weapon_data.primary.secondary_damage_type "cold")}}selected{{/if}}>Cold</option>
+            <option value="electric" {{#if (eq system.weapon_data.primary.secondary_damage_type "electric")}}selected{{/if}}>Electric</option>
+            <option value="dark" {{#if (eq system.weapon_data.primary.secondary_damage_type "dark")}}selected{{/if}}>Dark</option>
+            <option value="divine" {{#if (eq system.weapon_data.primary.secondary_damage_type "divine")}}selected{{/if}}>Divine</option>
+            <option value="aether" {{#if (eq system.weapon_data.primary.secondary_damage_type "aether")}}selected{{/if}}>Aetheric</option>
+            <option value="psychic" {{#if (eq system.weapon_data.primary.secondary_damage_type "psychic")}}selected{{/if}}>Psychic</option>
+            <option value="toxic" {{#if (eq system.weapon_data.primary.secondary_damage_type "toxic")}}selected{{/if}}>Toxic</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    {{/if}}
+  </div>
+
+  {{!-- Secondary Attack (if exists) --}}
+  {{#if system.weapon_data.secondary}}
+  <div class="attack-section secondary-attack">
+    <h3>Secondary Attack</h3>
+    <div class="attack-grid">
+      <div class="form-group">
+        <label for="system.weapon_data.secondary.damage">Damage</label>
+        <input type="text" name="system.weapon_data.secondary.damage" value="{{system.weapon_data.secondary.damage}}" placeholder="0"/>
+      </div>
+      <div class="form-group">
+        <label for="system.weapon_data.secondary.damage_extra">Extra Damage</label>
+        <input type="text" name="system.weapon_data.secondary.damage_extra" value="{{system.weapon_data.secondary.damage_extra}}" placeholder="0"/>
+      </div>
+      <div class="form-group">
+        <label for="system.weapon_data.secondary.damage_type">Damage Type</label>
+        <select name="system.weapon_data.secondary.damage_type">
+          <option value="physical" {{#if (eq system.weapon_data.secondary.damage_type "physical")}}selected{{/if}}>Physical</option>
+          <option value="heat" {{#if (eq system.weapon_data.secondary.damage_type "heat")}}selected{{/if}}>Heat</option>
+          <option value="cold" {{#if (eq system.weapon_data.secondary.damage_type "cold")}}selected{{/if}}>Cold</option>
+          <option value="electric" {{#if (eq system.weapon_data.secondary.damage_type "electric")}}selected{{/if}}>Electric</option>
+          <option value="dark" {{#if (eq system.weapon_data.secondary.damage_type "dark")}}selected{{/if}}>Dark</option>
+          <option value="divine" {{#if (eq system.weapon_data.secondary.damage_type "divine")}}selected{{/if}}>Divine</option>
+          <option value="aether" {{#if (eq system.weapon_data.secondary.damage_type "aether")}}selected{{/if}}>Aetheric</option>
+          <option value="psychic" {{#if (eq system.weapon_data.secondary.damage_type "psychic")}}selected{{/if}}>Psychic</option>
+          <option value="toxic" {{#if (eq system.weapon_data.secondary.damage_type "toxic")}}selected{{/if}}>Toxic</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="system.weapon_data.secondary.category">Attack Type</label>
+        <select name="system.weapon_data.secondary.category">
+          <option value="pierce" {{#if (eq system.weapon_data.secondary.category "pierce")}}selected{{/if}}>Pierce</option>
+          <option value="slash" {{#if (eq system.weapon_data.secondary.category "slash")}}selected{{/if}}>Slash</option>
+          <option value="blunt" {{#if (eq system.weapon_data.secondary.category "blunt")}}selected{{/if}}>Blunt</option>
+          <option value="ranged" {{#if (eq system.weapon_data.secondary.category "ranged")}}selected{{/if}}>Ranged</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="system.weapon_data.secondary.min_range">Min Range</label>
+        <select name="system.weapon_data.secondary.min_range">
+          <option value="0" {{#if (eq system.weapon_data.secondary.min_range 0)}}selected{{/if}}>Adjacent</option>
+          <option value="1" {{#if (eq system.weapon_data.secondary.min_range 1)}}selected{{/if}}>Nearby</option>
+          <option value="2" {{#if (eq system.weapon_data.secondary.min_range 2)}}selected{{/if}}>Very Short</option>
+          <option value="3" {{#if (eq system.weapon_data.secondary.min_range 3)}}selected{{/if}}>Short</option>
+          <option value="4" {{#if (eq system.weapon_data.secondary.min_range 4)}}selected{{/if}}>Moderate</option>
+          <option value="5" {{#if (eq system.weapon_data.secondary.min_range 5)}}selected{{/if}}>Distant</option>
+          <option value="6" {{#if (eq system.weapon_data.secondary.min_range 6)}}selected{{/if}}>Remote</option>
+          <option value="7" {{#if (eq system.weapon_data.secondary.min_range 7)}}selected{{/if}}>Unlimited</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="system.weapon_data.secondary.max_range">Max Range</label>
+        <select name="system.weapon_data.secondary.max_range">
+          <option value="0" {{#if (eq system.weapon_data.secondary.max_range 0)}}selected{{/if}}>Adjacent</option>
+          <option value="1" {{#if (eq system.weapon_data.secondary.max_range 1)}}selected{{/if}}>Nearby</option>
+          <option value="2" {{#if (eq system.weapon_data.secondary.max_range 2)}}selected{{/if}}>Very Short</option>
+          <option value="3" {{#if (eq system.weapon_data.secondary.max_range 3)}}selected{{/if}}>Short</option>
+          <option value="4" {{#if (eq system.weapon_data.secondary.max_range 4)}}selected{{/if}}>Moderate</option>
+          <option value="5" {{#if (eq system.weapon_data.secondary.max_range 5)}}selected{{/if}}>Distant</option>
+          <option value="6" {{#if (eq system.weapon_data.secondary.max_range 6)}}selected{{/if}}>Remote</option>
+          <option value="7" {{#if (eq system.weapon_data.secondary.max_range 7)}}selected{{/if}}>Unlimited</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  {{/if}}
+
+  {{!-- Weapon Flags --}}
+  <div class="weapon-flags-section">
+    <h3>Weapon Properties</h3>
+    <div class="flags-grid">
+      {{#each weaponFlags as |flag|}}
+      <div class="flag-item">
+        <label>
+          <input type="checkbox" class="weapon-flag" value="{{flag}}" {{#if (includes ../system.weapon_data.flags flag)}}checked{{/if}}/>
+          {{capitalize flag}}
+        </label>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</div>

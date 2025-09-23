@@ -1,0 +1,54 @@
+{{!-- Mitigation Partial --}}
+<div class="mitigation-section">
+  <h3>Damage Mitigation</h3>
+  <div class="mitigation-grid">
+    <div class="form-group mitigation-item">
+      <label for="system.mitigation.physical" class="damage-type-physical">Physical</label>
+      <input type="number" name="system.mitigation.physical" value="{{system.mitigation.physical}}" placeholder="0" min="0"/>
+      {{#if system.mitigation.physical}}<span class="mitigation-value">{{system.mitigation.physical}}</span>{{/if}}
+    </div>
+    <div class="form-group mitigation-item">
+      <label for="system.mitigation.heat" class="damage-type-heat">Heat</label>
+      <input type="number" name="system.mitigation.heat" value="{{system.mitigation.heat}}" placeholder="0" min="0"/>
+      {{#if system.mitigation.heat}}<span class="mitigation-value">{{system.mitigation.heat}}</span>{{/if}}
+    </div>
+    <div class="form-group mitigation-item">
+      <label for="system.mitigation.cold" class="damage-type-cold">Cold</label>
+      <input type="number" name="system.mitigation.cold" value="{{system.mitigation.cold}}" placeholder="0" min="0"/>
+      {{#if system.mitigation.cold}}<span class="mitigation-value">{{system.mitigation.cold}}</span>{{/if}}
+    </div>
+    <div class="form-group mitigation-item">
+      <label for="system.mitigation.electric" class="damage-type-electric">Electric</label>
+      <input type="number" name="system.mitigation.electric" value="{{system.mitigation.electric}}" placeholder="0" min="0"/>
+      {{#if system.mitigation.electric}}<span class="mitigation-value">{{system.mitigation.electric}}</span>{{/if}}
+    </div>
+    <div class="form-group mitigation-item">
+      <label for="system.mitigation.dark" class="damage-type-dark">Dark</label>
+      <input type="number" name="system.mitigation.dark" value="{{system.mitigation.dark}}" placeholder="0" min="0"/>
+      {{#if system.mitigation.dark}}<span class="mitigation-value">{{system.mitigation.dark}}</span>{{/if}}
+    </div>
+    <div class="form-group mitigation-item">
+      <label for="system.mitigation.divine" class="damage-type-divine">Divine</label>
+      <input type="number" name="system.mitigation.divine" value="{{system.mitigation.divine}}" placeholder="0" min="0"/>
+      {{#if system.mitigation.divine}}<span class="mitigation-value">{{system.mitigation.divine}}</span>{{/if}}
+    </div>
+    <div class="form-group mitigation-item">
+      <label for="system.mitigation.aether" class="damage-type-aether">Aetheric</label>
+      <input type="number" name="system.mitigation.aether" value="{{system.mitigation.aether}}" placeholder="0" min="0"/>
+      {{#if system.mitigation.aether}}<span class="mitigation-value">{{system.mitigation.aether}}</span>{{/if}}
+    </div>
+    <div class="form-group mitigation-item">
+      <label for="system.mitigation.psychic" class="damage-type-psychic">Psychic</label>
+      <input type="number" name="system.mitigation.psychic" value="{{system.mitigation.psychic}}" placeholder="0" min="0"/>
+      {{#if system.mitigation.psychic}}<span class="mitigation-value">{{system.mitigation.psychic}}</span>{{/if}}
+    </div>
+    <div class="form-group mitigation-item">
+      <label for="system.mitigation.toxic" class="damage-type-toxic">Toxic</label>
+      <input type="number" name="system.mitigation.toxic" value="{{system.mitigation.toxic}}" placeholder="0" min="0"/>
+      {{#if system.mitigation.toxic}}<span class="mitigation-value">{{system.mitigation.toxic}}</span>{{/if}}
+    </div>
+  </div>
+  <div class="mitigation-summary">
+    <small>Mitigation reduces incoming damage of that type. Higher values provide better protection.</small>
+  </div>
+</div>

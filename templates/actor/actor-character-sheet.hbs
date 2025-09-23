@@ -9,6 +9,13 @@
         <h1 class="charname">
           <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name"/>
         </h1>
+
+        {{!-- Character Utilities --}}
+        <div class="character-utilities">
+          <button type="button" class="recalculate-character" title="Recalculate all character stats from modules">
+            <i class="fas fa-calculator"></i> Recalculate Stats
+          </button>
+        </div>
       </div>
 
       {{!-- Resources Section --}}
@@ -48,6 +55,23 @@
             </div>
             <div class="resource-fill" style="width: {{percentage system.resources.resolve.value system.resources.resolve.max}}%"></div>
           </div>
+          <div class="resource-bar morale">
+            <label>Morale</label>
+            <div class="resource-controls">
+              <button type="button" class="resource-btn minus" data-resource="morale" data-action="decrease">
+                <i class="fas fa-minus"></i>
+              </button>
+              <div class="resource-values">
+                <input type="number" name="system.resources.morale.value" value="{{system.resources.morale.value}}"/>
+                <span class="separator">/</span>
+                <input type="number" name="system.resources.morale.max" value="{{system.resources.morale.max}}"/>
+              </div>
+              <button type="button" class="resource-btn plus" data-resource="morale" data-action="increase">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="resource-fill" style="width: {{percentage system.resources.morale.value system.resources.morale.max}}%"></div>
+          </div>
           <div class="resource-bar energy">
             <label>Energy</label>
             <div class="resource-controls">
@@ -77,7 +101,8 @@
       {{!-- Tab Navigation --}}
       <nav class="sheet-tabs tabs" data-group="primary">
         <a class="item active" data-tab="skills">Skills</a>
-        <a class="item" data-tab="modules">Modules</a>
+        <a class="item" data-tab="character">Character</a>
+        <a class="item" data-tab="moves">Moves</a>
         <a class="item" data-tab="equipment">Equipment</a>
         <a class="item" data-tab="spells">Spells</a>
         <a class="item" data-tab="biography">Biography</a>
@@ -86,13 +111,18 @@
       {{!-- Sheet Body for Tab Content --}}
       <section class="sheet-body">
         {{!-- Skills Tab --}}
-        <div class="tab skills" data-group="primary" data-tab="skills">
+        <div class="tab skills active" data-group="primary" data-tab="skills">
           {{> "systems/anyventure/templates/partials/skills.hbs"}}
         </div>
 
-        {{!-- Modules Tab --}}
-        <div class="tab modules" data-group="primary" data-tab="modules">
+        {{!-- Character Tab --}}
+        <div class="tab character" data-group="primary" data-tab="character">
           {{> "systems/anyventure/templates/partials/modules.hbs"}}
+        </div>
+
+        {{!-- Moves Tab --}}
+        <div class="tab moves" data-group="primary" data-tab="moves">
+          {{> "systems/anyventure/templates/partials/moves.hbs"}}
         </div>
 
         {{!-- Equipment Tab --}}

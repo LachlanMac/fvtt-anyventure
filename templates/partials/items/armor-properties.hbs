@@ -1,0 +1,38 @@
+{{!-- Armor Properties Partial --}}
+<div class="armor-properties-section">
+  <h3>Armor Properties</h3>
+  
+  <div class="armor-fields">
+    <div class="form-group">
+      <label>Base Mitigation</label>
+      <input type="number" name="system.armor_data.base_mitigation" value="{{system.armor_data.base_mitigation}}" data-dtype="Number" placeholder="0"/>
+    </div>
+    
+    <div class="form-group">
+      <label>Dexterity Limit</label>
+      <input type="number" name="system.armor_data.dexterity_limit" value="{{system.armor_data.dexterity_limit}}" data-dtype="Number" placeholder="0"/>
+    </div>
+  </div>
+
+  {{!-- Mitigation by Damage Type --}}
+  <div class="mitigation-section">
+    <h3>Damage Mitigation</h3>
+    <div class="mitigation-grid">
+      {{#each ../damageTypes as |type|}}
+      <div class="form-group">
+        <label>{{capitalize type}}</label>
+        <input type="number" name="system.armor_data.mitigation.{{type}}" value="{{lookup ../system.armor_data.mitigation type}}" data-dtype="Number" placeholder="0"/>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
+  {{!-- Special Properties --}}
+  <div class="special-properties">
+    <h3>Special Properties</h3>
+    <div class="form-group stacked">
+      <label>Notes</label>
+      <textarea name="system.armor_data.special" placeholder="Any special properties or notes about this armor">{{system.armor_data.special}}</textarea>
+    </div>
+  </div>
+</div>

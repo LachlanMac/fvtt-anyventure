@@ -1,0 +1,113 @@
+<form class="{{cssClass}} {{item.type}} flexcol" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  {{> "systems/anyventure/templates/partials/items/item-header.hbs"}}
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="basic">Basic</a>
+    <a class="item" data-tab="traits">Traits</a>
+    <a class="item" data-tab="description">Description</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    {{!-- Basic Tab --}}
+    <div class="tab" data-group="primary" data-tab="basic">
+      <div class="ancestry-basic-info">
+
+        <div class="form-group">
+          <label>Homeworld</label>
+          <input type="text" name="system.homeworld" value="{{system.homeworld}}" placeholder="Planet or realm of origin"/>
+        </div>
+
+        <div class="form-group">
+          <label>Size</label>
+          <select name="system.size">
+            <option value="tiny" {{#if (eq system.size "tiny")}}selected{{/if}}>Tiny</option>
+            <option value="small" {{#if (eq system.size "small")}}selected{{/if}}>Small</option>
+            <option value="medium" {{#if (eq system.size "medium")}}selected{{/if}}>Medium</option>
+            <option value="large" {{#if (eq system.size "large")}}selected{{/if}}>Large</option>
+            <option value="huge" {{#if (eq system.size "huge")}}selected{{/if}}>Huge</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Lifespan</label>
+          <input type="text" name="system.lifespan" value="{{system.lifespan}}" placeholder="Average lifespan and maturity age"/>
+        </div>
+
+        <div class="form-group">
+          <label>Height</label>
+          <input type="text" name="system.height" value="{{system.height}}" placeholder="Typical height range"/>
+        </div>
+
+        <div class="form-group">
+          <label>Home Environment</label>
+          <input type="text" name="system.home" value="{{system.home}}" placeholder="Natural habitat or preferred environment"/>
+        </div>
+
+        <div class="form-group">
+          <label>Primary Language</label>
+          <input type="text" name="system.language" value="{{system.language}}" placeholder="Native language"/>
+        </div>
+
+        <div class="form-group">
+          <label>Source</label>
+          <input type="text" name="system.source" value="{{system.source}}" placeholder="Source book or origin"/>
+        </div>
+
+      </div>
+    </div>
+
+    {{!-- Traits Tab --}}
+    <div class="tab" data-group="primary" data-tab="traits">
+      <div class="ancestry-traits">
+        <h3>Ancestry Traits</h3>
+        <div class="traits-container">
+          {{#each system.options as |option index|}}
+          <div class="trait-option" data-index="{{index}}">
+            <div class="trait-header">
+              <input type="text" name="system.options.{{index}}.name" value="{{option.name}}" placeholder="Trait Name"/>
+              <button type="button" class="trait-delete" title="Delete Trait">×</button>
+            </div>
+            <textarea name="system.options.{{index}}.description" placeholder="Trait Description">{{option.description}}</textarea>
+            <div class="trait-data">
+              <label>Mechanical Data</label>
+              <input type="text" name="system.options.{{index}}.data" value="{{option.data}}" placeholder="Data string (e.g., AS1=1:SSA=1)"/>
+            </div>
+            <div class="trait-meta">
+              <label>
+                <input type="checkbox" name="system.options.{{index}}.requiresChoice" {{#if option.requiresChoice}}checked{{/if}}/>
+                Requires Choice
+              </label>
+              {{#if option.requiresChoice}}
+              <input type="text" name="system.options.{{index}}.choiceType" value="{{option.choiceType}}" placeholder="Choice Type"/>
+              {{/if}}
+            </div>
+            {{#if option.subchoices}}
+            <div class="subchoices">
+              <h4>Subchoices</h4>
+              {{#each option.subchoices as |subchoice subIndex|}}
+              <div class="subchoice-item">
+                <input type="text" name="system.options.{{../index}}.subchoices.{{subIndex}}.name" value="{{subchoice.name}}" placeholder="Subchoice Name"/>
+                <textarea name="system.options.{{../index}}.subchoices.{{subIndex}}.description" placeholder="Subchoice Description">{{subchoice.description}}</textarea>
+              </div>
+              {{/each}}
+            </div>
+            {{/if}}
+          </div>
+          {{/each}}
+          <button type="button" class="add-trait" data-action="add-ancestry-trait">Add New Trait</button>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Description Tab --}}
+    <div class="tab" data-group="primary" data-tab="description">
+      {{> "systems/anyventure/templates/partials/items/description.hbs"}}
+    </div>
+
+  </section>
+</form>

@@ -1,18 +1,118 @@
-{{!-- Modules Tab Content --}}
-<div class="modules">
-  <h3>Modules</h3>
-  <div class="module-points">
-    <label>Available Module Points: {{availableModulePoints}}</label>
-  </div>
-  <div class="items-header">
-    <div class="item-name">Name</div>
-    <div class="item-type">Type</div>
-    <div class="item-controls">
-      <a class="item-control item-create" title="Create item" data-type="module">
-        <i class="fas fa-plus"></i> Add Module
-      </a>
+{{!-- Character Tab Content --}}
+<div class="character-page">
+  {{!-- Character Essentials Section --}}
+  <div class="character-essentials">
+    {{!-- Ancestry Section --}}
+    {{#if ancestry}}
+    <div class="character-essential-section ancestry-section">
+      <div class="essential-icon">
+        <img src="{{ancestry.img}}" alt="{{ancestry.name}}" />
+      </div>
+      <div class="essential-content">
+        <h4 class="essential-title">Ancestry: {{ancestry.name}}</h4>
+      </div>
+      <div class="essential-controls">
+        <a class="item-control item-edit" data-item-id="{{ancestry._id}}" title="Edit"><i class="fas fa-edit"></i></a>
+        <a class="item-control item-delete" data-item-id="{{ancestry._id}}" title="Delete"><i class="fas fa-trash"></i></a>
+      </div>
     </div>
+    {{else}}
+    <div class="character-essential-empty ancestry-empty">
+      <div class="essential-drop-zone" data-essential-type="ancestry">
+        <i class="fas fa-upload"></i>
+        <span>Drag and Drop Ancestry Here</span>
+      </div>
+    </div>
+    {{/if}}
+
+    {{!-- Culture Section --}}
+    {{#if culture}}
+    <div class="character-essential-section culture-section">
+      <div class="essential-icon">
+        <img src="{{culture.img}}" alt="{{culture.name}}" />
+      </div>
+      <div class="essential-content">
+        <h4 class="essential-title">Culture: {{culture.name}}</h4>
+      </div>
+      <div class="essential-controls">
+        <a class="item-control item-edit" data-item-id="{{culture._id}}" title="Edit"><i class="fas fa-edit"></i></a>
+        <a class="item-control item-delete" data-item-id="{{culture._id}}" title="Delete"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{else}}
+    <div class="character-essential-empty culture-empty">
+      <div class="essential-drop-zone" data-essential-type="culture">
+        <i class="fas fa-upload"></i>
+        <span>Drag and Drop Culture Here</span>
+      </div>
+    </div>
+    {{/if}}
+
+    {{!-- Personality Section --}}
+    {{#if personality}}
+    <div class="character-essential-section personality-section">
+      <div class="essential-icon">
+        <img src="{{personality.img}}" alt="{{personality.name}}" />
+      </div>
+      <div class="essential-content">
+        <h4 class="essential-title">Personality: {{personality.name}}</h4>
+      </div>
+      <div class="essential-controls">
+        <a class="item-control item-edit" data-item-id="{{personality._id}}" title="Edit"><i class="fas fa-edit"></i></a>
+        <a class="item-control item-delete" data-item-id="{{personality._id}}" title="Delete"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{else}}
+    <div class="character-essential-empty personality-empty">
+      <div class="essential-drop-zone" data-essential-type="personality">
+        <i class="fas fa-upload"></i>
+        <span>Drag and Drop Personality Here</span>
+      </div>
+    </div>
+    {{/if}}
+
+    {{!-- Trait Section --}}
+    {{#if trait}}
+    <div class="character-essential-section trait-section">
+      <div class="essential-icon">
+        <img src="{{trait.img}}" alt="{{trait.name}}" />
+      </div>
+      <div class="essential-content">
+        <h4 class="essential-title">Trait: {{trait.name}}</h4>
+      </div>
+      <div class="essential-controls">
+        <a class="item-control item-edit" data-item-id="{{trait._id}}" title="Edit"><i class="fas fa-edit"></i></a>
+        <a class="item-control item-delete" data-item-id="{{trait._id}}" title="Delete"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{else}}
+    <div class="character-essential-empty trait-empty">
+      <div class="essential-drop-zone" data-essential-type="trait">
+        <i class="fas fa-upload"></i>
+        <span>Drag and Drop Trait Here</span>
+      </div>
+    </div>
+    {{/if}}
   </div>
+
+  {{!-- Modules Section --}}
+  <div class="modules">
+    <div class="module-points">
+      {{#if system.modulePoints.total}}
+        {{!-- New structure: { total: X, spent: Y } --}}
+        <label>Module Points:
+          <input type="number" name="system.modulePoints.spent" value="{{system.modulePoints.spent}}" min="0" style="width: 50px; margin-left: 5px;" />
+          /
+          <input type="number" name="system.modulePoints.total" value="{{system.modulePoints.total}}" min="0" style="width: 50px; margin-left: 2px;" />
+        </label>
+        <span style="margin-left: 10px; color: #666;">({{availableModulePoints}} available)</span>
+      {{else}}
+        {{!-- Legacy structure: just a number --}}
+        <label>Available Module Points:
+          <input type="number" name="system.modulePoints" value="{{system.modulePoints}}" min="0" style="width: 60px; margin-left: 5px;" />
+        </label>
+      {{/if}}
+    </div>
   
   <ol class="items-list">
     {{#each modules as |item id|}}
@@ -31,4 +131,5 @@
     </li>
     {{/each}}
   </ol>
+</div>
 </div>
