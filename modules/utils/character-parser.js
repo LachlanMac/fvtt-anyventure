@@ -84,6 +84,11 @@ function mergeDeltas(sourceDelta, targetDelta) {
   Object.entries(sourceDelta.conditionals).forEach(([condition, effects]) => {
     targetDelta.conditionals[condition].push(...effects);
   });
+
+  // Merge boolean flags
+  Object.entries(sourceDelta.flags || {}).forEach(([name, val]) => {
+    if (val) targetDelta.flags[name] = true;
+  });
 }
 
 /**
@@ -363,18 +368,32 @@ export function applyParsedEffectsToCharacter(actor, delta) {
   console.log('Applying parsed effects to character:', actor.name);
 
   // Convert FoundryVTT actor system to format expected by applyDeltaToCharacter
+  const dup = (v) => (foundry?.utils?.duplicate ? foundry.utils.duplicate(v) : JSON.parse(JSON.stringify(v)));
   const character = {
-    attributes: actor.system.attributes || {},
-    skills: actor.system.basic || {},  // FoundryVTT stores basic skills in 'basic', not 'skills'
-    weaponSkills: actor.system.weapon || {},  // FoundryVTT stores weapon skills in 'weapon'
-    magicSkills: actor.system.magic || {},   // FoundryVTT stores magic skills in 'magic'
-    craftingSkills: actor.system.crafting || {},  // FoundryVTT stores crafting skills in 'crafting'
-    mitigation: actor.system.mitigation || {},
-    resources: actor.system.resources || {},
-    movement: actor.system.movement || 0,
-    immunities: actor.system.immunities || [],
-    conditionals: actor.system.conditionals || {}
+    attributes: dup(actor.system.attributes || {}),
+    skills: dup(actor.system.basic || {}),          // FoundryVTT stores basic skills in 'basic', not 'skills'
+    weaponSkills: dup(actor.system.weapon || {}),   // FoundryVTT stores weapon skills in 'weapon'
+    magicSkills: dup(actor.system.magic || {}),     // FoundryVTT stores magic skills in 'magic'
+    craftingSkills: dup(actor.system.crafting || {}),  // FoundryVTT stores crafting skills in 'crafting'
+    mitigation: dup(actor.system.mitigation || {}),
+    resources: dup(actor.system.resources || {}),
+    movement: dup(actor.system.movement ?? 0),
+    immunities: dup(actor.system.immunities || []),
+    conditionals: dup(actor.system.conditionals || {})
   };
+
+  // Ensure baseline resource maxima before applying deltas (so +X adds to defaults, not zero)
+  const r = character.resources || (character.resources = {});
+  const ensureObj = (o) => (o && typeof o === 'object') ? o : { value: undefined, max: 0, temp: 0 };
+  r.health = ensureObj(r.health);
+  r.resolve = ensureObj(r.resolve);
+  r.morale = ensureObj(r.morale);
+  r.energy = ensureObj(r.energy);
+  const baseMax = { health: 20, resolve: 20, morale: 10, energy: 5 };
+  if (!r.health.max) r.health.max = baseMax.health;
+  if (!r.resolve.max) r.resolve.max = baseMax.resolve;
+  if (!r.morale.max) r.morale.max = baseMax.morale;
+  if (!r.energy.max) r.energy.max = baseMax.energy;
 
   // Apply the delta
   applyDeltaToCharacter(character, delta);
@@ -382,9 +401,9 @@ export function applyParsedEffectsToCharacter(actor, delta) {
   // Convert back and update the actor
   const updateData = {
     'system.attributes': character.attributes,
-    'system.basic': character.skills,        // Convert back to FoundryVTT structure
-    'system.weapon': character.weaponSkills,  // Convert back to FoundryVTT structure
-    'system.magic': character.magicSkills,   // Convert back to FoundryVTT structure
+    'system.basic': character.skills,          // Convert back to FoundryVTT structure
+    'system.weapon': character.weaponSkills,   // Convert back to FoundryVTT structure
+    'system.magic': character.magicSkills,     // Convert back to FoundryVTT structure
     'system.crafting': character.craftingSkills,  // Convert back to FoundryVTT structure
     'system.mitigation': character.mitigation,
     'system.resources': character.resources,
@@ -462,6 +481,9 @@ export function parseAndApplyCharacterEffectsInPlace(actor) {
  */
 export async function parseAndApplyCharacterEffects(actor) {
   try {
+    // Block ephemeral overlays and baseline restore during rebuild
+    actor._blockOverlays = true;
+    actor._suspendRestore = true;
     // First, reset all calculated values to base (like prepareBaseData does)
     await resetCharacterToBase(actor);
 
@@ -471,10 +493,66 @@ export async function parseAndApplyCharacterEffects(actor) {
     // Parse and create ability items
     await parseAbilities(actor, combinedDelta);
 
-    // Apply effects to character
-    const updateData = applyParsedEffectsToCharacter(actor, combinedDelta);
+  // Apply effects to character (returns a plain, detached structure)
+  const updateDataRaw = applyParsedEffectsToCharacter(actor, combinedDelta);
+  const dup = (v) => (foundry?.utils?.duplicate ? foundry.utils.duplicate(v) : JSON.parse(JSON.stringify(v)));
+  // Deep-clone to avoid any mutation by prepareDerivedData during the update cycle
+  const updateData = dup(updateDataRaw);
 
-    // Update the actor with the new data
+  // Ensure resource base defaults are present in the recalculated data
+  const ensureBaseResources = (res) => {
+    const r = res || {};
+    const h = r.health || (r.health = { value: undefined, max: 0, temp: 0 });
+    const rv = r.resolve || (r.resolve = { value: undefined, max: 0, temp: 0 });
+    const m = r.morale || (r.morale = { value: undefined, max: 0, temp: 0 });
+    const e = r.energy || (r.energy = { value: undefined, max: 0, temp: 0 });
+    const base = { health: 20, resolve: 20, morale: 10, energy: 5 };
+    if (!h.max) h.max = base.health;
+    if (!rv.max) rv.max = base.resolve;
+    if (!m.max) m.max = base.morale;
+    if (!e.max) e.max = base.energy;
+    // Only clamp current down if it exceeds max; never raise it to max
+    if (typeof h.value === 'number' && h.value > h.max) h.value = h.max;
+    if (typeof rv.value === 'number' && rv.value > rv.max) rv.value = rv.max;
+    if (typeof m.value === 'number' && m.value > m.max) m.value = m.max;
+    if (typeof e.value === 'number' && e.value > e.max) e.value = e.max;
+    return r;
+  };
+
+  updateData['system.resources'] = ensureBaseResources(updateData['system.resources']);
+
+  // Ensure movement base defaults are present in the recalculated data
+  const ensureBaseMovement = (mv) => {
+    const m = mv || {};
+    if (typeof m === 'number') {
+      return { walk: m || 5, swim: Math.floor((m || 5) / 2), climb: Math.floor((m || 5) / 2), fly: 0 };
+    }
+    // Normalize to full object with defaults
+    return {
+      walk: typeof m.walk === 'number' ? m.walk : 5,
+      swim: typeof m.swim === 'number' ? m.swim : 0,
+      climb: typeof m.climb === 'number' ? m.climb : 0,
+      fly: typeof m.fly === 'number' ? m.fly : 0
+    };
+  };
+
+  updateData['system.movement'] = ensureBaseMovement(updateData['system.movement']);
+
+  // Create a persistent base snapshot from the recalculated state only
+  // Use the fresh updateData to avoid capturing any transient/derived values
+  const baseSnapshot = {
+    attributes: dup(updateData['system.attributes'] || {}),
+    basic: dup(updateData['system.basic'] || {}),
+    weapon: dup(updateData['system.weapon'] || {}),
+    magic: dup(updateData['system.magic'] || {}),
+    crafting: dup(updateData['system.crafting'] || {}),
+    mitigation: dup(updateData['system.mitigation'] || {}),
+    resources: dup(updateData['system.resources'] || {}),
+    movement: dup(updateData['system.movement'] || { walk: 5, swim: 0, climb: 0, fly: 0 })
+  };
+  updateData['system._base'] = dup(baseSnapshot);
+
+    // Update the actor with the new data (including base snapshot)
     await actor.update(updateData);
 
     console.log('Character parsing and application complete for:', actor.name);
@@ -490,6 +568,15 @@ export async function parseAndApplyCharacterEffects(actor) {
   } catch (error) {
     console.error('Error parsing character effects:', error);
     ui.notifications.error(`Error parsing character effects: ${error.message}`);
+  } finally {
+    actor._blockOverlays = false;
+    actor._suspendRestore = false;
+    // Run a fresh prepare pass so overlays apply and sheets see final derived values
+    try {
+      actor.prepareData();
+    } catch (prepErr) {
+      console.warn('Post-recalculate prepareData failed:', prepErr);
+    }
   }
 }
 
@@ -502,11 +589,13 @@ async function resetCharacterToBase(actor) {
 
   const updateData = {};
 
-  // Reset movement to base value
-  updateData['system.movement'] = 6;
+  // Do not force movement here; movement is normalized later in the pass
 
   // Reset health max to base (will be recalculated)
   updateData['system.resources.health.max'] = 0;
+  updateData['system.resources.energy.max'] = 0;
+  updateData['system.resources.resolve.max'] = 0;
+  updateData['system.resources.morale.max'] = 0;
 
   // Reset basic skills to zero (stored in system.basic in FoundryVTT)
   if (actor.system.basic) {
@@ -554,8 +643,9 @@ async function resetCharacterToBase(actor) {
     });
   }
 
-  // Reset immunities and conditionals
+  // Reset immunities and conditionals (preserve boolean flags if present)
   updateData['system.immunities'] = [];
+  const existingFlags = actor.system.conditionals?.flags || {};
   updateData['system.conditionals'] = {
     noArmor: [],
     lightArmor: [],
@@ -563,7 +653,8 @@ async function resetCharacterToBase(actor) {
     anyArmor: [],
     anyShield: [],
     lightShield: [],
-    heavyShield: []
+    heavyShield: [],
+    flags: existingFlags
   };
 
   // Apply the reset

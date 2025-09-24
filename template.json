@@ -59,15 +59,15 @@
           "fly": 0
         },
         "mitigation": {
-          "physical": 0,
-          "heat": 0,
-          "cold": 0,
-          "electric": 0,
-          "dark": 0,
-          "divine": 0,
-          "aether": 0,
-          "psychic": 0,
-          "toxic": 0
+        "physical": 0,
+        "heat": 0,
+        "cold": 0,
+        "electric": 0,
+        "dark": 0,
+        "divine": 0,
+        "aether": 0,
+        "psychic": 0,
+        "toxic": 0
         }
       },
       "skills": {
@@ -302,7 +302,7 @@
     }
   },
   "Item": {
-    "types": ["module", "ancestry", "culture", "trait", "item", "spell", "language", "action", "reaction", "passive"],
+    "types": ["module", "ancestry", "culture", "trait", "item", "spell", "language", "action", "reaction", "passive", "injury"],
     "templates": {
       "base": {
         "description": "",
@@ -498,6 +498,12 @@
     "passive": {
       "templates": ["base", "ability"],
       "abilityType": "passive"
+    },
+    "injury": {
+      "templates": ["base"],
+      "injuryType": "cosmetic_injury",
+      "cause": "",
+      "data": ""
     }
   }
 }

@@ -140,7 +140,7 @@ export function createEmptyDelta() {
     // Traits (TA, TG, TC)
     traits: [],
 
-    // Conditionals (C-series)
+    // Conditionals (C-series) - array-gated effects
     conditionals: {
       noArmor: [],
       lightArmor: [],
@@ -149,7 +149,10 @@ export function createEmptyDelta() {
       anyShield: [],
       lightShield: [],
       heavyShield: []
-    }
+    },
+
+    // Boolean flags (F-series) - simple toggles
+    flags: {}
   };
 }
 
@@ -241,6 +244,24 @@ function parseIndividualEffect(effect, delta) {
   const conditionalMatch = effect.match(/^C([A-G])\[([^\]]+)\]$/);
   if (conditionalMatch) {
     parseConditionalEffect(conditionalMatch, delta);
+    return;
+  }
+
+  // Boolean flags (F-series): e.g., FA, FB, ... maps to named toggles
+  const flagMatch = effect.match(/^F([A-Z])$/);
+  if (flagMatch) {
+    const code = flagMatch[1];
+    const flagMap = {
+      'A': 'NO_COMFORTS',
+      'B': 'EMBRACE_SUFFERING',
+      'C': 'URBAN_COMFORT',
+      'D': 'BADGE_OF_HONOR',
+      'E': 'WEAPON_COLLECTOR',
+      'F': 'TWIN_FURY'
+    };
+    const key = flagMap[code];
+    if (key) delta.flags[key] = true;
+    else console.warn(`[DataParser] Unrecognized F-flag code: F${code}`);
     return;
   }
 
@@ -611,6 +632,11 @@ export function combineDeltas(deltas) {
     Object.entries(delta.conditionals).forEach(([condition, effects]) => {
       combined.conditionals[condition].push(...effects);
     });
+
+    // Combine boolean flags
+    Object.entries(delta.flags || {}).forEach(([name, val]) => {
+      if (val) combined.flags[name] = true;
+    });
   }
 
   return combined;
@@ -624,7 +650,13 @@ export function combineDeltas(deltas) {
 export function applyDeltaToCharacter(character, delta) {
   // Apply attributes
   Object.entries(delta.attributes).forEach(([attr, value]) => {
-    if (value !== 0 && character.attributes && character.attributes[attr] !== undefined) {
+    if (value === 0) return;
+    if (!character.attributes || character.attributes[attr] === undefined) return;
+    const current = character.attributes[attr];
+    // Support both numeric attributes and object form with { value, min, max }
+    if (current && typeof current === 'object' && current.value !== undefined) {
+      character.attributes[attr].value += value;
+    } else {
       character.attributes[attr] += value;
     }
   });
@@ -753,4 +785,39 @@ export function applyDeltaToCharacter(character, delta) {
       character.conditionals[condition].push(...effects);
     }
   });
+
+  // Apply boolean flags
+  if (delta.flags && Object.keys(delta.flags).length > 0) {
+    if (!character.conditionals) character.conditionals = {};
+    if (!character.conditionals.flags) character.conditionals.flags = {};
+    Object.entries(delta.flags).forEach(([name, val]) => {
+      if (val) character.conditionals.flags[name] = true;
+    });
+  }
+
+  // Build aggregated "when" map for conditionals for later use
+  // This provides totals per condition (e.g., noArmor) for mitigations and key skills
+  if (character.conditionals) {
+    const categories = ['noArmor','lightArmor','heavyArmor','anyArmor','anyShield','lightShield','heavyShield'];
+    const mitigationKeys = ['physical','heat','cold','electric','dark','divine','aether','psychic','toxic','true'];
+    const skillKeys = ['deflection','evasion'];
+
+    const when = {};
+    for (const cat of categories) {
+      const effects = character.conditionals[cat] || [];
+      const agg = {
+        mitigation: Object.fromEntries(mitigationKeys.map(k => [k, 0])),
+        skills: Object.fromEntries(skillKeys.map(k => [k, 0]))
+      };
+      for (const eff of effects) {
+        if (eff.type === 'mitigation' && agg.mitigation.hasOwnProperty(eff.subtype)) {
+          agg.mitigation[eff.subtype] += eff.value || 0;
+        } else if (eff.type === 'skill' && agg.skills.hasOwnProperty(eff.subtype)) {
+          agg.skills[eff.subtype] += eff.value || 0;
+        }
+      }
+      when[cat] = agg;
+    }
+    character.conditionals.when = when;
+  }
 }

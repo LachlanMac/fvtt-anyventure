@@ -1,5 +1,12 @@
 {{!-- Character Tab Content --}}
 <div class="character-page">
+  {{!-- Character Utilities --}}
+  <div class="character-utilities" style="text-align: center; margin-bottom: 15px;">
+    <button type="button" class="recalculate-character" title="Recalculate all character stats from modules">
+      <i class="fas fa-calculator"></i> Recalculate Stats
+    </button>
+  </div>
+
   {{!-- Character Essentials Section --}}
   <div class="character-essentials">
     {{!-- Ancestry Section --}}
@@ -181,6 +188,26 @@
           </div>
           {{else}}
           <div class="trait-empty">No crafting traits</div>
+          {{/each}}
+        </div>
+      </div>
+
+      {{!-- Personality Traits --}}
+      <div class="trait-category">
+        <h4 class="trait-category-header">
+          <i class="fas fa-user"></i>
+          Personality Traits
+        </h4>
+        <div class="trait-list">
+          {{#each personalityTraits as |trait|}}
+          <div class="trait-item">
+            <div class="trait-content">
+              <h5 class="trait-name">{{trait.name}}</h5>
+              <p class="trait-description">{{trait.description}}</p>
+            </div>
+          </div>
+          {{else}}
+          <div class="trait-empty">No personality traits</div>
           {{/each}}
         </div>
       </div>

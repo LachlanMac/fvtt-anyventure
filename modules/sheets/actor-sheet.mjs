@@ -1,5 +1,8 @@
 import { formatRange, formatCategory, formatDamageType } from "../utils/formatters.mjs";
 import { AnyventureAttackRollDialog } from "./attack-roll-dialog.mjs";
+import { AnyventureRecoverResourcesDialog } from "./recover-resources-dialog.mjs";
+import { AnyventureTakeDamageDialog } from "./take-damage-dialog.mjs";
+import { AnyventureRestDialog } from "./rest-dialog.mjs";
 import { parseAndApplyCharacterEffects } from "../utils/character-parser.js";
 
 /**
@@ -107,7 +110,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
   /**
    * Prepare trait data for display in the traits section
-   * Collects TA (ancestry), TG (general), and TC (crafting) traits from selected module options
+   * Collects TA (ancestry), TG (general), TC (crafting), TP (cultural), and personality traits from various sources
    * @param {Object} context The context to prepare
    * @private
    */
@@ -116,6 +119,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const generalTraits = [];
     const craftingTraits = [];
     const culturalTraits = [];
+    const personalityTraits = [];
 
 
     // Helper function to process options for trait codes
@@ -134,11 +138,12 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         const dataParts = data.split(':').map(part => part.trim());
 
         for (const dataPart of dataParts) {
-          // Look for trait codes: TA=trait_name, TG=trait_name, TC=trait_name, TP=trait_name, or just TA, TG, TC, TP
+          // Look for trait codes: TA=trait_name, TG=trait_name, TC=trait_name, TP=trait_name, TX=trait_name, or just TA, TG, TC, TP, TX
           const taMatch = dataPart.match(/^TA(?:=(.+))?$/i);
           const tgMatch = dataPart.match(/^TG(?:=(.+))?$/i);
           const tcMatch = dataPart.match(/^TC(?:=(.+))?$/i);
           const tpMatch = dataPart.match(/^TP(?:=(.+))?$/i);
+          const txMatch = dataPart.match(/^TX(?:=(.+))?$/i);
 
           if (taMatch) {
             const traitName = taMatch[1] ? taMatch[1].trim() : option.name || 'Ancestry Trait';
@@ -174,7 +179,18 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
           }
 
           if (tpMatch) {
-            const traitName = tpMatch[1] ? tpMatch[1].trim() : option.name || 'Cultural Trait';
+            const traitName = tpMatch[1] ? tpMatch[1].trim() : option.name || 'Personality Trait';
+            if (traitName && !personalityTraits.some(t => t.name === traitName)) {
+              personalityTraits.push({
+                name: traitName,
+                description: option.description || '',
+                source: sourceName
+              });
+            }
+          }
+
+          if (txMatch) {
+            const traitName = txMatch[1] ? txMatch[1].trim() : option.name || 'Cultural Trait';
             if (traitName && !culturalTraits.some(t => t.name === traitName)) {
               culturalTraits.push({
                 name: traitName,
@@ -187,8 +203,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       }
     };
 
-    // Process modules (selected options only)
-    const modules = context.items.filter(i => i.type === 'module');
+    // Process modules (selected options only, excluding personality modules)
+    const modules = context.items.filter(i => i.type === 'module' && i.system.mtype !== 'personality');
     for (const module of modules) {
       if (!module.system.options) continue;
       processOptions(module.system.options, module.name, false);
@@ -201,11 +217,26 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       processOptions(ancestry.system.options, ancestry.name, true);
     }
 
-    // Process trait items (all options are automatically selected)
+    // Process trait items (only selected options)
     const traits = context.items.filter(i => i.type === 'trait');
     for (const trait of traits) {
       if (!trait.system.options) continue;
-      processOptions(trait.system.options, trait.name, true);
+      processOptions(trait.system.options, trait.name, false);
+    }
+
+    // Process culture items (use selected options)
+    const cultures = context.items.filter(i => i.type === 'culture');
+    for (const culture of cultures) {
+      if (culture.system.options) {
+        processOptions(culture.system.options, culture.name, false);
+      }
+    }
+
+    // Process personality modules (selected options only)
+    const personalityModules = context.items.filter(i => i.type === 'module' && i.system.mtype === 'personality');
+    for (const personality of personalityModules) {
+      if (!personality.system.options) continue;
+      processOptions(personality.system.options, personality.name, false);
     }
 
     // Add the trait arrays to context for template use
@@ -213,6 +244,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     context.generalTraits = generalTraits;
     context.craftingTraits = craftingTraits;
     context.culturalTraits = culturalTraits;
+    context.personalityTraits = personalityTraits;
   }
 
   /**
@@ -263,6 +295,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const consumables = [];
     const tools = [];
     const runes = [];
+    const injuries = [];
 
     // Get list of equipped item IDs to filter out from inventory
     const equippedItemIds = this._getEquippedItemIds(context);
@@ -354,6 +387,10 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       else if (i.type === 'spell') {
         spells.push(i);
       }
+      else if (i.type === 'injury') {
+        // Injuries are always included regardless of equipped status - they represent temporary conditions
+        injuries.push(i);
+      }
       else {
         // Fallback to general gear for unknown types
         gear.push(i);
@@ -393,6 +430,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     context.consumables = consumables;
     context.tools = tools;
     context.runes = runes;
+    context.injuries = injuries;
     // Collect equipped weapons for moves section
     context.equippedWeapons = this._getEquippedWeapons(context);
     return context;
@@ -466,64 +504,96 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       const slot = equipment[slotName];
       if (slot?.item && slot.item.system.itemType === 'weapon') {
         const weapon = slot.item;
-        
-        // Process primary attack if it exists
-        if (weapon.system.primary) {
-          // Calculate dice for this attack based on skill
-          const diceInfo = this._calculateAttackDice(weapon, weapon.system.primary);
 
-          const primaryAttack = {
+        // Normalize weapon data sources (support old and new schemas)
+        const wsys = weapon.system || {};
+        const wdata = wsys.weapon_data || {};
+        const weaponCategory = (wsys.weapon_category || wdata.category || 'unarmed');
+
+        // Helper to build an attack entry from provided attack data
+        const buildAttack = (attackData) => {
+          if (!attackData) return null;
+          const diceInfo = this._calculateAttackDice({ system: { weapon_category: weaponCategory, weapon_data: wdata } }, attackData);
+          return {
             weaponName: weapon.name,
             weaponIcon: weapon.img || 'icons/weapons/swords/sword-broad-steel.webp',
-            weaponCategory: weapon.system.weapon_category, // Store weapon category for skill lookup
-            attackType: this._getAttackType(weapon, weapon.system.primary),
-            category: formatCategory(weapon.system.primary.category || 'slash'),
-            rawCategory: weapon.system.primary.category || 'slash', // Keep raw for skill lookup
-            damage: weapon.system.primary.damage || 0,
-            damageExtra: weapon.system.primary.damage_extra || 0,
-            damageType: formatDamageType(weapon.system.primary.damage_type || 'physical'),
-            secondaryDamage: weapon.system.primary.secondary_damage || 0,
-            secondaryDamageExtra: weapon.system.primary.secondary_damage_extra || 0,
-            secondaryDamageType: formatDamageType(weapon.system.primary.secondary_damage_type || 'none'),
-            energy: weapon.system.primary.energy || 0,
-            minRange: weapon.system.primary.min_range || 0,
-            maxRange: weapon.system.primary.max_range || 1,
-            rangeText: formatRange(weapon.system.primary.min_range || 0, weapon.system.primary.max_range || 1),
+            weaponCategory,
+            attackType: this._getAttackType({ system: { weapon_category: weaponCategory, weapon_data: wdata } }, attackData),
+            category: formatCategory(attackData.category || 'slash'),
+            rawCategory: attackData.category || 'slash',
+            damage: Number(attackData.damage ?? 0),
+            damageExtra: Number(attackData.damage_extra ?? 0),
+            damageType: formatDamageType(attackData.damage_type || 'physical'),
+            secondaryDamage: Number(attackData.secondary_damage ?? 0),
+            secondaryDamageExtra: Number(attackData.secondary_damage_extra ?? 0),
+            secondaryDamageType: formatDamageType(attackData.secondary_damage_type || 'none'),
+            energy: Number(attackData.energy ?? 0),
+            minRange: Number(attackData.min_range ?? 0),
+            maxRange: Number(attackData.max_range ?? 1),
+            rangeText: formatRange(Number(attackData.min_range ?? 0), Number(attackData.max_range ?? 1)),
             attackDice: diceInfo.dice,
             attackDiceType: diceInfo.diceType,
-            slotName: slotName
+            slotName
           };
-          equippedWeapons.push(primaryAttack);
-        }
+        };
 
-        // Process secondary attack if it exists
-        if (weapon.system.secondary && weapon.system.secondary.damage > 0) {
-          // Calculate dice for this attack based on skill
-          const diceInfo = this._calculateAttackDice(weapon, weapon.system.secondary);
+        // Process primary and secondary from either schema
+        const primary = wsys.primary || wdata.primary;
+        const secondary = wsys.secondary || wdata.secondary;
 
-          const secondaryAttack = {
-            weaponName: weapon.name,
-            weaponIcon: weapon.img || 'icons/weapons/swords/sword-broad-steel.webp',
-            weaponCategory: weapon.system.weapon_category, // Store weapon category for skill lookup
-            attackType: this._getAttackType(weapon, weapon.system.secondary),
-            category: formatCategory(weapon.system.secondary.category || 'slash'),
-            rawCategory: weapon.system.secondary.category || 'slash', // Keep raw for skill lookup
-            damage: weapon.system.secondary.damage || 0,
-            damageExtra: weapon.system.secondary.damage_extra || 0,
-            damageType: formatDamageType(weapon.system.secondary.damage_type || 'physical'),
-            secondaryDamage: weapon.system.secondary.secondary_damage || 0,
-            secondaryDamageExtra: weapon.system.secondary.secondary_damage_extra || 0,
-            secondaryDamageType: formatDamageType(weapon.system.secondary.secondary_damage_type || 'none'),
-            energy: weapon.system.secondary.energy || 0,
-            minRange: weapon.system.secondary.min_range || 0,
-            maxRange: weapon.system.secondary.max_range || 1,
-            rangeText: formatRange(weapon.system.secondary.min_range || 0, weapon.system.secondary.max_range || 1),
+        const p = buildAttack(primary);
+        if (p) equippedWeapons.push(p);
+        const s = buildAttack(secondary);
+        if (s && s.damage > 0) equippedWeapons.push(s);
+      }
+    }
+
+    // Check hand (gloves) and boots for weapon properties
+    const wearableSlots = ['hand', 'boots'];
+    for (const slotName of wearableSlots) {
+      const slot = equipment[slotName];
+      if (slot?.item && slot.item.system.weapon_category && slot.item.system.primary) {
+        const item = slot.item;
+        const wsys = item.system || {};
+
+        // Only process items with a weapon_category and primary attack (indicating they have weapon properties)
+        const weaponCategory = wsys.weapon_category;
+
+        // Helper to build an attack entry from provided attack data
+        const buildWearableAttack = (attackData) => {
+          if (!attackData) return null;
+          const diceInfo = this._calculateAttackDice({ system: { weapon_category: weaponCategory, weapon_data: {} } }, attackData);
+          return {
+            weaponName: item.name,
+            weaponIcon: item.img || 'icons/equipment/hand/gauntlet-armored-steel.webp',
+            weaponCategory,
+            attackType: this._getAttackType({ system: { weapon_category: weaponCategory, weapon_data: {} } }, attackData),
+            category: formatCategory(attackData.category || 'blunt'),
+            rawCategory: attackData.category || 'blunt',
+            damage: Number(attackData.damage ?? 0),
+            damageExtra: Number(attackData.damage_extra ?? 0),
+            damageType: formatDamageType(attackData.damage_type || 'physical'),
+            secondaryDamage: Number(attackData.secondary_damage ?? 0),
+            secondaryDamageExtra: Number(attackData.secondary_damage_extra ?? 0),
+            secondaryDamageType: formatDamageType(attackData.secondary_damage_type || 'none'),
+            energy: Number(attackData.energy ?? 0),
+            minRange: Number(attackData.min_range ?? 0),
+            maxRange: Number(attackData.max_range ?? 1),
+            rangeText: formatRange(Number(attackData.min_range ?? 0), Number(attackData.max_range ?? 1)),
             attackDice: diceInfo.dice,
             attackDiceType: diceInfo.diceType,
-            slotName: slotName
+            slotName
           };
-          equippedWeapons.push(secondaryAttack);
-        }
+        };
+
+        // Process primary and secondary attack data
+        const primary = wsys.primary;
+        const secondary = wsys.secondary;
+
+        const p = buildWearableAttack(primary);
+        if (p) equippedWeapons.push(p);
+        const s = buildWearableAttack(secondary);
+        if (s && s.damage > 0) equippedWeapons.push(s);
       }
     }
 
@@ -539,11 +609,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     };
 
     // Create fake weapon object for unarmed attack dice calculation
-    const unarmedWeapon = {
-      system: {
-        weapon_category: 'unarmed'
-      }
-    };
+    const unarmedWeapon = { system: { weapon_category: 'unarmed', weapon_data: { category: 'unarmed' } } };
 
     const unarmedDiceInfo = this._calculateAttackDice(unarmedWeapon, unarmedAttackData);
 
@@ -585,8 +651,11 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Check if the attack category is a magic type
     const magicCategories = {
       'primal_magic': 'Primal Magic',
+      'primal': 'Primal Magic',
       'black_magic': 'Black Magic',
+      'black': 'Black Magic',
       'divine_magic': 'Divine Magic',
+      'divine': 'Divine Magic',
       'metamagic': 'Meta Magic',
       'mysticism': 'Mysticism'
     };
@@ -596,16 +665,24 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     // For weapon attacks, use weapon category
+    const raw = weapon.system.weapon_category || weapon.system.weapon_data?.category || 'unarmed';
+    const normalized = ({
+      simpleMelee: 'simpleMeleeWeapons',
+      simpleRanged: 'simpleRangedWeapons',
+      complexMelee: 'complexMeleeWeapons',
+      complexRanged: 'complexRangedWeapons'
+    })[raw] || raw;
+
     const weaponCategories = {
-      'simpleMelee': 'Simple Melee',
-      'simpleRanged': 'Simple Ranged',
-      'complexMelee': 'Complex Melee',
-      'complexRanged': 'Complex Ranged',
+      'simpleMeleeWeapons': 'Simple Melee',
+      'simpleRangedWeapons': 'Simple Ranged',
+      'complexMeleeWeapons': 'Complex Melee',
+      'complexRangedWeapons': 'Complex Ranged',
       'unarmed': 'Unarmed',
       'throwing': 'Throwing'
     };
 
-    return weaponCategories[weapon.system.weapon_category] || 'Unknown';
+    return weaponCategories[normalized] || 'Unknown';
   }
 
   /**
@@ -623,8 +700,11 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Check if the attack category is a magic type (overrides weapon skill)
     const magicCategories = {
       'primal_magic': 'primal',
+      'primal': 'primal',
       'black_magic': 'black',
+      'black': 'black',
       'metamagic': 'metamagic',
+      'divine_magic': 'divine',
       'divine': 'divine',
       'mysticism': 'mysticism'
     };
@@ -636,15 +716,14 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     } else {
       // Physical weapon attack - use weapon skill based on weapon category
       const weaponCategoryMap = {
-        'simpleMelee': 'simple_melee',
-        'simpleRanged': 'simple_ranged',
-        'complexMelee': 'complex_melee',
-        'complexRanged': 'complex_ranged',
-        'unarmed': 'unarmed',
-        'throwing': 'throwing'
+        // Normalize legacy keys to schema keys
+        'simpleMelee': 'simpleMeleeWeapons',
+        'simpleRanged': 'simpleRangedWeapons',
+        'complexMelee': 'complexMeleeWeapons',
+        'complexRanged': 'complexRangedWeapons'
       };
-
-      skillKey = weaponCategoryMap[weapon.system.weapon_category] || 'unarmed';
+      const rawCat = weapon.system.weapon_category || weapon.system.weapon_data?.category || 'unarmed';
+      skillKey = weaponCategoryMap[rawCat] || rawCat;
     }
 
     // Get the skill values from the actor
@@ -667,6 +746,37 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
+
+    // Always bind UI-only tab interactions (work in readonly too)
+    // Moves sub-tabs
+    html.find('.moves-container .inventory-tab').off('click').on('click', this._onMovesTabClick.bind(this));
+
+    // Equipment bottom inventory tabs (scope to equipment section only)
+    html.find('.unequipped-items-section .inventory-tab').off('click').on('click', this._onInventoryTabChange.bind(this));
+
+    // Restore inventory sub-tab when switching back to Equipment
+    html.find('.sheet-tabs .item[data-tab="equipment"]').off('click').on('click', (event) => {
+      setTimeout(() => this._restoreActiveInventoryTab(html), 10);
+    });
+    if (html.find('.sheet-tabs .item[data-tab="equipment"]').hasClass('active')) {
+      this._restoreActiveInventoryTab(html);
+    }
+
+    // Secondary character tabs (Traits/Modules) manual init to ensure reliability
+    html.find("nav.sheet-tabs[data-group='character-secondary'] a.item").off('click').on('click', ev => {
+      ev.preventDefault();
+      const $target = $(ev.currentTarget);
+      const tab = $target.data('tab');
+      const $section = $target.closest('.traits-modules-section');
+
+      // Toggle active on nav items
+      $target.siblings('a.item').removeClass('active');
+      $target.addClass('active');
+
+      // Toggle active on content panes
+      $section.find(".tab[data-group='character-secondary']").removeClass('active');
+      $section.find(`.tab[data-group='character-secondary'][data-tab='${tab}']`).addClass('active');
+    });
 
     // Render the item sheet for viewing/editing prior to the editable check.
     html.find('.item-edit').click(ev => {
@@ -755,8 +865,11 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Ability usage (actions and reactions)
     html.find('.ability-clickable').click(this._onAbilityUse.bind(this));
 
-    // Resource modification buttons
-    html.find('.resource-btn').click(this._onResourceModify.bind(this));
+    // Resource quick actions
+    html.find('.quick-action-btn').off('click').on('click', this._onQuickAction.bind(this));
+
+    // Resource modification buttons (only +/- controls)
+    html.find('.resource-btn.minus, .resource-btn.plus').off('click').on('click', this._onResourceModify.bind(this));
 
     // Drag events for macros.
     if (this.actor.isOwner) {
@@ -770,9 +883,6 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Moves tab controls
     html.find('.move-control').click(this._onMoveControl.bind(this));
-
-    // Moves tab navigation (using inventory tab classes)
-    html.find('.moves-container .inventory-tab').click(this._onMovesTabClick.bind(this));
 
     // Character essentials drag and drop
     if (this.actor.isOwner) {
@@ -808,19 +918,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       });
     }
 
-    // Handle inventory tab switching
-    html.find('.inventory-tab').click(this._onInventoryTabChange.bind(this));
-
-    // Handle main tab switching to restore inventory tabs when Equipment is selected
-    html.find('.sheet-tabs .item[data-tab="equipment"]').click((event) => {
-      // Add a slight delay to ensure the main tab switch completes first
-      setTimeout(() => this._restoreActiveInventoryTab(html), 10);
-    });
-
-    // Also restore inventory tab on any render if Equipment tab is active
-    if (html.find('.sheet-tabs .item[data-tab="equipment"]').hasClass('active')) {
-      this._restoreActiveInventoryTab(html);
-    }
+    // (Inventory sub-tab handlers for Equipment are bound above to work in readonly)
 
     // Enable drag and drop visual feedback for inventory areas
     if (this.actor.isOwner) {
@@ -830,7 +928,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         this._boundInventoryDragLeave = this._onInventoryDragLeave.bind(this);
       }
 
-      html.find('.inventory-tab-content, .unequipped-items-section').each((i, area) => {
+      html.find('.unequipped-items-section .inventory-tab-content, .unequipped-items-section').each((i, area) => {
         // Remove existing listeners to prevent duplicates
         area.removeEventListener('dragover', this._boundInventoryDragOver);
         area.removeEventListener('dragleave', this._boundInventoryDragLeave);
@@ -876,13 +974,169 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
   _restoreActiveInventoryTab(html) {
     const activeTab = this._activeInventoryTab || 'equipment'; // Default to equipment tab
 
-    // Remove active class from all inventory tabs and content
-    html.find('.inventory-tab').removeClass('active');
-    html.find('.inventory-tab-content').removeClass('active');
+    // Limit operations to the equipment section to avoid interfering with Moves
+    const container = html.find('.unequipped-items-section');
+    container.find('.inventory-tab').removeClass('active');
+    container.find('.inventory-tab-content').removeClass('active');
 
     // Add active class to the correct inventory tab and content
-    html.find(`[data-tab="${activeTab}"]`).addClass('active');
-    html.find(`[data-tab-content="${activeTab}"]`).addClass('active');
+    container.find(`[data-tab="${activeTab}"]`).addClass('active');
+    container.find(`[data-tab-content="${activeTab}"]`).addClass('active');
+  }
+
+  /**
+   * Handle resource quick-action buttons (no-op for now)
+   * @param {Event} event
+   * @private
+   */
+  _onQuickAction(event) {
+    
+    event.preventDefault();
+    const btn = event.currentTarget;
+    const action = btn.dataset.action;
+     console.log('🔥 Quick action button clicked!', action);
+    switch (action) {
+      case 'recover':
+        return AnyventureRecoverResourcesDialog.show({ actor: this.actor });
+      case 'damage':
+        return AnyventureTakeDamageDialog.show({ actor: this.actor });
+      case 'start-turn':
+        return this._onStartTurn();
+      case 'rest':
+        return AnyventureRestDialog.show({ actor: this.actor });
+      case 'fall-unconscious':
+        return this._onFallUnconscious();
+    }
+  }
+
+  /**
+   * Recover Resources dialog and handler
+   */
+  _showRecoverDialog() {
+    const content = `
+      <div class="anyventure recover-dialog">
+        <div style="display:grid;grid-template-columns:120px 1fr;gap:6px;align-items:center;">
+          <label>Health</label><input type="number" name="health" value="0" min="0" />
+          <label>Resolve</label><input type="number" name="resolve" value="0" min="0" />
+          <label>Morale</label><input type="number" name="morale" value="0" min="0" />
+          <label>Energy</label><input type="number" name="energy" value="0" min="0" />
+        </div>
+      </div>`;
+
+    new Dialog({
+      title: 'Recover Resources',
+      content,
+      buttons: {
+        ok: {
+          label: 'Recover',
+          callback: html => {
+            const get = n => Number(html.find(`input[name="${n}"]`).val() || 0) || 0;
+            const delta = {
+              health: get('health'),
+              resolve: get('resolve'),
+              morale: get('morale'),
+              energy: get('energy')
+            };
+            const up = {};
+            const res = this.actor.system.resources || {};
+            if (res.health) up['system.resources.health.value'] = Math.min((res.health.value || 0) + delta.health, res.health.max || 0);
+            if (res.resolve) up['system.resources.resolve.value'] = Math.min((res.resolve.value || 0) + delta.resolve, res.resolve.max || 0);
+            if (res.morale) up['system.resources.morale.value'] = Math.min((res.morale.value || 0) + delta.morale, res.morale.max || 0);
+            if (res.energy) up['system.resources.energy.value'] = Math.min((res.energy.value || 0) + delta.energy, res.energy.max || 0);
+            if (Object.keys(up).length) this.actor.update(up);
+          }
+        },
+        cancel: { label: 'Cancel' }
+      },
+      default: 'ok'
+    }).render(true);
+  }
+
+  /**
+   * Take Damage dialog and handler
+   */
+  _showDamageDialog() {
+    const typeOptions = [
+      'physical','heat','cold','electric','dark','divine','aether','psychic','toxic','true','resolve','energy'
+    ].map(t => `<option value="${t}">${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('');
+    const content = `
+      <div class="anyventure damage-dialog">
+        <div style="display:grid;grid-template-columns:160px 1fr;gap:6px;align-items:center;">
+          <label>Damage</label><input type="number" name="damage" value="0" min="0" />
+          <label>Damage Type</label><select name="dtype">${typeOptions}</select>
+          <label>Extra Mitigation</label><input type="number" name="extra" value="0" min="0" />
+          <label>Condition</label>
+            <select name="cond">
+              <option value="none">None</option>
+              <option value="double">Double Damage</option>
+              <option value="half">Half Damage</option>
+            </select>
+          <label>Apply</label>
+            <select name="condPhase">
+              <option value="before">Before Mitigation</option>
+              <option value="after">After Mitigation</option>
+            </select>
+        </div>
+      </div>`;
+
+    new Dialog({
+      title: 'Take Damage',
+      content,
+      buttons: {
+        ok: {
+          label: 'Apply Damage',
+          callback: html => {
+            const num = n => Number(html.find(`[name="${n}"]`).val() || 0) || 0;
+            const str = n => String(html.find(`[name="${n}"]`).val() || '');
+            const base = num('damage');
+            const dtype = str('dtype');
+            const extra = num('extra');
+            const cond = str('cond');
+            const phase = str('condPhase');
+
+            let preFactor = 1, postFactor = 1;
+            if (cond === 'double') (phase === 'before') ? preFactor = 2 : postFactor = 2;
+            if (cond === 'half') (phase === 'before') ? preFactor = 0.5 : postFactor = 0.5;
+
+            const mitigations = this.actor.system.mitigation || {};
+            const key = dtype;
+            const mval = (key === 'resolve' || key === 'energy' || key === 'true') ? 0 : Number(mitigations[key] || 0);
+
+            const mitigated = Math.max(0, (base * preFactor) - (mval + extra));
+            const finalDmg = Math.max(0, Math.round(mitigated * postFactor));
+
+            const up = {};
+            if (dtype === 'resolve') {
+              const cur = this.actor.system.resources?.resolve?.value || 0;
+              up['system.resources.resolve.value'] = Math.max(0, cur - finalDmg);
+            } else if (dtype === 'energy') {
+              const cur = this.actor.system.resources?.energy?.value || 0;
+              up['system.resources.energy.value'] = Math.max(0, cur - finalDmg);
+            } else {
+              const cur = this.actor.system.resources?.health?.value || 0;
+              up['system.resources.health.value'] = Math.max(0, cur - finalDmg);
+            }
+            if (Object.keys(up).length) this.actor.update(up);
+          }
+        },
+        cancel: { label: 'Cancel' }
+      },
+      default: 'ok'
+    }).render(true);
+  }
+
+  /**
+   * Start Turn placeholder
+   */
+  _onStartTurn() {
+    // Future: start-of-turn effects, regen, etc.
+  }
+
+  /**
+   * Fall Unconscious placeholder
+   */
+  _onFallUnconscious() {
+    // Future: set conditions, drop to 0 health, etc.
   }
 
   /**
@@ -1096,8 +1350,11 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Check if the attack category is a magic type (overrides weapon skill)
     const magicCategories = {
       'primal_magic': 'primal',
+      'primal': 'primal',
       'black_magic': 'black',
+      'black': 'black',
       'metamagic': 'metamagic',
+      'divine_magic': 'divine',
       'divine': 'divine',
       'mysticism': 'mysticism'
     };
@@ -1109,15 +1366,14 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     } else {
       // Physical weapon attack - use weapon skill based on weapon category
       const weaponCategoryMap = {
-        'simpleMelee': 'simple_melee',
-        'simpleRanged': 'simple_ranged',
-        'complexMelee': 'complex_melee',
-        'complexRanged': 'complex_ranged',
-        'unarmed': 'unarmed',
-        'throwing': 'throwing'
+        'simpleMelee': 'simpleMeleeWeapons',
+        'simpleRanged': 'simpleRangedWeapons',
+        'complexMelee': 'complexMeleeWeapons',
+        'complexRanged': 'complexRangedWeapons'
       };
 
-      skillKey = weaponCategoryMap[attackData.weaponCategory] || 'unarmed';
+      const rawCat = attackData.weaponCategory || 'unarmed';
+      skillKey = weaponCategoryMap[rawCat] || rawCat;
     }
 
     // Get the skill values from the actor
@@ -1157,8 +1413,10 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const resource = button.dataset.resource;
     const action = button.dataset.action;
     
-    const currentValue = this.actor.system.resources[resource].value;
-    const maxValue = this.actor.system.resources[resource].max;
+    const resObj = this.actor.system.resources?.[resource];
+    if (!resObj) return;
+    const currentValue = resObj.value ?? 0;
+    const maxValue = resObj.max ?? 0;
     
     let newValue = currentValue;
     if (action === 'increase' && currentValue < maxValue) {
@@ -1572,6 +1830,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Map item types to slot preferences (with weapon logic handled separately)
     const slotMappings = {
       'armor': ['body'],
+      'body': ['body'],
       'headwear': ['head'],
       'cloaks': ['back'],
       'gloves': ['hand'],
@@ -1639,6 +1898,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Strict slot validation for non-weapons
     const slotRestrictions = {
       'armor': ['body'],
+      'body': ['body'],
       'headwear': ['head'],
       'cloaks': ['back'],
       'gloves': ['hand'],
@@ -1977,7 +2237,7 @@ function prepareActiveEffectCategories(effects) {
     },
     inactive: {
       type: "inactive",
-      label: "Inactive Effects", 
+      label: "Inactive Effects",
       effects: []
     }
   };

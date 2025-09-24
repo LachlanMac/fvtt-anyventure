@@ -285,7 +285,7 @@
   border-radius: 50%;
   border: 3px solid #daa520;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7), 0 0 10px rgba(255, 215, 0, 0.4);
-  margin: 0 auto 8px;
+  margin: 0 auto 2px;
   -o-object-fit: cover;
      object-fit: cover;
   cursor: pointer;
@@ -296,7 +296,7 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.4);
 }
 .anyventure .character-header .charname {
-  margin: 8px 0 0 0;
+  margin: 2px 0 0 0;
 }
 .anyventure .character-header .charname input {
   background: transparent;
@@ -324,6 +324,34 @@
   flex-direction: column;
   gap: 6px;
 }
+.anyventure .resource-quick-actions {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 2px;
+  justify-content: center;
+}
+.anyventure .resource-quick-actions .quick-action-btn {
+  width: 39px;
+  height: 39px;
+  padding: 0;
+  background: rgba(45, 36, 56, 0.85);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  color: #e8e3f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.anyventure .resource-quick-actions .quick-action-btn i {
+  font-size: 18px;
+}
+.anyventure .resource-quick-actions .quick-action-btn:hover {
+  background: rgba(184, 134, 11, 0.3);
+  border-color: #daa520;
+  color: #ffd700;
+}
 .anyventure .resource-bar {
   position: relative;
   background: rgba(26, 21, 37, 0.6);
@@ -331,8 +359,8 @@
   border-radius: 6px;
   padding: 2px;
   overflow: hidden;
-  margin-bottom: 4px;
-  height: 36px;
+  margin-bottom: 2px;
+  height: 27px;
 }
 .anyventure .resource-bar label {
   position: absolute;
@@ -418,6 +446,9 @@
 }
 .anyventure .resource-bar.energy .resource-fill {
   background: linear-gradient(90deg, #20c997, rgb(60.0386266094, 223.9613733906, 175.4635193133));
+}
+.anyventure .resource-bar.morale .resource-fill {
+  background: linear-gradient(90deg, #b8860b, rgb(241.5461538462, 180.3923076923, 29.9538461538));
 }
 .anyventure .mitigations-container {
   padding: 8px;

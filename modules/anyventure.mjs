@@ -390,6 +390,12 @@ Hooks.once('ready', async function() {
     return numA * numB;
   });
 
+  // Helper for resistance calculation (mitigation * 2, but only if positive)
+  Handlebars.registerHelper('resistance', function(mitigation) {
+    const num = Number(mitigation) || 0;
+    return num > 0 ? num * 2 : '';
+  });
+
   // Helper for subtraction
   Handlebars.registerHelper('subtract', function(a, b) {
     return a - b;

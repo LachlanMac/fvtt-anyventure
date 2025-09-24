@@ -1,13 +1,13 @@
 <section class="moves-container">
   {{!-- Tab Navigation --}}
   <div class="inventory-tabs">
-    <button class="inventory-tab active" data-tab="attacks">
+    <button type="button" class="inventory-tab active" data-tab="attacks">
       Attacks
     </button>
-    <button class="inventory-tab" data-tab="actions">
+    <button type="button" class="inventory-tab" data-tab="actions">
       Actions
     </button>
-    <button class="inventory-tab" data-tab="reactions">
+    <button type="button" class="inventory-tab" data-tab="reactions">
       Reactions
     </button>
   </div>
@@ -55,12 +55,11 @@
           </div>
         </div>
       </div>
-      {{/each}}
-      {{#unless equippedWeapons}}
+      {{else}}
       <div class="no-weapons-message">
         <em>No weapons equipped</em>
       </div>
-      {{/unless}}
+      {{/each}}
     </div>
     </div>
   </div>

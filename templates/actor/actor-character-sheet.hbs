@@ -10,17 +10,29 @@
           <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name"/>
         </h1>
 
-        {{!-- Character Utilities --}}
-        <div class="character-utilities">
-          <button type="button" class="recalculate-character" title="Recalculate all character stats from modules">
-            <i class="fas fa-calculator"></i> Recalculate Stats
-          </button>
-        </div>
+        {{!-- Character Utilities removed from header --}}
       </div>
 
       {{!-- Resources Section --}}
       <div class="resources-section">
         <div class="resource-group">
+          <div class="resource-quick-actions" title="Resource Actions">
+            <button type="button" class="resource-btn quick-action-btn" data-action="recover" title="Recover Resources">
+              <i class="fas fa-heart"></i>
+            </button>
+            <button type="button" class="resource-btn quick-action-btn" data-action="damage" title="Take Damage">
+              <i class="fas fa-heart-broken"></i>
+            </button>
+            <button type="button" class="resource-btn quick-action-btn" data-action="start-turn" title="Start Turn">
+              <i class="fas fa-hourglass-start"></i>
+            </button>
+            <button type="button" class="resource-btn quick-action-btn" data-action="rest" title="Take Rest">
+              <i class="fas fa-bed"></i>
+            </button>
+            <button type="button" class="resource-btn quick-action-btn" data-action="fall-unconscious" title="Fall Unconscious">
+              <i class="fas fa-user-injured"></i>
+            </button>
+          </div>
           <div class="resource-bar health">
             <label>Health</label>
             <div class="resource-controls">
@@ -97,6 +109,15 @@
 
       {{!-- Movement Section --}}
       {{> "systems/anyventure/templates/partials/movement.hbs"}}
+
+      {{!-- Encumbrance Penalty Section --}}
+      <div class="encumbrance-container" style="text-align: center; margin-top: 10px;">
+        <div class="encumbrance-display">
+          <i class="fas fa-weight-hanging"></i>
+          <span class="encumbrance-label">Encumbrance Penalty:</span>
+          <span class="encumbrance-value">{{system.encumbrance_penalty}}</span>
+        </div>
+      </div>
     </aside>
 
     {{!-- Main Content Area --}}

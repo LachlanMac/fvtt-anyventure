@@ -310,7 +310,7 @@
       border-radius: 50%;
       border: 3px solid $gold-medium;
       box-shadow: $shadow-lg, $shadow-glow;
-      margin: 0 auto $spacing-md;
+      margin: 0 auto $spacing-xs; // Reduced from $spacing-md (8px) to $spacing-xs (2px) to bring name closer to portrait
       object-fit: cover;
       cursor: pointer;
       transition: $transition-normal;
@@ -322,7 +322,7 @@
     }
 
     .charname {
-      margin: $spacing-md 0 0 0;
+      margin: $spacing-xs 0 0 0; // Reduced from $spacing-md (8px) to $spacing-xs (2px) to bring closer to portrait
       
       input {
         background: transparent;
@@ -360,6 +360,36 @@
     gap: 6px;
   }
 
+  .resource-quick-actions {
+    display: flex;
+    gap: $spacing-xs;
+    margin-bottom: $spacing-xs;
+    justify-content: center;
+
+    .quick-action-btn {
+      width: 39px; // ~50% larger
+      height: 39px; // keep square ratio
+      padding: 0;
+      background: rgba($purple-dark, 0.85);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-sm;
+      color: $text-light;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: $transition-fast;
+
+      i { font-size: 18px; }
+
+      &:hover {
+        background: rgba($gold-dark, 0.3);
+        border-color: $gold-medium;
+        color: $gold-bright;
+      }
+    }
+  }
+
   .resource-bar {
     position: relative;
     background: rgba($purple-darkest, 0.6);
@@ -367,8 +397,8 @@
     border-radius: $border-radius-md;
     padding: $spacing-xs;
     overflow: hidden;
-    margin-bottom: $spacing-sm;
-    height: 36px;
+    margin-bottom: $spacing-xs; // Reduced from $spacing-sm (4px) to $spacing-xs (2px) - 50% reduction
+    height: 27px; // Reduced from 36px to 27px - 25% reduction
 
     label {
       position: absolute;
@@ -467,6 +497,10 @@
 
     &.energy .resource-fill {
       background: linear-gradient(90deg, $energy-color, lighten($energy-color, 10%));
+    }
+
+    &.morale .resource-fill {
+      background: linear-gradient(90deg, $gold-dark, lighten($gold-dark, 15%));
     }
   }
 
