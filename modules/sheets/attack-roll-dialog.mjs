@@ -1,3 +1,22 @@
+function computePenaltyDiceConfig(baseDice, penaltyDice) {
+  let dice = Math.max(Number(baseDice) || 0, 0);
+  if (dice <= 0) dice = 1;
+  let penalties = Math.max(Number(penaltyDice) || 0, 0);
+  let keepLowest = false;
+
+  while (penalties > 0) {
+    if (dice > 1 && !keepLowest) {
+      dice -= 1;
+    } else {
+      keepLowest = true;
+      dice += 1;
+    }
+    penalties -= 1;
+  }
+
+  return { diceCount: dice, keepLowest };
+}
+
 /**
  * Attack Roll Dialog for Anyventure system
  * Handles attack rolls with bonus/penalty dice and optional defense check
@@ -5,6 +24,15 @@
 export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV2 {
 
   constructor(options = {}) {
+    const baseDice = Math.max(Number(options.baseDice) || 1, 1);
+    const diceType = options.diceType || "d6";
+    const inherentPenalty = Math.max(Number(options.inherentPenalty) || 0, 0);
+    const baseConfig = computePenaltyDiceConfig(baseDice, inherentPenalty);
+    const baseRollFormula = `${baseConfig.diceCount}${diceType}${baseConfig.keepLowest ? 'kl1' : ''}`;
+    const penaltyNote = inherentPenalty > 0
+      ? `<p class="penalty-note"><strong>Base Penalty Dice:</strong> ${inherentPenalty}</p>`
+      : '';
+
     super({
       window: {
         title: options.title || "Attack Roll",
@@ -15,7 +43,8 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
           <div class="roll-info">
             <h3>${options.weaponName || "Weapon"} Attack</h3>
             <div class="energy-warning" style="display:none;"></div>
-            <p><strong>Base Roll:</strong> ${options.baseDice}${options.diceType}</p>
+            <p><strong>Base Roll:</strong> ${baseRollFormula}</p>
+            ${penaltyNote}
           </div>
 
           <div class="form-group">
@@ -24,7 +53,7 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
           </div>
 
           <div class="form-group">
-            <label for="penalty-dice">Penalty Dice:</label>
+            <label for="penalty-dice">Penalty Dice (additional):</label>
             <input type="number" id="penalty-dice" name="penaltyDice" value="0" min="0" max="10" />
           </div>
 
@@ -34,7 +63,7 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
           </div>
 
           <div class="roll-preview">
-            <p><strong>Final Roll:</strong> <span id="final-formula">${options.baseDice}${options.diceType}</span></p>
+            <p><strong>Final Roll:</strong> <span id="final-formula">${baseRollFormula}</span></p>
           </div>
         </form>
       `,
@@ -55,11 +84,12 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
       ...options
     });
 
-    this.baseDice = options.baseDice || 1;
-    this.diceType = options.diceType || "d6";
+    this.baseDice = baseDice;
+    this.diceType = diceType;
     this.weaponName = options.weaponName || "Weapon";
     this.attackData = options.attackData || {};
     this.actor = options.actor;
+    this.inherentPenalty = inherentPenalty;
     this.rollCallback = options.rollCallback;
   }
 
@@ -82,6 +112,8 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
     bonusInput.addEventListener('input', updateFormula);
     penaltyInput.addEventListener('input', updateFormula);
 
+    updateFormula();
+
     // Show energy warning immediately if insufficient
     try {
       const energyCost = Number(this.attackData?.energy) || 0;
@@ -102,18 +134,11 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
    * Calculate the final dice formula based on bonus/penalty dice
    */
   calculateFormula(baseDice, bonusDice, penaltyDice) {
-    let netDice = baseDice + bonusDice - penaltyDice;
-
-    // For attacks, we roll all dice without keep highest/lowest
-    if (netDice > 0) {
-      return `${netDice}${this.diceType}`;
-    } else if (netDice <= 0) {
-      // If penalties exceed base + bonus, roll 1 die
-      return `1${this.diceType}`;
-    }
-
-    // Fallback
-    return `1${this.diceType}`;
+    const totalPenalty = this.inherentPenalty + penaltyDice;
+    const baseWithBonus = Math.max(baseDice + bonusDice, 1);
+    const config = computePenaltyDiceConfig(baseWithBonus, totalPenalty);
+    const suffix = config.keepLowest ? 'kl1' : '';
+    return `${config.diceCount}${this.diceType}${suffix}`;
   }
 
   /**
@@ -153,22 +178,33 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
       return; // Abort roll
     }
 
-    const formula = this.calculateFormula(this.baseDice, bonusDice, penaltyDice);
+    const totalPenalty = this.inherentPenalty + penaltyDice;
+    const baseWithBonus = Math.max(this.baseDice + bonusDice, 1);
+    const rollConfig = computePenaltyDiceConfig(baseWithBonus, totalPenalty);
+    const suffix = rollConfig.keepLowest ? 'kl1' : '';
+    const formula = `${rollConfig.diceCount}${this.diceType}${suffix}`;
 
     // Create the roll
     const roll = new Roll(formula, this.actor?.getRollData() || {});
     await roll.evaluate();
 
-    // Extract individual die results
-    const diceResults = [];
-    if (roll.terms[0] && roll.terms[0].results) {
-      for (let result of roll.terms[0].results) {
-        diceResults.push(result.result);
-      }
-    }
+    // Extract individual die results, preserving discarded state
+    const dieTerm = roll.dice?.[0] || roll.terms.find(t => Array.isArray(t?.results));
+    const detailedResults = Array.isArray(dieTerm?.results)
+      ? dieTerm.results.map(r => ({ result: r.result, discarded: Boolean(r.discarded) }))
+      : [];
 
-    // Sort dice results in descending order for easier reading
-    diceResults.sort((a, b) => b - a);
+    const keptResults = detailedResults.filter(r => !r.discarded).map(r => r.result);
+    const discardedResults = detailedResults.filter(r => r.discarded).map(r => r.result);
+
+    const diceResultsDisplay = detailedResults.length > 0
+      ? detailedResults.map(r => {
+          const style = r.discarded ? ' style="color:#f87171;"' : '';
+          return `<span${style}>${r.result}</span>`;
+        }).join(', ')
+      : roll.result;
+
+    const keptResultsSorted = [...keptResults].sort((a, b) => b - a);
 
     // Build structured flavor text with proper hierarchy
     let flavorText = `<div class="anyventure-attack-card">`;
@@ -189,30 +225,21 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
     }
 
     // 3. Dice Results
-    flavorText += `<div class="dice-results"><strong>Results:</strong> [${diceResults.join(', ')}]</div>`;
+    flavorText += `<div class="dice-results"><strong>Results:</strong> [${diceResultsDisplay}]</div>`;
 
     // 4. Formula (smaller, less prominent)
-    let totalDice = this.baseDice + bonusDice - penaltyDice;
-    let formulaText = `${totalDice}${this.diceType}`;
+    const formulaString = `${rollConfig.diceCount}${this.diceType}${suffix}`;
 
-    if (bonusDice > 0 && penaltyDice === 0) {
-      formulaText += ` (+${bonusDice} bonus)`;
-    } else if (penaltyDice > 0 && bonusDice === 0) {
-      if (totalDice >= 1) {
-        formulaText += ` (-${penaltyDice} penalty)`;
-      } else {
-        formulaText += ` (disadvantage)`;
-      }
-    } else if (bonusDice > 0 && penaltyDice > 0) {
-      const net = bonusDice - penaltyDice;
-      if (net > 0) {
-        formulaText += ` (net +${net})`;
-      } else if (net < 0) {
-        formulaText += ` (net ${net})`;
-      }
+    const net = bonusDice - totalPenalty;
+    let netNote = '';
+    if (net < 0) {
+      const penaltyCount = Math.abs(net);
+      netNote = ` (${penaltyCount} penalty die${penaltyCount === 1 ? '' : 's'})`;
+    } else if (net > 0) {
+      netNote = ` (+${net} bonus die${net === 1 ? '' : 's'})`;
     }
 
-    flavorText += `<div class="formula">Formula: ${formulaText}</div>`;
+    flavorText += `<div class="formula">Formula: ${formulaString}${netNote}</div>`;
 
     // 5. Damage with CSS color classes
     if (this.attackData.damage !== undefined) {
@@ -237,7 +264,7 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
     // Handle defense check comparison using highest die result
     let hitResult = "";
     if (defenseCheck !== null) {
-      const highestDie = diceResults.length > 0 ? diceResults[0] : 0;
+      const highestDie = keptResultsSorted.length > 0 ? keptResultsSorted[0] : 0;
       if (highestDie > defenseCheck) {
         hitResult = `<br><br><strong style="color: #4ade80;">HIT!</strong> Highest Die: ${highestDie} vs Defense: ${defenseCheck}`;
       } else {
@@ -260,18 +287,23 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
 
     // Call the callback if provided
     if (this.rollCallback) {
-      const highestDie = diceResults.length > 0 ? diceResults[0] : 0;
-      this.rollCallback(roll, {
+      const highestDie = keptResultsSorted.length > 0 ? keptResultsSorted[0] : 0;
+      await this.rollCallback(roll, {
         bonusDice,
         penaltyDice,
         defenseCheck,
-        diceResults,
+        diceResults: keptResults,
+        discardedResults,
+        detailedResults,
         highestDie,
+        inherentPenalty: this.inherentPenalty,
+        totalPenalty,
+        keepLowest: rollConfig.keepLowest,
         hit: defenseCheck ? highestDie > defenseCheck : null
       });
     }
 
-    return { roll, bonusDice, penaltyDice, defenseCheck, diceResults };
+    return { roll, bonusDice, penaltyDice, inherentPenalty: this.inherentPenalty, totalPenalty, defenseCheck, diceResults: keptResults, discardedResults };
   }
 
   /**

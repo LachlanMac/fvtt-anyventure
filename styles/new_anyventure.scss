@@ -1,0 +1,2997 @@
+// Import variables
+@import 'template';
+
+/* ========================================= */
+/*  Anyventure System Styles               */
+/* ========================================= */
+
+.anyventure {
+  /* ----------------------------------------- */
+  /*  Window & Base Layout                    */
+  /* ----------------------------------------- */
+  
+  .window-content {
+    background: $bg-darkest;
+    color: $text-light;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+  }
+
+  /* ----------------------------------------- */
+  /*  Item Sheet Specific Styles              */
+  /* ----------------------------------------- */
+  
+  &.item {
+    .window-content { 
+      display: flex;
+      flex-direction: column;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .sheet-header {
+      flex: 0 0 auto;
+      padding: $spacing-md;
+      background: linear-gradient(135deg, $purple-dark 0%, $purple-medium 100%);
+      border-bottom: 2px solid $border-gold;
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+
+      .item-img {
+        width: 64px;
+        height: 64px;
+        border: 2px solid $gold-medium;
+        border-radius: $border-radius-sm;
+        cursor: pointer;
+        transition: $transition-fast;
+        box-shadow: $shadow-md;
+
+        &:hover {
+          transform: scale(1.05);
+          border-color: $gold-bright;
+          box-shadow: $shadow-lg, 0 0 10px $accent-glow;
+        }
+      }
+
+      .header-fields {
+        flex: 1;
+
+        .item-name {
+          margin: 0 0 $spacing-xs 0;
+          color: $text-gold;
+          font-size: $font-size-large;
+          font-weight: bold;
+        }
+
+        .item-subtitle {
+          display: flex;
+          gap: $spacing-sm;
+          color: $text-medium;
+          font-size: $font-size-small;
+
+          .item-type {
+            color: $gold-muted;
+          }
+
+          .item-source {
+            color: $text-medium;
+          }
+        }
+      }
+    }
+
+    .sheet-tabs {
+      flex: 0 0 40px;
+    }
+
+    .sheet-body {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .tab {
+      padding: $spacing-md;
+      overflow-y: auto;
+    }
+
+    // Basic info section styles
+    .basic-info-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: $spacing-md;
+      
+      .form-group {
+        &:first-child {
+          grid-column: 1 / -1;
+        }
+      }
+    }
+
+    // Weapon damage section
+    .weapon-damage-section {
+      .damage-section {
+        background: rgba($purple-dark, 0.3);
+        border: 1px solid $border-light;
+        border-radius: $border-radius-sm;
+        padding: $spacing-md;
+        margin-bottom: $spacing-md;
+
+        h3 {
+          color: $gold-bright;
+          margin: 0 0 $spacing-md 0;
+          font-size: $font-size-normal;
+        }
+
+        .damage-fields, .range-fields {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: $spacing-sm;
+        }
+      }
+    }
+
+    // Weapon properties section
+    .weapon-properties-section {
+      h3 {
+        color: $gold-bright;
+        margin: 0 0 $spacing-md 0;
+      }
+
+      .flags-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: $spacing-sm;
+        margin-bottom: $spacing-md;
+
+        .flag-item {
+          label {
+            display: flex;
+            align-items: center;
+            gap: $spacing-xs;
+            cursor: pointer;
+            transition: $transition-fast;
+
+            &:hover {
+              color: $gold-bright;
+            }
+
+            input[type="checkbox"] {
+              cursor: pointer;
+            }
+          }
+        }
+      }
+    }
+
+    // Armor properties section
+    .armor-properties-section {
+      .armor-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: $spacing-md;
+        margin-bottom: $spacing-lg;
+      }
+
+      .mitigation-section {
+        h3 {
+          color: $gold-bright;
+          margin: 0 0 $spacing-md 0;
+        }
+
+        .mitigation-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: $spacing-sm;
+        }
+      }
+    }
+
+    // Spell properties section
+    .spell-properties-section {
+      .spell-fields, .damage-fields, .component-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: $spacing-md;
+        margin-bottom: $spacing-lg;
+      }
+
+      h3 {
+        color: $gold-bright;
+        margin: 0 0 $spacing-md 0;
+      }
+    }
+
+    // Module properties section
+    .module-properties-section {
+      .module-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: $spacing-md;
+        margin-bottom: $spacing-lg;
+      }
+
+      .module-tier {
+        background: rgba($purple-dark, 0.3);
+        border: 1px solid $border-light;
+        border-radius: $border-radius-sm;
+        padding: $spacing-md;
+        margin-bottom: $spacing-md;
+
+        h4 {
+          color: $gold-bright;
+          margin: 0 0 $spacing-sm 0;
+          font-size: $font-size-normal;
+        }
+
+        .module-option {
+          display: flex;
+          gap: $spacing-sm;
+          margin-bottom: $spacing-sm;
+
+          input[type="checkbox"],
+          input[type="radio"] {
+            margin-top: $spacing-xs;
+          }
+
+          .option-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-xs;
+
+            input[type="text"] {
+              width: 100%;
+            }
+
+            textarea {
+              width: 100%;
+              min-height: 60px;
+              resize: vertical;
+            }
+          }
+        }
+      }
+    }
+
+    // Special properties
+    .special-properties {
+      margin-top: $spacing-lg;
+
+      h3 {
+        color: $gold-bright;
+        margin: 0 0 $spacing-sm 0;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 100px;
+        resize: vertical;
+      }
+    }
+  }
+
+  .sheet-wrapper {
+    display: flex;
+    height: 100%;
+    gap: 0;
+    position: relative;
+  }
+
+  /* ----------------------------------------- */
+  /*  Left Sidebar                            */
+  /* ----------------------------------------- */
+
+  .left-sidebar {
+    flex: 0 0 280px;
+    background: $bg-dark;
+    border-right: 2px solid $border-gold;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .character-header {
+    padding: $spacing-md $spacing-lg $spacing-lg $spacing-lg;
+    background: linear-gradient(135deg, $purple-dark 0%, $purple-medium 100%);
+    border-bottom: 1px solid $border-gold;
+    text-align: center;
+
+    .character-portrait-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $spacing-md;
+      margin-bottom: $spacing-xs;
+    }
+
+    .profile-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid $gold-medium;
+      box-shadow: $shadow-lg, $shadow-glow;
+      object-fit: cover;
+      cursor: pointer;
+      transition: $transition-normal;
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: $shadow-lg, 0 0 20px $accent-glow;
+      }
+    }
+
+    .woe-token, .wonder-token {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 3px solid $gold-medium;
+      box-shadow: $shadow-md, 0 0 8px rgba(255, 215, 0, 0.4);
+      object-fit: cover;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      filter: brightness(1) saturate(1);
+
+      &:hover {
+        transform: scale(1.1);
+        border-color: $gold-bright;
+        box-shadow: $shadow-lg, 0 0 20px rgba(255, 215, 0, 0.6);
+        filter: brightness(1.1) saturate(1.1);
+      }
+
+      // Inactive state - darkened and less prominent
+      &.inactive {
+        filter: brightness(0.3) saturate(0.3) grayscale(0.7);
+        border-color: $border-light;
+        box-shadow: $shadow-sm;
+        opacity: 0.6;
+
+        &:hover {
+          transform: scale(1.05);
+          filter: brightness(0.5) saturate(0.5) grayscale(0.5);
+          border-color: $gold-dark;
+          box-shadow: $shadow-md, 0 0 10px rgba(255, 215, 0, 0.2);
+          opacity: 0.8;
+        }
+      }
+    }
+
+    // Specific styling for wonder token when active
+    .wonder-token:not(.inactive) {
+      border-color: #4fc3f7; // Light blue for wonder
+      box-shadow: $shadow-md, 0 0 12px rgba(79, 195, 247, 0.5);
+
+      &:hover {
+        border-color: #29b6f6;
+        box-shadow: $shadow-lg, 0 0 25px rgba(41, 182, 246, 0.7);
+      }
+    }
+
+    // Specific styling for woe token when active
+    .woe-token:not(.inactive) {
+      border-color: #e57373; // Light red for woe
+      box-shadow: $shadow-md, 0 0 12px rgba(229, 115, 115, 0.5);
+
+      &:hover {
+        border-color: #f44336;
+        box-shadow: $shadow-lg, 0 0 25px rgba(244, 67, 54, 0.7);
+      }
+    }
+
+    .charname {
+      margin: $spacing-xs 0 0 0; // Reduced from $spacing-md (8px) to $spacing-xs (2px) to bring closer to portrait
+      
+      input {
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid $border-gold;
+        color: $text-gold;
+        font-size: $font-size-large;
+        font-weight: bold;
+        text-align: center;
+        width: 100%;
+        padding: $spacing-xs;
+        transition: $transition-fast;
+
+        &:hover, &:focus {
+          border-color: $gold-bright;
+          box-shadow: 0 2px 0 0 $accent-glow;
+        }
+      }
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Resources Section                       */
+  /* ----------------------------------------- */
+
+  .resources-section {
+    padding: $spacing-lg;
+    background: rgba($purple-darkest, 0.3);
+    border-bottom: 1px solid $border-light;
+  }
+
+  .resource-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .resource-quick-actions {
+    display: flex;
+    gap: $spacing-xs;
+    margin-bottom: $spacing-xs;
+    justify-content: center;
+
+    .quick-action-btn {
+      width: 39px; // ~50% larger
+      height: 39px; // keep square ratio
+      padding: 0;
+      background: rgba($purple-dark, 0.85);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-sm;
+      color: $text-light;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: $transition-fast;
+
+      i { font-size: 18px; }
+
+      &:hover {
+        background: rgba($gold-dark, 0.3);
+        border-color: $gold-medium;
+        color: $gold-bright;
+      }
+    }
+  }
+
+  .resource-bar {
+    position: relative;
+    background: rgba($purple-darkest, 0.6);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-md;
+    padding: $spacing-xs;
+    overflow: hidden;
+    margin-bottom: $spacing-xs; // Reduced from $spacing-sm (4px) to $spacing-xs (2px) - 50% reduction
+    height: 27px; // Reduced from 36px to 27px - 25% reduction
+
+    label {
+      position: absolute;
+      top: 2px;
+      left: $spacing-sm;
+      color: $text-medium;
+      font-size: $font-size-tiny;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      z-index: 3;
+    }
+
+    .resource-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      position: relative;
+      z-index: 2;
+      gap: $spacing-xs;
+    }
+
+    .resource-btn {
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      background: rgba($purple-dark, 0.8);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-sm;
+      color: $text-medium;
+      font-size: $font-size-tiny;
+      cursor: pointer;
+      transition: $transition-fast;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background: rgba($gold-dark, 0.3);
+        border-color: $gold-medium;
+        color: $gold-bright;
+      }
+
+      &.minus {
+        margin-right: $spacing-xs;
+      }
+
+      &.plus {
+        margin-left: $spacing-xs;
+      }
+    }
+
+    .resource-values {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+
+      input {
+        background: transparent;
+        border: none;
+        color: $text-light;
+        font-weight: bold;
+        font-size: $font-size-medium;
+        width: 35px;
+        text-align: center;
+        padding: 0;
+
+        &:hover, &:focus {
+          color: $gold-bright;
+        }
+      }
+
+      .separator {
+        color: $text-medium;
+        font-weight: bold;
+      }
+    }
+
+    .resource-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      transition: width 0.3s ease;
+      z-index: 1;
+      opacity: 0.3;
+    }
+
+    &.health .resource-fill {
+      background: linear-gradient(90deg, $health-color, lighten($health-color, 10%));
+    }
+
+    &.resolve .resource-fill {
+      background: linear-gradient(90deg, $resolve-color, lighten($resolve-color, 10%));
+    }
+
+    &.energy .resource-fill {
+      background: linear-gradient(90deg, $energy-color, lighten($energy-color, 10%));
+    }
+
+    &.morale .resource-fill {
+      background: linear-gradient(90deg, $gold-dark, lighten($gold-dark, 15%));
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Mitigations Table                       */
+  /* ----------------------------------------- */
+
+  .mitigations-container {
+    padding: $spacing-md;
+    background: rgba($purple-darkest, 0.2);
+    flex: 0 0 auto;
+
+    .section-header {
+      color: $gold-bright;
+      font-size: $font-size-small;
+      margin: 0 0 $spacing-md 0;
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      i {
+        font-size: $font-size-normal;
+      }
+    }
+  }
+
+  .mitigations-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: rgba($purple-darkest, 0.5);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-md;
+    overflow: hidden;
+
+    thead {
+      background: $purple-medium;
+      
+      th {
+        padding: $spacing-xs $spacing-sm;
+        color: $gold-bright;
+        font-weight: bold;
+        font-size: $font-size-tiny;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid $border-gold;
+      }
+    }
+
+    tbody tr {
+      transition: $transition-fast;
+
+      &:hover {
+        background: $bg-hover;
+      }
+
+      &:not(:last-child) td {
+        border-bottom: 1px solid $border-light;
+      }
+    }
+
+    td {
+      padding: $spacing-xs $spacing-sm;
+      text-align: center;
+      font-size: $font-size-medium;
+
+      &.damage-type {
+        text-align: left;
+        color: $text-medium;
+        font-weight: 500;
+
+        i {
+          margin-right: $spacing-xs;
+          color: $gold-muted;
+          width: 12px;
+          font-size: $font-size-tiny;
+          text-align: center;
+        }
+      }
+
+      &.mitigation-value input {
+        background: rgba($purple-darkest, 0.5);
+        border: 1px solid $border-light;
+        border-radius: $border-radius-sm;
+        color: $text-light;
+        width: 35px;
+        text-align: center;
+        padding: 1px;
+        font-size: $font-size-tiny;
+        transition: $transition-fast;
+
+        &:hover, &:focus {
+          border-color: $gold-medium;
+          background: rgba($purple-darkest, 0.8);
+        }
+      }
+
+      &.resist-value {
+        color: $gold-muted;
+        font-weight: bold;
+      }
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Movement Table                           */
+  /* ----------------------------------------- */
+
+  .movement-container {
+    padding: $spacing-md;
+    background: rgba($purple-darkest, 0.2);
+    flex: 0 0 auto;
+
+    .section-header {
+      color: $text-gold;
+      font-size: $font-size-small;
+      margin: 0 0 $spacing-md 0;
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      i {
+        font-size: $font-size-normal;
+      }
+    }
+  }
+
+  .movement-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: rgba($purple-darkest, 0.5);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-md;
+    overflow: hidden;
+
+    thead {
+      background: $purple-medium;
+
+      th {
+        padding: $spacing-xs $spacing-sm;
+        color: $text-gold;
+        font-weight: bold;
+        font-size: $font-size-tiny;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid $border-gold;
+      }
+    }
+
+    tbody {
+      tr {
+        transition: $transition-fast;
+
+        &:hover {
+          background: $bg-hover;
+        }
+
+        &:not(:last-child) td {
+          border-bottom: 1px solid $border-light;
+        }
+      }
+    }
+
+    td {
+      padding: $spacing-xs $spacing-sm;
+      text-align: center;
+      font-size: $font-size-medium;
+
+      &.movement-type {
+        text-align: left;
+        color: $text-medium;
+        font-weight: 500;
+
+        i {
+          margin-right: $spacing-xs;
+          color: $gold-muted;
+          width: 12px;
+          font-size: $font-size-tiny;
+          text-align: center;
+        }
+      }
+
+      &.movement-value {
+        color: $gold-muted;
+        font-weight: bold;
+
+        .movement-input {
+          width: 60px;
+          background: transparent;
+          border: none;
+          color: inherit;
+          font: inherit;
+          text-align: center;
+          padding: 0;
+
+          &:focus {
+            outline: none;
+            color: $gold-bright;
+          }
+
+          &::-webkit-outer-spin-button,
+          &::-webkit-inner-spin-button {
+            margin: 0;
+          }
+        }
+      }
+
+      &.sprint-value {
+        color: $gold-muted;
+        font-weight: bold;
+      }
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Main Content Area                       */
+  /* ----------------------------------------- */
+
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: $bg-darkest;
+    position: relative;
+    min-width: 0;
+  }
+
+  .sheet-tabs {
+    display: flex;
+    height: 40px;
+    border-bottom: 2px solid $border-gold;
+    background: $purple-dark;
+    flex-shrink: 0;
+
+    .item {
+      flex: 1;
+      line-height: 40px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      color: $text-medium;
+      cursor: pointer;
+      transition: $transition-fast;
+      position: relative;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: $font-size-normal;
+      border-right: 1px solid rgba($border-light, 0.2);
+
+      &:last-child {
+        border-right: none;
+      }
+
+      &:hover {
+        color: $gold-bright;
+        background: $bg-hover;
+        text-shadow: 0 0 4px $accent-glow;
+      }
+
+      &.active {
+        color: $gold-bright;
+        background: rgba($gold-dark, 0.2);
+        text-shadow: 0 0 4px $accent-glow;
+
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: $gold-bright;
+          box-shadow: 0 0 10px $accent-glow;
+        }
+      }
+    }
+  }
+
+  .sheet-body {
+    flex: 1 1 auto;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tab {
+    display: none;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: $spacing-md;
+
+    &.active {
+      display: block;
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Tab Navigation (Bottom)                 */
+  /* ----------------------------------------- */
+
+  // Module points styling
+  .module-points {
+    padding: $spacing-md;
+    background: linear-gradient(135deg, rgba($purple-medium, 0.3), rgba($purple-dark, 0.3));
+    border: 1px solid $border-gold;
+    border-radius: $border-radius-sm;
+    margin-bottom: $spacing-md;
+    
+    label {
+      color: $gold-bright;
+      font-weight: bold;
+      font-size: $font-size-normal;
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Skills Page                             */
+  /* ----------------------------------------- */
+
+  .skills-page, .character-page {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    // Character Essentials (Ancestry, Culture, Personality)
+    .character-essentials {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
+      margin-bottom: $spacing-xl;
+
+      .character-essential-section {
+        display: flex;
+        align-items: center;
+        background: rgba($purple-darkest, 0.4);
+        border: 2px solid $border-light;
+        border-radius: $border-radius-md;
+        padding: $spacing-sm;
+        gap: $spacing-sm;
+        min-height: 50px;
+
+        .essential-icon {
+          width: 32px;
+          height: 32px;
+          border: 2px solid $border-light;
+          border-radius: $border-radius-sm;
+          overflow: hidden;
+          flex-shrink: 0;
+          background: rgba($purple-dark, 0.5);
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+
+        .essential-content {
+          flex: 1;
+
+          .essential-title {
+            color: $gold-bright;
+            font-size: $font-size-medium;
+            font-weight: bold;
+            margin: 0;
+          }
+        }
+
+        .essential-controls {
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          gap: $spacing-xs;
+
+          .item-control {
+            background: transparent;
+            border: none;
+            color: $text-medium;
+            cursor: pointer;
+            font-size: $font-size-small;
+            padding: $spacing-xs;
+            transition: $transition-fast;
+
+            &:hover {
+              color: $gold-medium;
+            }
+
+            &.item-delete:hover {
+              color: $health-color;
+            }
+          }
+
+          .essential-drop-zone {
+            background: rgba($purple-dark, 0.3);
+            border: 2px dashed $border-light;
+            border-radius: $border-radius-md;
+            color: $text-medium;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: $font-size-tiny;
+            font-weight: bold;
+            gap: $spacing-xs;
+            min-height: 50px;
+            min-width: 60px;
+            padding: $spacing-xs;
+            text-align: center;
+            transition: $transition-fast;
+
+            &:hover {
+              background: rgba($purple-medium, 0.5);
+              border-color: $gold-dark;
+              color: $gold-medium;
+            }
+
+            &.drag-over {
+              background: rgba($gold-dark, 0.3);
+              border-color: $gold-bright;
+              color: $gold-bright;
+            }
+
+            i {
+              font-size: $font-size-small;
+            }
+
+            span {
+              line-height: 1.2;
+            }
+          }
+        }
+      }
+
+      // Empty state for character essentials
+      .character-essential-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba($purple-medium, 0.2);
+        border: 2px solid rgba($border-light, 0.5);
+        border-radius: $border-radius-md;
+        padding: $spacing-sm;
+        min-height: 50px;
+
+        .essential-drop-zone {
+          background: rgba($accent-secondary, 0.2);
+          border: 2px dashed rgba($accent-secondary, 0.6);
+          border-radius: $border-radius-md;
+          color: rgba($accent-secondary, 0.8);
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          font-size: $font-size-small;
+          font-weight: bold;
+          gap: $spacing-xs;
+          padding: $spacing-sm $spacing-md;
+          text-align: center;
+          transition: $transition-fast;
+          width: 100%;
+
+          &:hover {
+            background: rgba($accent-secondary, 0.3);
+            border-color: $accent-secondary;
+            color: $accent-secondary;
+          }
+
+          &.drag-over {
+            background: rgba($accent-secondary, 0.4);
+            border-color: $accent-primary;
+            color: $accent-primary;
+          }
+
+          i {
+            font-size: $font-size-large;
+          }
+
+          span {
+            line-height: 1.3;
+            font-size: $font-size-medium;
+          }
+        }
+      }
+    }
+  }
+
+  // Modules tab
+  .modules {
+    h3 {
+      color: $gold-bright;
+      margin: 0 0 $spacing-md 0;
+    }
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-md;
+    margin-bottom: $spacing-lg;
+  }
+
+  .attribute-block {
+    background: rgba($purple-dark, 0.3);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    padding: $spacing-sm;
+    margin-bottom: $spacing-sm;
+    transition: $transition-normal;
+
+    &:hover {
+      border-color: $gold-dark;
+      box-shadow: $shadow-sm;
+    }
+
+    .attribute-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing-sm;
+      padding-bottom: $spacing-xs;
+      border-bottom: 1px solid $border-light;
+
+      .attribute-name {
+        margin: 0;
+        color: $gold-bright;
+        font-size: $font-size-normal;
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+
+        i {
+          font-size: $font-size-small;
+        }
+      }
+
+      .talent-stars {
+        display: flex;
+        gap: 1px;
+        align-items: center;
+        justify-content: flex-end;
+        position: relative;
+
+        i {
+          font-size: $font-size-small;
+          color: $text-dark;
+          transition: $transition-fast;
+
+          &.filled {
+            color: $gold-bright;
+            text-shadow: 0 0 4px $accent-glow;
+          }
+        }
+
+        .talent-input {
+          position: absolute;
+          opacity: 0;
+          width: 100%;
+          height: 100%;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .skill-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px $spacing-sm;
+    background: rgba($purple-darkest, 0.3);
+    border-radius: $border-radius-sm;
+    transition: $transition-fast;
+    position: relative;
+
+    &:hover {
+      background: $bg-hover;
+      
+      .skill-name {
+        color: $gold-bright;
+      }
+    }
+
+    .skill-name {
+      flex: 1;
+      color: $text-light;
+      cursor: pointer;
+      font-weight: 500;
+      transition: $transition-fast;
+      font-size: $font-size-medium;
+
+      &.rollable:hover {
+        text-shadow: 0 0 8px $accent-glow;
+      }
+    }
+
+    .skill-value-group {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+
+      .talent-badge {
+        background: $gold-dark;
+        color: $purple-darkest;
+        padding: 1px 3px;
+        border-radius: $border-radius-sm;
+        font-weight: bold;
+        font-size: $font-size-tiny;
+        min-width: 14px;
+        text-align: center;
+        margin-right: $spacing-xs;
+      }
+
+      .talent-stars-skill {
+        display: flex;
+        gap: 1px;
+        align-items: center;
+        min-width: 50px;
+        margin-right: $spacing-xs;
+
+        i {
+          font-size: $font-size-tiny;
+          color: $gold-bright;
+          text-shadow: 0 0 4px $accent-glow;
+        }
+      }
+      
+      .skill-modifier {
+        color: $gold-muted;
+        font-weight: bold;
+        font-size: $font-size-medium;
+        min-width: 25px;
+        text-align: right;
+        margin-right: $spacing-xs;
+        display: inline-block;
+      }
+
+      .skill-die {
+        color: $text-light;
+        font-size: $font-size-medium;
+        margin-left: $spacing-xs;
+        min-width: 40px;
+        display: inline-block;
+
+        &.skill-upgraded {
+          color: #28a745; // Green for upgraded skills
+        }
+
+        &.skill-downgraded {
+          color: #dc3545; // Red for downgraded skills
+        }
+      }
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Specialized Skills                      */
+  /* ----------------------------------------- */
+
+  .specialized-skills {
+    margin-top: $spacing-md;
+  }
+
+  // Ensure skills tab scrolls like Equipment tab
+  .tab.skills.active {
+    display: flex; // only when active; otherwise tabs stay hidden
+    flex-direction: column;
+    min-height: 0; // allow children to shrink and scroll
+    overflow-y: auto; // scroll the tab like equipment
+    overflow-x: hidden;
+
+    .skills-page {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+  }
+
+  .skill-category-block {
+    background: rgba($purple-dark, 0.2);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    padding: $spacing-sm;
+    margin-bottom: $spacing-md;
+
+    .category-header {
+      margin: 0 0 $spacing-sm 0;
+      color: $gold-bright;
+      font-size: $font-size-normal;
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      padding-bottom: $spacing-xs;
+      border-bottom: 1px solid $border-light;
+
+      i {
+        font-size: $font-size-small;
+      }
+    }
+  }
+
+  .specialized-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: $spacing-xs;
+  }
+
+  .specialized-skill {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px $spacing-sm;
+    background: rgba($purple-darkest, 0.4);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    transition: $transition-fast;
+
+    &:hover {
+      background: $bg-hover;
+      border-color: $gold-dark;
+
+      .skill-name {
+        color: $gold-bright;
+      }
+    }
+
+    .skill-name {
+      flex: 1;
+      color: $text-light;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: $font-size-medium;
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+
+      .skill-icon {
+        width: 24px;
+        height: 24px;
+        margin-right: $spacing-xs;
+        vertical-align: middle;
+        display: inline-block;
+        flex: 0 0 24px;
+      }
+    }
+
+    .skill-value-group {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+
+      .talent-badge {
+        background: $gold-dark;
+        color: $purple-darkest;
+        padding: 1px $spacing-xs;
+        border-radius: $border-radius-sm;
+        font-weight: bold;
+        font-size: $font-size-tiny;
+        min-width: 16px;
+        text-align: center;
+      }
+
+      .talent-stars-skill {
+        display: flex;
+        gap: 1px;
+        align-items: center;
+        min-width: 50px;
+        margin-right: $spacing-xs;
+
+        i {
+          font-size: $font-size-tiny;
+          color: $gold-bright;
+          text-shadow: 0 0 4px $accent-glow;
+        }
+      }
+
+      .skill-modifier {
+        color: $gold-muted;
+        font-weight: bold;
+        min-width: 25px;
+        text-align: right;
+        font-size: $font-size-medium;
+        display: inline-block;
+      }
+
+      .skill-die {
+        color: $text-light;
+        font-size: $font-size-medium;
+        margin-left: $spacing-xs;
+        min-width: 40px;
+        display: inline-block;
+
+        &.skill-upgraded {
+          color: #28a745; // Green for upgraded skills
+        }
+
+        &.skill-downgraded {
+          color: #dc3545; // Red for downgraded skills
+        }
+      }
+    }
+
+    .skill-controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 24px;
+
+      a {
+        color: $gold-muted;
+        cursor: pointer;
+        transition: $transition-fast;
+      }
+
+      a:hover {
+        color: $gold-bright;
+      }
+    }
+
+    .skill-controls--spacer {
+      pointer-events: none;
+      opacity: 0;
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Items Lists                             */
+  /* ----------------------------------------- */
+
+  .items-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    color: $text-light;
+
+    .item-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .item-name {
+      flex: 2;
+      margin: 0;
+      overflow: hidden;
+      font-size: $font-size-normal;
+      text-align: left;
+      align-items: center;
+      display: flex;
+
+      h3, h4 {
+        margin: 0;
+        white-space: nowrap;
+        overflow-x: hidden;
+      }
+
+      .item-image {
+        flex: 0 0 30px;
+        height: 30px;
+        background-size: 30px;
+        border: none;
+        margin-right: $spacing-sm;
+      }
+    }
+
+    .item-controls {
+      display: flex;
+      flex: 0 0 100px;
+      justify-content: flex-end;
+
+      a {
+        font-size: $font-size-normal;
+        text-align: center;
+        margin: 0 6px;
+        color: $text-medium;
+        transition: $transition-fast;
+
+        &:hover {
+          color: $gold-bright;
+        }
+      }
+    }
+
+    .item {
+      align-items: center;
+      padding: $spacing-sm $spacing-md;
+      border-bottom: 1px solid $border-light;
+      transition: $transition-fast;
+
+      &:hover {
+        background: $bg-hover;
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    .item-prop {
+      text-align: center;
+      border-left: 1px solid $border-light;
+      border-right: 1px solid $border-light;
+      font-size: $font-size-normal;
+    }
+  }
+
+  .items-header {
+    height: 40px;
+    margin: 0;
+    padding: 0 $spacing-md;
+    align-items: center;
+    background: $purple-medium;
+    border: 1px solid $border-gold;
+    font-weight: bold;
+    color: $gold-bright;
+
+    > * {
+      font-size: $font-size-normal;
+      text-align: center;
+    }
+
+    .item-name {
+      padding-left: $spacing-sm;
+      text-align: left;
+      display: flex;
+    }
+  }
+
+  .item-formula {
+    flex: 0 0 200px;
+    padding: 0 $spacing-md;
+  }
+
+  /* ----------------------------------------- */
+  /*  Biography Tab                           */
+  /* ----------------------------------------- */
+
+  .biography-content {
+    padding: $spacing-xl;
+  }
+
+  .biography-section {
+    margin-bottom: $spacing-xxl;
+
+    h3 {
+      margin: 0 0 $spacing-lg 0;
+      font-weight: bold;
+      border-bottom: 1px solid $border-gold;
+      padding-bottom: $spacing-sm;
+      color: $gold-bright;
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Roll Dialog Styles                      */
+  /* ----------------------------------------- */
+
+  &-roll-dialog {
+    min-width: 400px;
+
+    .window-content {
+      background: $bg-dark;
+    }
+
+    .roll-info {
+      background: linear-gradient(135deg, $purple-medium, $purple-dark);
+      padding: $spacing-lg;
+      border-radius: $border-radius-md;
+      margin-bottom: $spacing-xl;
+      text-align: center;
+      border: 1px solid $border-gold;
+
+      h3 {
+        margin: 0 0 $spacing-sm 0;
+        color: $gold-bright;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: $spacing-lg;
+
+      label {
+        flex: 0 0 120px;
+        font-weight: bold;
+        color: $gold-muted;
+      }
+
+      input {
+        flex: 1;
+        padding: $spacing-sm;
+        border: 1px solid $border-light;
+        border-radius: $border-radius-sm;
+        text-align: center;
+        background: rgba($purple-darkest, 0.5);
+        color: $text-light;
+
+        &:hover, &:focus {
+          border-color: $gold-medium;
+          background: rgba($purple-darkest, 0.8);
+        }
+      }
+    }
+
+    .roll-preview {
+      background: rgba($gold-dark, 0.2);
+      padding: $spacing-lg;
+      border-radius: $border-radius-md;
+      margin-top: $spacing-xl;
+      text-align: center;
+      border: 1px solid $border-gold;
+
+      #final-formula {
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        color: $gold-bright;
+        font-size: $font-size-large;
+        text-shadow: 0 0 4px $accent-glow;
+      }
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Scrollbar Styling                       */
+  /* ----------------------------------------- */
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: $purple-darkest;
+    border-radius: $border-radius-sm;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: $purple-light;
+    border-radius: $border-radius-sm;
+    
+    &:hover {
+      background: $gold-dark;
+    }
+  }
+  
+  // Firefox scrollbar
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: $purple-light $purple-darkest;
+  }
+
+  /* ----------------------------------------- */
+  /*  Utility Classes                         */
+  /* ----------------------------------------- */
+
+  .rollable {
+    &:hover {
+      color: $gold-bright;
+      text-shadow: 0 0 8px $accent-glow;
+      cursor: pointer;
+    }
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    background: rgba($purple-darkest, 0.5);
+    border: 1px solid $border-light;
+    color: $text-light;
+    
+    &:hover, &:focus {
+      border-color: $gold-medium;
+      background: rgba($purple-darkest, 0.8);
+    }
+  }
+
+  button {
+    background: linear-gradient(135deg, $purple-medium, $purple-dark);
+    border: 1px solid $border-gold;
+    color: $gold-bright;
+    padding: $spacing-sm $spacing-lg;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+    transition: $transition-fast;
+    font-weight: bold;
+
+    &:hover {
+      background: linear-gradient(135deg, lighten($purple-medium, 5%), lighten($purple-dark, 5%));
+      box-shadow: 0 0 10px $accent-glow;
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Moves Tab                               */
+  /* ----------------------------------------- */
+
+  .moves-container {
+    padding: $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+
+    .moves-section {
+      background: rgba($purple-darkest, 0.3);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-md;
+      padding: $spacing-md;
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: $spacing-md;
+        border-bottom: 1px solid $border-light;
+        padding-bottom: $spacing-sm;
+
+        h3 {
+          color: $gold-bright;
+          font-size: $font-size-large;
+          margin: 0;
+        }
+
+        .header-add {
+          color: $text-dark;
+          font-size: $font-size-normal;
+          padding: $spacing-xs;
+          border-radius: $border-radius-sm;
+          transition: $transition-fast;
+          cursor: pointer;
+
+          &:hover {
+            color: $gold-bright;
+            background: rgba($gold-dark, 0.2);
+            box-shadow: 0 0 8px rgba($gold-bright, 0.3);
+          }
+        }
+      }
+
+      .moves-list {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-sm;
+
+        .move-item {
+          display: flex;
+          gap: $spacing-sm;
+          align-items: center;
+          padding: $spacing-xs;
+          background: rgba($purple-dark, 0.3);
+          border-radius: $border-radius-sm;
+
+          input[type="text"] {
+            flex: 1;
+            background: rgba($purple-darkest, 0.5);
+            border: 1px solid $border-light;
+            color: $text-light;
+            padding: $spacing-xs $spacing-sm;
+            border-radius: $border-radius-sm;
+
+            &:focus {
+              border-color: $gold-dark;
+              outline: none;
+            }
+          }
+
+          input[type="number"] {
+            width: 60px;
+            text-align: center;
+            background: rgba($purple-darkest, 0.5);
+            border: 1px solid $border-light;
+            color: $text-light;
+            padding: $spacing-xs;
+            border-radius: $border-radius-sm;
+
+            &:focus {
+              border-color: $gold-dark;
+              outline: none;
+            }
+          }
+
+          .move-control {
+            color: $text-dark;
+            cursor: pointer;
+            padding: $spacing-xs;
+            transition: $transition-fast;
+
+            &:hover {
+              color: $gold-bright;
+            }
+          }
+        }
+      }
+    }
+
+    // Weapon attacks specific styles
+    .weapon-attack-item {
+      background: rgba($purple-dark, 0.4);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-sm;
+      margin-bottom: $spacing-sm;
+      overflow: hidden;
+
+      .weapon-attack-header {
+        display: flex;
+        align-items: center;
+        padding: $spacing-md;
+        border-bottom: 1px solid $border-light;
+        gap: $spacing-md;
+
+        .weapon-icon {
+          width: 24px;
+          height: 24px;
+          border: 1px solid $border-light;
+          border-radius: $border-radius-sm;
+          overflow: hidden;
+          flex-shrink: 0;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+
+        .weapon-info {
+          flex: 1;
+
+          .weapon-name {
+            color: $gold-bright;
+            font-size: $font-size-medium;
+            font-weight: bold;
+            margin: 0 0 $spacing-xs 0;
+          }
+
+          .weapon-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: $font-size-small;
+
+            .attack-type {
+              color: $text-medium;
+              font-style: italic;
+              flex: 1;
+              text-align: left;
+            }
+
+            .energy-cost {
+              color: $purple-light;
+              flex: 1;
+              text-align: center;
+
+              i.fa-star {
+                color: $gold-bright;
+                text-shadow: 0 0 4px $accent-glow;
+                font-size: $font-size-tiny;
+                margin-left: 2px;
+              }
+            }
+
+            .range {
+              color: $text-medium;
+              flex: 1;
+              text-align: right;
+            }
+          }
+        }
+      }
+
+      .weapon-attack-details {
+        padding: $spacing-md;
+        cursor: pointer;
+        transition: $transition-fast;
+
+        &:hover {
+          background: $bg-hover;
+        }
+
+        .damage-info {
+          display: flex;
+          flex-wrap: wrap;
+          gap: $spacing-md;
+          align-items: center;
+
+          .damage-dice {
+            color: $gold-medium;
+            font-weight: bold;
+            font-size: $font-size-medium;
+          }
+
+          .secondary-damage-dice {
+            color: $gold-dark;
+            font-weight: bold;
+            font-size: $font-size-small;
+          }
+
+          .damage-type-box {
+            display: inline-block;
+            padding: $spacing-xs $spacing-sm;
+            border-radius: $border-radius-sm;
+            font-size: $font-size-tiny;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+
+            // Physical damage type
+            &.damage-type-physical {
+              background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+              color: #FFF8DC;
+              border-color: #CD853F;
+            }
+
+            // Heat damage type
+            &.damage-type-heat {
+              background: linear-gradient(135deg, #FF4500 0%, #DC143C 100%);
+              color: #FFFAF0;
+              border-color: #FF6347;
+            }
+
+            // Cold damage type
+            &.damage-type-cold {
+              background: linear-gradient(135deg, #4682B4 0%, #87CEEB 100%);
+              color: #F0F8FF;
+              border-color: #B0C4DE;
+            }
+
+            // Electric damage type
+            &.damage-type-electric {
+              background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+              color: #000080;
+              border-color: #FFFF00;
+              text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+            }
+
+            // Dark damage type
+            &.damage-type-dark {
+              background: linear-gradient(135deg, #2F4F4F 0%, #000000 100%);
+              color: #E6E6FA;
+              border-color: #483D8B;
+            }
+
+            // Divine damage type
+            &.damage-type-divine {
+              background: linear-gradient(135deg, #FFD700 0%, #FFF8DC 100%);
+              color: #8B4513;
+              border-color: #DAA520;
+              text-shadow: 0 0 2px rgba(255, 215, 0, 0.8);
+            }
+
+            // Arcane damage type
+            &.damage-type-arcane {
+              background: linear-gradient(135deg, #9932CC 0%, #8A2BE2 100%);
+              color: #E0E6FF;
+              border-color: #BA55D3;
+            }
+
+            // Psychic damage type
+            &.damage-type-psychic {
+              background: linear-gradient(135deg, #FF1493 0%, #DA70D6 100%);
+              color: #FFF0F5;
+              border-color: #FF69B4;
+            }
+
+            // Toxic damage type
+            &.damage-type-toxic {
+              background: linear-gradient(135deg, #32CD32 0%, #228B22 100%);
+              color: #F0FFF0;
+              border-color: #7CFC00;
+            }
+
+            // None damage type
+            &.damage-type-none {
+              background: linear-gradient(135deg, #696969 0%, #A9A9A9 100%);
+              color: #F5F5F5;
+              border-color: #C0C0C0;
+            }
+          }
+
+          .attack-dice {
+            color: $text-light;
+            font-weight: bold;
+            font-size: $font-size-medium;
+            padding: $spacing-xs $spacing-sm;
+            background: rgba($purple-dark, 0.6);
+            border: 1px solid $border-light;
+            border-radius: $border-radius-sm;
+            margin-left: $spacing-xs;
+            font-family: monospace;
+            letter-spacing: 0.5px;
+          }
+        }
+      }
+    }
+
+    .no-weapons-message {
+      text-align: center;
+      color: $text-dark;
+      font-style: italic;
+      padding: $spacing-lg;
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Chat Message Customization              */
+  /* ----------------------------------------- */
+
+  // Hide dice totals for Anyventure system since we show individual results
+  .chat-message {
+    .dice-roll .dice-total {
+      display: none !important;
+    }
+
+    // Also hide the total from the roll tooltip
+    .dice-tooltip .dice-total {
+      display: none !important;
+    }
+
+    // Target the specific total element more broadly
+    .dice-total {
+      display: none !important;
+    }
+
+    // Hide any element that shows the roll total
+    .roll-total {
+      display: none !important;
+    }
+
+    // Hide the total in dice formulas
+    .dice-formula .dice-total {
+      display: none !important;
+    }
+  }
+
+  // Global hiding for dice totals in chat
+  #chat-log .dice-total {
+    display: none !important;
+  }
+
+  // Hide totals in any roll context
+  .roll .dice-total {
+    display: none !important;
+  }
+
+  /* ----------------------------------------- */
+  /*  Item Sheet Styles                       */
+  /* ----------------------------------------- */
+
+  &.item {
+    .window-content {
+      padding: 0;
+      background: $purple-darkest;
+    }
+
+    form {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sheet-header {
+      padding: $spacing-lg;
+      background: linear-gradient(135deg, $purple-dark, $purple-medium);
+      border-bottom: 2px solid $gold-dark;
+
+      .header-fields {
+        display: flex;
+        gap: $spacing-md;
+        align-items: center;
+
+        img {
+          width: 64px;
+          height: 64px;
+          border: 2px solid $gold-dark;
+          border-radius: $border-radius-md;
+        }
+
+        .header-details {
+          flex: 1;
+
+          h1 {
+            margin: 0;
+            input {
+              font-size: $font-size-xlarge;
+              color: $gold-bright;
+              background: transparent;
+              border: none;
+              font-weight: bold;
+              text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            }
+          }
+
+          .item-subtitle {
+            display: flex;
+            gap: $spacing-sm;
+            margin-top: $spacing-xs;
+
+            .item-type {
+              color: $text-dark;
+              font-size: $font-size-small;
+              text-transform: capitalize;
+            }
+
+            .item-rarity {
+              font-size: $font-size-small;
+              text-transform: capitalize;
+              font-weight: 600;
+
+              &.rarity-common { color: $text-dark; }
+              &.rarity-uncommon { color: #68d391; }
+              &.rarity-rare { color: #63b3ed; }
+              &.rarity-epic { color: #b794f6; }
+              &.rarity-legendary { color: #ff8c42; }
+              &.rarity-artifact { color: #ff6b6b; }
+            }
+          }
+        }
+      }
+    }
+
+    .sheet-tabs {
+      background: $purple-dark;
+      border-bottom: 1px solid $border-light;
+
+      .item {
+        color: $text-dark;
+        border-bottom: 2px solid transparent;
+        transition: $transition-fast;
+
+        &:hover {
+          color: $gold-bright;
+        }
+
+        &.active {
+          color: $gold-bright;
+          border-bottom-color: $gold-dark;
+        }
+      }
+    }
+
+    .sheet-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: $spacing-lg;
+
+      .tab {
+        display: none;
+        &.active {
+          display: block;
+        }
+      }
+    }
+
+    // Basic info grid
+    .basic-info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-md;
+      margin-bottom: $spacing-lg;
+    }
+
+    // Resource bonuses grid
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: $spacing-md;
+      margin-bottom: $spacing-lg;
+    }
+
+    // Attack sections
+    .attack-section {
+      background: rgba($purple-darkest, 0.3);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-md;
+      padding: $spacing-md;
+      margin-bottom: $spacing-lg;
+
+      h3 {
+        color: $gold-bright;
+        margin-top: 0;
+        border-bottom: 1px solid $border-light;
+        padding-bottom: $spacing-sm;
+      }
+
+      .attack-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: $spacing-md;
+      }
+    }
+
+    // Bonus categories
+    .bonus-category {
+      background: rgba($purple-darkest, 0.3);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-md;
+      padding: $spacing-md;
+      margin-bottom: $spacing-lg;
+
+      h3 {
+        color: $gold-bright;
+        margin-top: 0;
+        border-bottom: 1px solid $border-light;
+        padding-bottom: $spacing-sm;
+      }
+
+      .bonus-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: $spacing-sm;
+      }
+
+      .weapon-bonus-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: $spacing-md;
+
+        .weapon-bonus-item {
+          background: rgba($purple-dark, 0.3);
+          padding: $spacing-sm;
+          border-radius: $border-radius-sm;
+
+          h4 {
+            color: $text-light;
+            margin: 0 0 $spacing-sm 0;
+            font-size: $font-size-normal;
+          }
+
+          .bonus-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: $spacing-sm;
+          }
+        }
+      }
+    }
+
+    // Mitigation grid
+    .mitigation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: $spacing-md;
+    }
+
+    // Flags grid
+    .flags-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: $spacing-sm;
+
+      .flag-item label {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        cursor: pointer;
+      }
+    }
+
+    // Immunities grid
+    .immunities-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: $spacing-sm;
+
+      .immunity-item label {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        cursor: pointer;
+      }
+    }
+
+    // Detection grid
+    .detection-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-md;
+    }
+
+    // Form groups
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-xs;
+
+      label {
+        color: $text-dark;
+        font-size: $font-size-small;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      input, select, textarea {
+        background: rgba($purple-darkest, 0.5);
+        border: 1px solid $border-light;
+        color: $text-light;
+        padding: $spacing-xs $spacing-sm;
+        border-radius: $border-radius-sm;
+
+        &:focus {
+          border-color: $gold-dark;
+          outline: none;
+        }
+      }
+
+      &.stacked {
+        margin-bottom: $spacing-md;
+      }
+    }
+  }
+
+  /* ----------------------------------------- */
+  /*  Equipment Tab Styles                    */
+  /* ----------------------------------------- */
+
+  // Equipment top row layout
+  .equipment-top-row {
+    display: flex;
+    gap: $spacing-xxl;
+    margin-bottom: $spacing-xxl;
+    height: 244px;
+  }
+
+  // Paperdoll section
+  .paperdoll-section {
+    flex: 0 0 190px; // Fixed width, minimal padding
+    background: $bg-darkest;
+    border: 2px solid $border-gold;
+    border-radius: $border-radius-lg;
+    padding: $spacing-md;
+
+    .paperdoll-container-compact {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-md;
+    }
+
+    .paperdoll-row {
+      display: flex;
+      justify-content: center;
+      gap: $spacing-sm;
+    }
+
+    .equipment-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-xs;
+    }
+
+    .slot-container-small {
+      width: 50px;
+      height: 50px;
+      border: 2px solid $border-light;
+      border-radius: $border-radius-sm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba($purple-darkest, 0.5);
+      cursor: pointer;
+      transition: $transition-normal;
+
+      &:hover {
+        border-color: $gold-medium;
+        background: rgba($purple-darkest, 0.8);
+      }
+
+      &.drag-over {
+        border-color: $gold-bright;
+        background: $bg-active;
+        box-shadow: 0 0 10px $accent-glow;
+      }
+    }
+  }
+
+  // Inventory drag and drop styles
+  .inventory-drag-over {
+    background: rgba($gold-bright, 0.1) !important;
+    border: 2px dashed $gold-bright !important;
+
+    &::before {
+      content: "Drop item here to add to inventory";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: $gold-bright;
+      background: rgba($purple-darkest, 0.9);
+      padding: $spacing-md $spacing-lg;
+      border-radius: $border-radius-md;
+      border: 1px solid $gold-bright;
+      font-weight: bold;
+      z-index: 1000;
+      pointer-events: none;
+    }
+  }
+
+  // Improved equipment slot styles
+  .slot-container-small {
+    &.drag-over {
+      border-color: $gold-bright;
+      background: $bg-active;
+      box-shadow: 0 0 10px $accent-glow;
+    }
+
+    .empty-slot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+
+      .empty-slot-icon {
+        width: 36px;
+        height: 36px;
+        border: none;
+        outline: none;
+        opacity: 0.6;
+      }
+    }
+
+    .equipped-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+
+      img {
+        width: 36px;
+        height: 36px;
+        border: none;
+        outline: none;
+        border-radius: $border-radius-sm;
+        object-fit: cover;
+      }
+
+      .unequip-btn {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        background: rgba($purple-darkest, 0.9);
+        border: 1px solid $border-gold;
+        border-radius: 50%;
+        color: $text-light;
+        font-size: $font-size-tiny;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: $transition-fast;
+        padding: 0;
+
+        &:hover {
+          background: rgba($purple-darkest, 1);
+          border-color: $gold-bright;
+          color: $gold-bright;
+        }
+      }
+    }
+  }
+
+  // Equipped items list section
+  .equipped-list-section {
+    flex: 1; // Take up remaining space
+    background: $bg-darkest;
+    border: 2px solid $border-gold;
+    border-radius: $border-radius-lg;
+    padding: $spacing-xl;
+    overflow-y: auto;
+
+    .equipped-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+    }
+
+    .equipped-item-row {
+      display: flex;
+      align-items: center;
+      padding: $spacing-xs $spacing-md;
+      background: $purple-dark;
+      border-radius: $border-radius-sm;
+      border-left: 3px solid $border-gold;
+
+      .slot-name {
+        color: $gold-dark;
+        font-weight: bold;
+        font-size: $font-size-small;
+        min-width: 80px;
+        margin-right: $spacing-sm;
+      }
+
+      .item-name {
+        color: $text-light;
+        font-size: $font-size-small;
+        flex: 1;
+      }
+    }
+  }
+
+  // Inventory tabs and content
+  .unequipped-items-section {
+    background: $bg-darkest;
+    border: 2px solid $border-gold;
+    border-radius: $border-radius-lg;
+    padding: $spacing-xl;
+    max-height: 300px;
+    overflow-y: auto;
+
+    h4 {
+      color: $gold-dark;
+      margin: 0 0 $spacing-xl 0;
+      font-size: $font-size-large;
+      font-weight: bold;
+    }
+  }
+
+  // Inventory tabs
+  .inventory-tabs {
+    display: flex;
+    margin-bottom: $spacing-md;
+    border-bottom: 2px solid $border-gold;
+  }
+
+  .inventory-tab {
+    padding: $spacing-xs $spacing-md;
+    background: $purple-dark;
+    border: 1px solid $border-gold;
+    border-bottom: none;
+    border-radius: $border-radius-sm $border-radius-sm 0 0;
+    color: $text-light;
+    cursor: pointer;
+    font-size: $font-size-medium;
+    font-weight: bold;
+    margin-right: $spacing-sm;
+    transition: $transition-normal;
+
+    &:hover {
+      background: $purple-medium;
+      color: $gold-medium;
+    }
+
+    &.active {
+      background: $bg-darkest;
+      color: $gold-medium;
+      border-bottom: 2px solid $bg-darkest;
+      margin-bottom: -2px;
+    }
+  }
+
+  // Tab content
+  .inventory-tab-content {
+    display: none;
+
+    &.active {
+      display: block;
+    }
+  }
+
+  // Inventory table
+  .inventory-table {
+    width: 100%;
+
+    .inventory-header {
+      display: flex;
+      align-items: center;
+      padding: $spacing-xs $spacing-md;
+      background: $purple-medium;
+      border-bottom: 2px solid $border-gold;
+      color: $gold-bright;
+      font-weight: bold;
+      font-size: $font-size-small;
+      text-transform: uppercase;
+
+      .col-name {
+        flex: 3;
+        text-align: left;
+      }
+
+      .col-weight,
+      .col-encumbrance,
+      .col-quantity {
+        flex: 1;
+        text-align: center;
+      }
+
+      .col-actions {
+        flex: 1.5;
+        text-align: center;
+      }
+    }
+
+    .inventory-row {
+      display: flex;
+      align-items: center;
+      padding: $spacing-xs $spacing-md;
+      border-bottom: 1px solid $border-light;
+      transition: $transition-fast;
+
+      &:hover {
+        background: $bg-hover;
+      }
+
+      .col-name {
+        flex: 3;
+        display: flex;
+        align-items: center;
+        gap: $spacing-md;
+        text-align: left;
+
+        .item-icon {
+          width: 24px;
+          height: 24px;
+          border-radius: $border-radius-sm;
+          object-fit: cover;
+        }
+      }
+
+      .col-weight,
+      .col-encumbrance,
+      .col-quantity {
+        flex: 1;
+        color: $text-medium;
+        text-align: center;
+      }
+
+      .col-actions {
+        flex: 1.5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-xs;
+
+        .item-control {
+          background: transparent;
+          border: none;
+          color: $text-medium;
+          cursor: pointer;
+          font-size: $font-size-small;
+          padding: $spacing-xs;
+          transition: $transition-fast;
+
+          &:hover {
+            color: $gold-medium;
+          }
+
+          &.item-equip:hover {
+            color: $energy-color;
+          }
+
+          &.item-delete:hover {
+            color: $health-color;
+          }
+        }
+      }
+
+      .quantity-minus,
+      .quantity-plus {
+        background: transparent;
+        border: none;
+        color: $text-medium;
+        cursor: pointer;
+        font-size: $font-size-tiny;
+        padding: $spacing-xs;
+        transition: $transition-fast;
+
+        &:hover {
+          color: $gold-medium;
+        }
+      }
+    }
+  }
+
+  // Traits section styling
+  .traits-modules-section {
+    .tab.traits {
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 8px;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: rgba($purple-dark, 0.2);
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba($gold-medium, 0.6);
+        border-radius: 3px;
+
+        &:hover {
+          background: rgba($gold-medium, 0.8);
+        }
+      }
+    }
+
+    .trait-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+
+      .trait-item {
+        display: flex;
+        align-items: flex-start;
+        background: linear-gradient(135deg, $purple-dark, rgba($purple-dark, 0.9));
+        border: 1px solid rgba($gold-medium, 0.3);
+        border-radius: 4px;
+        padding: 6px 10px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, rgba($purple-dark, 0.9), $purple-dark);
+          border-color: rgba($gold-medium, 0.5);
+        }
+
+        .trait-content {
+          flex: 1;
+          min-width: 0;
+
+          .trait-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: $gold-medium;
+            margin: 0 0 2px 0;
+            line-height: 1.2;
+          }
+
+          .trait-description {
+            font-size: 9px;
+            color: $text-light;
+            margin: 0;
+            line-height: 1.3;
+            word-wrap: break-word;
+          }
+        }
+      }
+
+      .trait-empty {
+        text-align: center;
+        color: #6c757d;
+        font-style: italic;
+        font-size: 10px;
+        padding: 10px;
+        background: #f8f9fa;
+        border: 1px dashed #dee2e6;
+        border-radius: 4px;
+      }
+    }
+
+    .trait-category {
+      margin-bottom: 12px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .trait-category-header {
+        font-size: 12px;
+        font-weight: 600;
+        color: #495057;
+        margin: 0 0 6px 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        i {
+          font-size: 11px;
+          color: #6c757d;
+        }
+      }
+    }
+  }
+
+  // Ability items in Moves tab
+  .moves-section {
+    .ability-item {
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, $purple-dark, rgba($purple-dark, 0.9));
+      border: 1px solid rgba($gold-medium, 0.3);
+      border-radius: 4px;
+      padding: 8px;
+      margin-bottom: 8px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: linear-gradient(135deg, rgba($purple-dark, 0.9), $purple-dark);
+        border-color: rgba($gold-medium, 0.5);
+      }
+
+      .ability-icon {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        margin-right: 10px;
+
+        img {
+          width: 32px;
+          height: 32px;
+          border: 1px solid rgba($gold-medium, 0.3);
+          border-radius: 2px;
+          object-fit: cover;
+        }
+      }
+
+      .ability-content {
+        flex: 1;
+        min-width: 0;
+
+        .ability-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 4px;
+
+          .ability-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: $gold-medium;
+            margin: 0;
+            flex: 0 0 auto;
+          }
+
+          .ability-energy {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 10px;
+            color: $text-light;
+            flex: 0 0 auto;
+
+            i {
+              font-size: 9px;
+              color: $gold-medium;
+            }
+          }
+
+          .ability-tags {
+            display: flex;
+            gap: 4px;
+            flex: 0 0 auto;
+
+            .daily-badge, .magic-badge {
+              padding: 2px 6px;
+              border-radius: 3px;
+              font-size: 9px;
+              font-weight: 600;
+              text-transform: uppercase;
+            }
+
+            .daily-badge {
+              background: rgba($gold-dark, 0.3);
+              color: $gold-medium;
+              border: 1px solid rgba($gold-medium, 0.4);
+            }
+
+            .magic-badge {
+              background: rgba($purple-medium, 0.3);
+              color: $text-light;
+              border: 1px solid rgba($purple-medium, 0.4);
+            }
+          }
+        }
+
+        .ability-description {
+          font-size: 11px;
+          color: $text-light;
+          margin: 0;
+          line-height: 1.3;
+        }
+      }
+
+      .ability-controls {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: 10px;
+
+        .item-control {
+          display: inline-block;
+          width: 24px;
+          height: 24px;
+          line-height: 24px;
+          text-align: center;
+          color: $text-medium;
+          cursor: pointer;
+          transition: color 0.2s ease;
+
+          &:hover {
+            color: $gold-medium;
+          }
+
+          &.item-delete:hover {
+            color: #e74c3c;
+          }
+
+          i {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+
+    .empty-message {
+      text-align: center;
+      color: $text-medium;
+      font-style: italic;
+      padding: 20px;
+      font-size: 12px;
+    }
+  }
+
+}
+
+/* ========================================= */
+/*  Combat Phase Tracker (Global)           */
+/* ========================================= */
+
+.anyventure-combat-tracker {
+  .phase-header {
+    background: rgba(#2a1a3a, 0.8);
+    color: #f0f0f0;
+    font-weight: bold;
+    text-align: center;
+    padding: 8px;
+    margin: 4px 0;
+    border-radius: 4px;
+    border: 1px solid #666;
+
+    &.preparation {
+      background: linear-gradient(135deg, rgba(138, 43, 226, 0.8), rgba(75, 0, 130, 0.8));
+      border-color: #8b2be2;
+      color: #e6e6fa;
+    }
+
+    &.early {
+      background: linear-gradient(135deg, rgba(34, 139, 34, 0.8), rgba(0, 100, 0, 0.8));
+      border-color: #228b22;
+      color: #f0fff0;
+    }
+
+    &.middle {
+      background: linear-gradient(135deg, rgba(255, 140, 0, 0.8), rgba(255, 69, 0, 0.8));
+      border-color: #ff8c00;
+      color: #fff8dc;
+    }
+
+    &.late {
+      background: linear-gradient(135deg, rgba(178, 34, 34, 0.8), rgba(139, 0, 0, 0.8));
+      border-color: #b22222;
+      color: #ffe4e1;
+    }
+  }
+
+  .combatant-row.empty {
+    text-align: center;
+    font-style: italic;
+    color: #888;
+    padding: 4px;
+    opacity: 0.6;
+  }
+
+  .phase-duplicate {
+    opacity: 0.85;
+    border-left: 3px solid #b8860b;
+  }
+
+  .phase-current {
+    background: rgba(184, 134, 11, 0.2) !important;
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+
+    // Hide the default Foundry spinning icon
+    &::before, &::after {
+      display: none !important;
+    }
+
+    // Remove any Foundry default active background effects
+    .token-image, .token-image::before, .token-image::after {
+      animation: none !important;
+      background-image: none !important;
+    }
+  }
+
+  // Additional targeting for Foundry's active combatant styles
+  li.combatant.active {
+    &::before, &::after {
+      display: none !important;
+    }
+
+    .token-image, .combatant-image {
+      &::before, &::after {
+        display: none !important;
+        animation: none !important;
+        background-image: none !important;
+      }
+    }
+  }
+}

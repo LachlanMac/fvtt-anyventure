@@ -24,6 +24,7 @@ Hooks.once('init', async function() {
     decimals: 0
   };
 
+
   // Hook to intercept initiative rolls and use our custom formulas
   Hooks.on("preUpdateCombat", async (combat, update, options, userId) => {
     console.log('[Initiative] preUpdateCombat hook triggered');
@@ -97,6 +98,31 @@ Hooks.once('init', async function() {
     return numA + numB;
   });
 
+  Handlebars.registerHelper('add', function(a, b) {
+    const numA = Number(a) || 0;
+    const numB = Number(b) || 0;
+    return numA + numB;
+  });
+
+  Handlebars.registerHelper('range', function(start, end, step = 1) {
+    const result = [];
+    let s = Number(start);
+    let e = Number(end);
+    let delta = Number(step);
+
+    if (!Number.isFinite(s)) s = 0;
+    if (!Number.isFinite(e)) e = 0;
+    if (!Number.isFinite(delta) || delta === 0) delta = 1;
+
+    if (delta > 0) {
+      for (let i = s; i < e; i += delta) result.push(i);
+    } else {
+      for (let i = s; i > e; i += delta) result.push(i);
+    }
+
+    return result;
+  });
+
   Handlebars.registerHelper('subtract', function(a, b) {
     const numA = Number(a) || 0;
     const numB = Number(b) || 0;
@@ -135,6 +161,19 @@ Hooks.once('init', async function() {
 
 
 Hooks.once('ready', async function() {
+
+  // Override the turn marker to remove the spinning Foundry symbol
+  try {
+    await game.settings.set("core", "combatTrackerConfig", {
+      ...game.settings.get("core", "combatTrackerConfig"),
+      turnMarker: {
+        src: "systems/anyventure/artwork/icons/ui/turn-marker.png"
+      }
+    });
+    console.log('[Anyventure] Turn marker disabled successfully');
+  } catch (e) {
+    console.warn('[Anyventure] Failed to override turn marker setting', e);
+  }
 
   // Register combat UI hooks (phase tracker)
   try { registerCombatUIHooks(); } catch (e) { console.warn('[Anyventure] Failed to register combat UI hooks', e); }

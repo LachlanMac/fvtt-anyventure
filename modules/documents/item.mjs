@@ -16,7 +16,7 @@ export class AnyventureItem extends Item {
    * Prepare a data object which is passed to any Roll formulas which are created related to this Item
    * @private
    */
-   getRollData() {
+  getRollData() {
     // If present, return the actor's roll data.
     if ( !this.actor ) return null;
     const rollData = this.actor.getRollData();
@@ -24,6 +24,26 @@ export class AnyventureItem extends Item {
     rollData.item = foundry.utils.deepClone(this.system);
 
     return rollData;
+  }
+
+  async _preUpdate(changed, options, user) {
+    const stackLimitRaw = Number(this.system?.stack_limit);
+    const stackLimit = Number.isFinite(stackLimitRaw) ? stackLimitRaw : 0;
+
+    if (stackLimit > 0 && foundry.utils.hasProperty(changed, 'system.quantity')) {
+      const desiredRaw = Number(foundry.utils.getProperty(changed, 'system.quantity'));
+      if (Number.isFinite(desiredRaw)) {
+        const clamped = Math.max(Math.min(Math.floor(desiredRaw), stackLimit), 0);
+        if (clamped !== desiredRaw) {
+          foundry.utils.setProperty(changed, 'system.quantity', clamped);
+          if (user === game.userId) {
+            ui.notifications?.warn(`${this.name} quantity adjusted to stack limit (${stackLimit}).`);
+          }
+        }
+      }
+    }
+
+    return super._preUpdate(changed, options, user);
   }
 
   /**

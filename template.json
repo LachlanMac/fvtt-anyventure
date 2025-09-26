@@ -303,6 +303,8 @@
         }
       },
       "character": {
+        "wonder": false,
+        "woe": false,
         "details": {
           "race": "",
           "culture": "",

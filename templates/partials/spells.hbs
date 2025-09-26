@@ -1,123 +1,83 @@
 {{!-- Spells Tab Content --}}
-<section class="spells-container">
-  {{!-- Spell Slots Info --}}
-  <div class="spell-slots-header">
+<div class="spells-section">
+  <div class="section-header">
     <h3>Spells</h3>
     <div class="spell-slots">
-      <span>Spell Slots: {{displaySpellSlotsCurrent}} / {{system.spellSlots.max}}</span>
-      <a class="item-control item-create" title="Create spell" data-type="spell"><i class="fas fa-plus"></i></a>
+      <label>Spell Slots: {{spells.length}} / {{system.spellSlots.max}}</label>
     </div>
+    <a class="item-control item-create" title="Create spell" data-type="spell"><i class="fas fa-plus"></i></a>
   </div>
 
-  {{!-- Actions Section --}}
-  <div class="spells-section">
-    <div class="section-header">
-      <h3>Actions</h3>
-    </div>
-    <div class="spells-list">
-      {{#each actionSpells as |spell|}}
-      <div class="anyventure-spell-card spell-clickable{{#if spell.system.fizzle}} fizzled{{/if}}" data-item-id="{{spell._id}}" data-spell-type="action" data-energy-cost="{{spell.system.energy}}" title="Click to cast this spell">
-        <div class="spell-icon">
-          <img src="{{spell.img}}" alt="{{spell.name}}" />
-        </div>
-        <div class="spell-content">
-          <div class="spell-header">
-            <h4 class="spell-name">{{spell.name}}</h4>
-            <div class="spell-tags">
-              {{#if spell.system.concentration}}
-                <span class="concentration-badge">Concentration</span>
-              {{/if}}
-            </div>
-            <div class="spell-energy">
-              <div class="energy-line">
-                Energy:
-                {{#if (eq spell.system.energy 0)}}
-                  None
-                {{else}}
-                  {{#times spell.system.energy}}
-                    <i class="fas fa-star filled"></i>
-                  {{/times}}
-                {{/if}}
-              </div>
-            </div>
-          </div>
-          <div class="spell-details">
-            <div class="spell-school">{{capitalize spell.system.school}}/{{capitalize spell.system.subschool}}</div>
-            <div class="spell-casting">
-              <span class="school-roll {{#unless spell.canChannel}}cant-channel{{/unless}}">{{spell.castingDisplay}}</span>
-            </div>
-          </div>
-        </div>
-        <div class="spell-side">
-          <div class="spell-check">
-            <div class="check-label">Check</div>
-            <div class="check-box">{{spell.system.checkToCast}}</div>
-          </div>
-        </div>
-        <div class="spell-controls">
-          <a class="item-control item-edit" data-item-id="{{spell._id}}" title="Edit Item"><i class="fas fa-edit"></i></a>
-          <a class="item-control item-delete" data-item-id="{{spell._id}}" title="Delete Item"><i class="fas fa-trash"></i></a>
-        </div>
-      </div>
-      {{else}}
-      <div class="empty-message">No action spells available</div>
-      {{/each}}
-    </div>
-  </div>
+  <div class="spells-list">
+    {{#each spells as |item id|}}
+    <div class="anyventure-spell-card {{#if item.system.fizzled}}fizzled{{/if}}" data-item-id="{{item._id}}">
 
-  {{!-- Reactions Section --}}
-  <div class="spells-section">
-    <div class="section-header">
-      <h3>Reactions</h3>
-    </div>
-    <div class="spells-list">
-      {{#each reactionSpells as |spell|}}
-      <div class="anyventure-spell-card spell-clickable{{#if spell.system.fizzle}} fizzled{{/if}}" data-item-id="{{spell._id}}" data-spell-type="reaction" data-energy-cost="{{spell.system.energy}}" title="Click to cast this spell">
-        <div class="spell-icon">
-          <img src="{{spell.img}}" alt="{{spell.name}}" />
-        </div>
-        <div class="spell-content">
-          <div class="spell-header">
-            <h4 class="spell-name">{{spell.name}}</h4>
-            <div class="spell-tags">
-              {{#if spell.system.concentration}}
-                <span class="concentration-badge">Concentration</span>
+      {{!-- Spell Icon --}}
+      <div class="spell-icon">
+        <img src="{{item.img}}" title="{{item.name}}" alt="{{item.name}}"/>
+      </div>
+
+      {{!-- Spell Content --}}
+      <div class="spell-content">
+        <div class="spell-header">
+          <div class="spell-name">{{item.name}}</div>
+
+          <div class="spell-tags">
+            {{#if item.system.concentration}}
+            <span class="concentration-badge">Concentration</span>
+            {{/if}}
+          </div>
+
+          <div class="spell-energy">
+            <div class="energy-line">
+              {{#if item.system.energy}}
+                Energy: {{#each (range 1 (add item.system.energy 1))}}<i class="fas fa-star"></i>{{/each}}
+              {{else}}
+                Energy: None
               {{/if}}
             </div>
-            <div class="spell-energy">
-              <div class="energy-line">
-                Energy:
-                {{#if (eq spell.system.energy 0)}}
-                  None
-                {{else}}
-                  {{#times spell.system.energy}}
-                    <i class="fas fa-star filled"></i>
-                  {{/times}}
-                {{/if}}
-              </div>
-            </div>
-          </div>
-          <div class="spell-details">
-            <div class="spell-school">{{capitalize spell.system.school}}/{{capitalize spell.system.subschool}}</div>
-            <div class="spell-casting">
-              <span class="school-roll {{#unless spell.canChannel}}cant-channel{{/unless}}">{{spell.castingDisplay}}</span>
-            </div>
           </div>
         </div>
-        <div class="spell-side">
-          <div class="spell-check">
-            <div class="check-label">Check</div>
-            <div class="check-box">{{spell.system.checkToCast}}</div>
+
+        <div class="spell-details">
+          <div class="spell-school">
+            {{#if item.system.school}}{{item.system.school}}{{/if}}
+            {{#if item.system.subschool}}({{item.system.subschool}}){{/if}}
           </div>
-        </div>
-        <div class="spell-controls">
-          <a class="item-control item-edit" data-item-id="{{spell._id}}" title="Edit Item"><i class="fas fa-edit"></i></a>
-          <a class="item-control item-delete" data-item-id="{{spell._id}}" title="Delete Item"><i class="fas fa-trash"></i></a>
+
+          <div class="spell-casting">
+            {{#if item.system.fizzled}}
+              <span class="school-roll fizzled">Fizzled</span>
+            {{else if item.system.cantChannel}}
+              <span class="school-roll cant-channel">Not Possible</span>
+            {{else}}
+              <span class="school-roll">{{item.system.castingFormula}}</span>
+            {{/if}}
+          </div>
         </div>
       </div>
-      {{else}}
-      <div class="empty-message">No reaction spells available</div>
-      {{/each}}
+
+      {{!-- Spell Check Side Column --}}
+      <div class="spell-side">
+        <div class="spell-check">
+          <div class="check-label">Check</div>
+          <div class="check-box">{{item.system.checkToCast}}</div>
+        </div>
+      </div>
+
+      {{!-- Controls --}}
+      <div class="spell-controls" onclick="event.stopPropagation();">
+        <a class="item-control item-edit" title="Edit Spell"><i class="fas fa-edit"></i></a>
+        <a class="item-control item-delete" title="Delete Spell"><i class="fas fa-trash"></i></a>
+      </div>
+
     </div>
+    {{/each}}
+
+    {{#unless spells}}
+    <div class="empty-message">
+      <p>No spells learned yet. Create a spell to get started!</p>
+    </div>
+    {{/unless}}
   </div>
-</section>
+</div>

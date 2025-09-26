@@ -31,7 +31,7 @@
         <div class="damage-info">
           <span class="damage-dice">[{{attack.damage}}/{{attack.damageExtra}}]</span>
           <span class="damage-type-box {{attack.damageType.cssClass}}">{{attack.damageType.text}}</span>
-          <span class="attack-dice">{{attack.attackDice}}{{attack.attackDiceType}}</span>
+          <span class="attack-dice">{{attack.attackDice}}{{attack.attackDiceType}}{{#if attack.attackKeepLowest}}kl1{{/if}}</span>
           {{#if (gt attack.secondaryDamage 0)}}
           <span class="secondary-damage-dice">[{{attack.secondaryDamage}}/{{attack.secondaryDamageExtra}}]</span>
           <span class="damage-type-box {{attack.secondaryDamageType.cssClass}}">{{attack.secondaryDamageType.text}}</span>

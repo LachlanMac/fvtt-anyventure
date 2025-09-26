@@ -7,7 +7,9 @@
       "Bash(npx sass:*)",
       "Bash(grep:*)",
       "Bash(mkdir:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(git log:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }

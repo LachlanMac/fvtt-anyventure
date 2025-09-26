@@ -5,7 +5,11 @@
     <aside class="left-sidebar">
       {{!-- Character Header --}}
       <div class="character-header">
-        <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+        <div class="character-portrait-row">
+          <img class="wonder-token {{#unless system.wonder}}inactive{{/unless}}" src="systems/anyventure/artwork/icons/ui/wonder.png" title="Wonder Token" data-action="toggle-wonder"/>
+          <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+          <img class="woe-token {{#unless system.woe}}inactive{{/unless}}" src="systems/anyventure/artwork/icons/ui/woe.png" title="Woe Token" data-action="toggle-woe"/>
+        </div>
         <h1 class="charname">
           <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name"/>
         </h1>

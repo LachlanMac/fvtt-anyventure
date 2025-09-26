@@ -3,7 +3,23 @@ import { AnyventureAttackRollDialog } from "./attack-roll-dialog.mjs";
 import { AnyventureRecoverResourcesDialog } from "./recover-resources-dialog.mjs";
 import { AnyventureTakeDamageDialog } from "./take-damage-dialog.mjs";
 import { AnyventureRestDialog } from "./rest-dialog.mjs";
+import { AnyventureSpellCastDialog } from "./spell-cast-dialog.mjs";
 import { parseAndApplyCharacterEffects } from "../utils/character-parser.js";
+
+const WEAPON_SLOTS = ['mainhand', 'offhand', 'extra1', 'extra2', 'extra3'];
+const EXTRA_WEAPON_SLOTS = ['extra1', 'extra2', 'extra3'];
+const TWO_HANDED_WEAPON_SLOTS = ['mainhand', 'extra1', 'extra2', 'extra3'];
+const WEAPON_CATEGORY_ALIASES = {
+  simpleMelee: 'simpleMeleeWeapons',
+  simpleRanged: 'simpleRangedWeapons',
+  complexMelee: 'complexMeleeWeapons',
+  complexRanged: 'complexRangedWeapons',
+  throwingWeapons: 'throwing'
+};
+const COMPLEX_WEAPON_CATEGORIES = new Set(['complexMeleeWeapons', 'complexRangedWeapons']);
+const THROWING_WEAPON_CATEGORY = 'throwing';
+const CONSUMABLE_ITEM_TYPES = new Set(['ammunition']);
+const TWO_HANDED_FLAG = 'two-handed';
 
 /**
  * Extend the basic ActorSheet with some very simple modifications
@@ -311,6 +327,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       if (i.type === 'item') {
         // All physical items have type 'item', check itemType for specific categorization
         const itemType = i.system.itemType;
+        const slotType = this._resolveItemSlotType(i);
 
         if (itemType === 'weapon' && !isEquipped) {
           weapons.push(i);
@@ -333,18 +350,22 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         else if (itemType === 'ring' && !isEquipped) {
           rings.push(i);
         }
-        else if (itemType === 'cloaks' && !isEquipped) {
+        else if (slotType === 'cloaks' && !isEquipped) {
           cloaks.push(i);
         }
         else if (itemType === 'equipment' && !isEquipped) {
           // Further categorize equipment by subtype
-          if (i.system.equipment_type === 'light_source') {
+          const eqType = (i.system.equipment_type || '').toLowerCase();
+          if (eqType === 'cloak' || eqType === 'cloaks' || eqType === 'back') {
+            cloaks.push(i);
+          }
+          else if (eqType === 'light_source') {
             light_sources.push(i);
           }
-          else if (i.system.equipment_type === 'ammunition') {
+          else if (eqType === 'ammunition') {
             ammunition.push(i);
           }
-          else if (i.system.equipment_type === 'instrument') {
+          else if (eqType === 'instrument') {
             instruments.push(i);
           }
           else {
@@ -385,7 +406,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         }
       }
       else if (i.type === 'spell') {
-        spells.push(i);
+        // Enhance spell data with casting information
+        const enhancedSpell = this._enhanceSpellData(i, context);
+        spells.push(enhancedSpell);
       }
       else if (i.type === 'injury') {
         // Injuries are always included regardless of equipped status - they represent temporary conditions
@@ -498,9 +521,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const equipment = context.system.equipment || {};
 
     // Check weapon slots for equipped weapons
-    const weaponSlots = ['mainhand', 'offhand', 'extra1', 'extra2', 'extra3'];
-
-    for (const slotName of weaponSlots) {
+    for (const slotName of WEAPON_SLOTS) {
       const slot = equipment[slotName];
       if (slot?.item && slot.item.system.itemType === 'weapon') {
         const weapon = slot.item;
@@ -508,7 +529,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         // Normalize weapon data sources (support old and new schemas)
         const wsys = weapon.system || {};
         const wdata = wsys.weapon_data || {};
-        const weaponCategory = (wsys.weapon_category || wdata.category || 'unarmed');
+        const weaponCategory = (wsys.weapon_category || wdata.category || 'brawling');
 
         // Helper to build an attack entry from provided attack data
         const buildAttack = (attackData) => {
@@ -533,6 +554,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
             rangeText: formatRange(Number(attackData.min_range ?? 0), Number(attackData.max_range ?? 1)),
             attackDice: diceInfo.dice,
             attackDiceType: diceInfo.diceType,
+            attackKeepLowest: diceInfo.keepLowest,
+            baseDice: diceInfo.baseDice,
+            inherentPenalty: diceInfo.inherentPenalty,
             slotName
           };
         };
@@ -582,6 +606,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
             rangeText: formatRange(Number(attackData.min_range ?? 0), Number(attackData.max_range ?? 1)),
             attackDice: diceInfo.dice,
             attackDiceType: diceInfo.diceType,
+            attackKeepLowest: diceInfo.keepLowest,
+            baseDice: diceInfo.baseDice,
+            inherentPenalty: diceInfo.inherentPenalty,
             slotName
           };
         };
@@ -597,8 +624,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       }
     }
 
-    // Always add unarmed attack as a default option
-    const unarmedAttackData = {
+    // Always add brawling attack as a default option
+    const brawlingAttackData = {
       damage: 3,
       damage_extra: 3,
       damage_type: 'physical',
@@ -608,16 +635,16 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       max_range: 1
     };
 
-    // Create fake weapon object for unarmed attack dice calculation
-    const unarmedWeapon = { system: { weapon_category: 'unarmed', weapon_data: { category: 'unarmed' } } };
+    // Create fake weapon object for brawling attack dice calculation
+    const brawlingWeapon = { system: { weapon_category: 'brawling', weapon_data: { category: 'brawling' } } };
 
-    const unarmedDiceInfo = this._calculateAttackDice(unarmedWeapon, unarmedAttackData);
+    const brawlingDiceInfo = this._calculateAttackDice(brawlingWeapon, brawlingAttackData);
 
-    const unarmedAttack = {
-      weaponName: 'Unarmed Strike',
+    const brawlingAttack = {
+      weaponName: 'Brawling Strike',
       weaponIcon: 'icons/skills/melee/unarmed-punch-fist.webp',
-      weaponCategory: 'unarmed',
-      attackType: this._getAttackType(unarmedWeapon, unarmedAttackData),
+      weaponCategory: 'brawling',
+      attackType: this._getAttackType(brawlingWeapon, brawlingAttackData),
       category: formatCategory('blunt'),
       rawCategory: 'blunt',
       damage: 3,
@@ -630,13 +657,16 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       minRange: 1,
       maxRange: 1,
       rangeText: formatRange(1, 1),
-      attackDice: unarmedDiceInfo.dice,
-      attackDiceType: unarmedDiceInfo.diceType,
-      slotName: 'unarmed'
+      attackDice: brawlingDiceInfo.dice,
+      attackDiceType: brawlingDiceInfo.diceType,
+      attackKeepLowest: brawlingDiceInfo.keepLowest,
+      baseDice: brawlingDiceInfo.baseDice,
+      inherentPenalty: brawlingDiceInfo.inherentPenalty,
+      slotName: 'brawling'
     };
 
     if (this.actor?.type === 'character') {
-      equippedWeapons.push(unarmedAttack);
+      equippedWeapons.push(brawlingAttack);
     }
 
     return equippedWeapons;
@@ -667,7 +697,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     // For weapon attacks, use weapon category
-    const raw = weapon.system.weapon_category || weapon.system.weapon_data?.category || 'unarmed';
+    const raw = weapon.system.weapon_category || weapon.system.weapon_data?.category || 'brawling';
     const normalized = ({
       simpleMelee: 'simpleMeleeWeapons',
       simpleRanged: 'simpleRangedWeapons',
@@ -680,7 +710,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       'simpleRangedWeapons': 'Simple Ranged',
       'complexMeleeWeapons': 'Complex Melee',
       'complexRangedWeapons': 'Complex Ranged',
-      'unarmed': 'Unarmed',
+      'brawling': 'Brawling',
       'throwing': 'Throwing'
     };
 
@@ -722,25 +752,34 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         'simpleMelee': 'simpleMeleeWeapons',
         'simpleRanged': 'simpleRangedWeapons',
         'complexMelee': 'complexMeleeWeapons',
-        'complexRanged': 'complexRangedWeapons'
+        'complexRanged': 'complexRangedWeapons',
+        'brawling': 'brawling',
+        'throwingWeapons': 'throwing'
       };
-      const rawCat = weapon.system.weapon_category || weapon.system.weapon_data?.category || 'unarmed';
+      const rawCat = weapon.system.weapon_category || weapon.system.weapon_data?.category || 'brawling';
       skillKey = weaponCategoryMap[rawCat] || rawCat;
     }
 
     // Get the skill values from the actor
     const skill = this.actor.system[skillCategory]?.[skillKey] || { talent: 0, value: 0 };
-    const talent = skill.talent || 0;
+    const talent = Number(skill.talent) || 0;
     const skillValue = skill.value || 0;
 
     // Determine dice type based on skill value (0=d4, 1=d6, 2=d8, 3=d10, 4=d12, 5=d16, 6=d20)
     const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20'];
     const diceType = diceTypes[Math.min(skillValue, 6)] || 'd4';
 
-    // Base dice = talent value
-    const dice = Math.max(talent, 1); // At least 1 die
+    const baseDice = Math.max(talent, 1);
+    const inherentPenalty = talent <= 0 ? 1 : 0;
+    const penaltyResult = this._applyPenaltyRules(baseDice, inherentPenalty);
 
-    return { dice, diceType };
+    return {
+      baseDice,
+      diceType,
+      inherentPenalty,
+      dice: penaltyResult.diceCount,
+      keepLowest: penaltyResult.keepLowest
+    };
   }
 
   /* -------------------------------------------- */
@@ -786,6 +825,13 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       const item = this.actor.items.get(li.data("itemId"));
       item.sheet.render(true);
     });
+
+    // Spell casting clicks (available even in readonly mode)
+    html.find('.anyventure-spell-card').click(this._onSpellRoll.bind(this));
+
+    // Wonder and Woe token clicks (available even in readonly mode)
+    html.find('[data-action="toggle-wonder"]').click(this._onToggleWonder.bind(this));
+    html.find('[data-action="toggle-woe"]').click(this._onToggleWoe.bind(this));
 
     // -------------------------------------------------------------
     // Everything below here is only needed if the sheet is editable
@@ -1374,32 +1420,36 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         'complexRanged': 'complexRangedWeapons'
       };
 
-      const rawCat = attackData.weaponCategory || 'unarmed';
+      const rawCat = attackData.weaponCategory || 'brawling';
       skillKey = weaponCategoryMap[rawCat] || rawCat;
     }
 
     // Get the skill values from the actor
     const skill = this.actor.system[skillCategory]?.[skillKey] || { talent: 0, value: 0 };
-    const talent = skill.talent || 0;
+    const talent = Number(skill.talent) || 0;
     const skillValue = skill.value || 0;
 
     // Determine dice type based on skill value (0=d4, 1=d6, 2=d8, 3=d10, 4=d12, 5=d16, 6=d20)
     const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20'];
     const diceType = diceTypes[Math.min(skillValue, 6)] || 'd4';
 
-    // Base dice = talent value
-    const baseDice = Math.max(talent, 1); // At least 1 die
+    const baseDice = Number(attackData.baseDice) || Math.max(talent, 1);
+    const inherentPenalty = Number(attackData.inherentPenalty) || (talent <= 0 ? 1 : 0);
+    const previewPenaltyConfig = this._applyPenaltyRules(baseDice, inherentPenalty);
+    const keepLowest = previewPenaltyConfig.keepLowest || Boolean(attackData.attackKeepLowest);
 
     // Show the attack roll dialog
     AnyventureAttackRollDialog.show({
       title: `${attackData.weaponName} Attack`,
       weaponName: `${attackData.weaponName} (${attackData.attackType})`,
-      baseDice: baseDice,
-      diceType: diceType,
+      baseDice,
+      diceType,
       attackData: attackData,
       actor: this.actor,
-      rollCallback: (roll, data) => {
-       // console.log("Attack roll completed:", roll.total, data);
+      keepLowest,
+      inherentPenalty,
+      rollCallback: async (roll, data) => {
+        await this._consumeEquippedConsumableWeapon(attackData);
       }
     });
   }
@@ -1499,12 +1549,10 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       user: game.user.id,
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       content: `
-        <div style="border: 1px solid #999; padding: 10px; background: #f8f8f8;">
-          <div style="margin-bottom: 5px;">
-            <strong>${this.actor.name}</strong> used <strong>${abilityName}</strong>
-            ${energyCost > 0 ? `(${energyCost} energy)` : ''}
-          </div>
-          <div style="font-style: italic;">
+        <div class="anyventure-ability-card ${abilityType}-card">
+          <div class="ability-name">${abilityName}</div>
+          ${energyCost > 0 ? `<div class="energy-cost">Energy: ${this._renderEnergy(energyCost)}</div>` : ''}
+          <div class="ability-description">
             ${description}
           </div>
         </div>
@@ -1826,18 +1874,24 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
    * @private
    */
   _getAvailableSlotForItem(item) {
-    const itemType = item.system.itemType; // Use itemType for items
+    const itemType = item.system.itemType; // Use original itemType for specialized logic
+    const slotType = this._resolveItemSlotType(item);
     const equipment = this.actor.system.equipment || {};
+    const hasWeaponCollector = this._hasWeaponCollectorTrait();
+    const isComplexWeapon = this._isComplexWeapon(item);
+    const canUseExtraWeaponSlots = hasWeaponCollector || !isComplexWeapon;
 
     // Map item types to slot preferences (with weapon logic handled separately)
     const slotMappings = {
       'armor': ['body'],
       'body': ['body'],
       'headwear': ['head'],
-      'cloaks': ['back'],
       'gloves': ['hand'],
       'boots': ['boots'],
       'ring': ['accessory1', 'accessory2'],
+      'cloak': ['back'],
+      'back': ['back'],
+      'cloaks': ['back'],
       'equipment': ['accessory1', 'accessory2'] // General equipment goes to accessory slots
     };
 
@@ -1846,21 +1900,21 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       // Instruments and ammunition default to one-handed unless specified otherwise
       const isInstrument = itemType === 'instrument' || (itemType === 'equipment' && item.system.equipment_type === 'instrument');
       const isAmmunition = itemType === 'ammunition';
-      const isOneHanded = item.system.hands === 1 || !item.system.hands || isInstrument || isAmmunition; // Default to 1-handed if not specified
-      const isTwoHanded = item.system.hands === 2 && !isInstrument && !isAmmunition; // Instruments and ammunition are never two-handed unless explicitly set
+      const isTwoHanded = this._isTwoHandedWeapon(item) && !isInstrument && !isAmmunition;
+      const isOneHanded = !isTwoHanded;
 
       if (isOneHanded) {
         // 1-handed weapons: mainhand, offhand, extra1, extra2, extra3
-        const weaponSlots = ['mainhand', 'offhand', 'extra1', 'extra2', 'extra3'];
-        for (const slotName of weaponSlots) {
+        for (const slotName of WEAPON_SLOTS) {
+          if (!canUseExtraWeaponSlots && EXTRA_WEAPON_SLOTS.includes(slotName)) continue;
           if (!equipment[slotName]?.item) {
             return slotName;
           }
         }
       } else if (isTwoHanded) {
         // 2-handed weapons: mainhand, extra1, extra2, extra3 only
-        const twoHandedSlots = ['mainhand', 'extra1', 'extra2', 'extra3'];
-        for (const slotName of twoHandedSlots) {
+        for (const slotName of TWO_HANDED_WEAPON_SLOTS) {
+          if (!canUseExtraWeaponSlots && EXTRA_WEAPON_SLOTS.includes(slotName)) continue;
           if (!equipment[slotName]?.item) {
             return slotName;
           }
@@ -1870,12 +1924,12 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     // Handle shields
-    if (itemType === 'shield') {
+    if (slotType === 'shield') {
       return !equipment['offhand']?.item ? 'offhand' : null;
     }
 
     // Handle other item types
-    const possibleSlots = slotMappings[itemType] || ['accessory1', 'accessory2'];
+    const possibleSlots = slotMappings[slotType] || ['accessory1', 'accessory2'];
 
     // Find first available slot
     for (const slotName of possibleSlots) {
@@ -1896,6 +1950,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
    */
   _validateItemSlot(item, slotName) {
     const itemType = item.system.itemType;
+    const slotType = this._resolveItemSlotType(item);
 
     // Strict slot validation for non-weapons
     const slotRestrictions = {
@@ -1913,30 +1968,258 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     if (itemType === 'weapon' || itemType === 'instrument' || itemType === 'ammunition' || (itemType === 'equipment' && item.system.equipment_type === 'instrument')) {
       const isInstrument = itemType === 'instrument' || (itemType === 'equipment' && item.system.equipment_type === 'instrument');
       const isAmmunition = itemType === 'ammunition';
-      const isOneHanded = item.system.hands === 1 || !item.system.hands || isInstrument || isAmmunition;
-      const isTwoHanded = item.system.hands === 2 && !isInstrument && !isAmmunition;
+      const isTwoHanded = this._isTwoHandedWeapon(item) && !isInstrument && !isAmmunition;
+      const isOneHanded = !isTwoHanded;
+      const canUseExtraWeaponSlots = this._hasWeaponCollectorTrait() || !this._isComplexWeapon(item);
 
       if (isOneHanded) {
-        return ['mainhand', 'offhand', 'extra1', 'extra2', 'extra3'].includes(slotName);
+        if (!canUseExtraWeaponSlots && this._isExtraWeaponSlot(slotName)) return false;
+        return WEAPON_SLOTS.includes(slotName);
       } else if (isTwoHanded) {
-        return ['mainhand', 'extra1', 'extra2', 'extra3'].includes(slotName);
+        if (!canUseExtraWeaponSlots && this._isExtraWeaponSlot(slotName)) return false;
+        return TWO_HANDED_WEAPON_SLOTS.includes(slotName);
       }
       return false;
     }
 
     // Handle shields
-    if (itemType === 'shield') {
+    if (slotType === 'shield') {
       return slotName === 'offhand';
     }
 
     // Check other item types
-    const allowedSlots = slotRestrictions[itemType];
+    const allowedSlots = slotRestrictions[slotType];
     if (allowedSlots) {
       return allowedSlots.includes(slotName);
     }
 
     // Default to accessory slots for unknown types
     return ['accessory1', 'accessory2'].includes(slotName);
+  }
+
+  _hasWeaponCollectorTrait() {
+    return Boolean(this.actor.system?.conditionals?.flags?.WEAPON_COLLECTOR);
+  }
+
+  _isExtraWeaponSlot(slotName) {
+    return EXTRA_WEAPON_SLOTS.includes(slotName);
+  }
+
+  _resolveItemSlotType(item) {
+    const baseTypeRaw = item?.system?.itemType;
+    const baseType = typeof baseTypeRaw === 'string' ? baseTypeRaw : '';
+    const normalizedBase = baseType.toLowerCase();
+    const equipmentTypeRaw = item?.system?.equipment_type;
+    const equipmentType = typeof equipmentTypeRaw === 'string' ? equipmentTypeRaw.toLowerCase() : '';
+
+    if (normalizedBase === 'cloak' || normalizedBase === 'cloaks' || normalizedBase === 'back') {
+      return 'cloaks';
+    }
+
+    if (normalizedBase === 'equipment') {
+      if (equipmentType === 'cloak' || equipmentType === 'cloaks' || equipmentType === 'back') {
+        return 'cloaks';
+      }
+    }
+
+    return baseType || '';
+  }
+
+  _normalizeWeaponCategoryValue(rawCategory) {
+    if (!rawCategory) return '';
+    const key = typeof rawCategory === 'string' ? rawCategory : String(rawCategory);
+    return WEAPON_CATEGORY_ALIASES[key] || key;
+  }
+
+  _getNormalizedWeaponCategory(item) {
+    const category = item?.system?.weapon_category
+      ?? item?.system?.weapon_data?.category
+      ?? item?.system?.weapon?.category
+      ?? '';
+    return this._normalizeWeaponCategoryValue(category);
+  }
+
+  _isComplexWeapon(item) {
+    if (!item?.system || item.system.itemType !== 'weapon') return false;
+    const category = this._getNormalizedWeaponCategory(item);
+    return COMPLEX_WEAPON_CATEGORIES.has(category);
+  }
+
+  _isTwoHandedWeapon(item) {
+    if (!item?.system || item.system.itemType !== 'weapon') return false;
+
+    const handsValue = Number(item.system.hands);
+    if (Number.isFinite(handsValue) && handsValue >= 2) return true;
+
+    const flagSources = [
+      item.system.weapon_data?.flags,
+      item.system.weapon?.flags
+    ];
+    const targetFlag = TWO_HANDED_FLAG.toLowerCase();
+
+    for (const source of flagSources) {
+      if (!Array.isArray(source)) continue;
+      const hasFlag = source.some(flag => {
+        if (!flag) return false;
+        if (typeof flag === 'string') return flag.toLowerCase() === targetFlag;
+        if (typeof flag === 'object') {
+          const value = flag.value ?? flag.label ?? '';
+          return String(value).toLowerCase() === targetFlag;
+        }
+        return false;
+      });
+      if (hasFlag) return true;
+    }
+
+    return false;
+  }
+
+  _applyPenaltyRules(baseDice, penaltyDice) {
+    let dice = Math.max(Number(baseDice) || 0, 0);
+    if (dice <= 0) dice = 1;
+    let penalties = Math.max(Number(penaltyDice) || 0, 0);
+    let keepLowest = false;
+
+    while (penalties > 0) {
+      if (dice > 1 && !keepLowest) {
+        dice -= 1;
+      } else {
+        keepLowest = true;
+        dice += 1;
+      }
+      penalties -= 1;
+    }
+
+    return { diceCount: dice, keepLowest };
+  }
+
+  _determineEquippedQuantity(item, { allowZero = true } = {}) {
+    if (!item?.system) return 1;
+    const stackLimitRaw = Number(item.system.stack_limit);
+    const stackLimit = Number.isFinite(stackLimitRaw) ? stackLimitRaw : 0;
+    const quantityRaw = Number(item.system.quantity);
+    const quantity = Number.isFinite(quantityRaw) ? Math.max(Math.floor(quantityRaw), 0) : 0;
+
+    if (stackLimit > 0) {
+      if (quantity <= 0) return allowZero ? 0 : 1;
+      return Math.min(quantity, stackLimit);
+    }
+
+    if (quantity <= 0) return allowZero ? 0 : 1;
+    return 1;
+  }
+
+  async _syncEquippedQuantitiesForItem(item) {
+    if (!item?._id) return;
+    const equipment = this.actor.system?.equipment || {};
+    const updates = {};
+    const normalizedQuantity = this._determineEquippedQuantity(item);
+
+    for (const [slotName, slot] of Object.entries(equipment)) {
+      if (slot?.item?._id !== item._id) continue;
+
+      if (normalizedQuantity <= 0) {
+        updates[`system.equipment.${slotName}.item`] = null;
+        updates[`system.equipment.${slotName}.equippedAt`] = null;
+        updates[`system.equipment.${slotName}.quantity`] = 1;
+      } else {
+        const updatedSlotItem = foundry.utils.deepClone(slot.item) || {};
+        if (!updatedSlotItem.system) updatedSlotItem.system = {};
+        updatedSlotItem.system.quantity = normalizedQuantity;
+        updates[`system.equipment.${slotName}.item`] = updatedSlotItem;
+        updates[`system.equipment.${slotName}.quantity`] = normalizedQuantity;
+      }
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await this.actor.update(updates);
+      this.render(false);
+    }
+  }
+
+  async _clearEquipmentSlotsForItemId(itemId) {
+    if (!itemId) return;
+    const equipment = this.actor.system?.equipment || {};
+    const updates = {};
+
+    for (const [slotName, slot] of Object.entries(equipment)) {
+      if (slot?.item?._id !== itemId) continue;
+      updates[`system.equipment.${slotName}.item`] = null;
+      updates[`system.equipment.${slotName}.equippedAt`] = null;
+      updates[`system.equipment.${slotName}.quantity`] = 1;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await this.actor.update(updates);
+      this.render(false);
+    }
+  }
+
+  _isConsumableWeapon(item, attackData) {
+    if (!item?.system) return false;
+    const stackLimitRaw = Number(item.system.stack_limit);
+    const stackLimit = Number.isFinite(stackLimitRaw) ? stackLimitRaw : 0;
+    if (stackLimit <= 0) return false;
+
+    if (CONSUMABLE_ITEM_TYPES.has(item.system.itemType)) return true;
+
+    const normalizedItemCategory = this._getNormalizedWeaponCategory(item);
+    if (normalizedItemCategory === THROWING_WEAPON_CATEGORY) return true;
+
+    const attackCategory = this._normalizeWeaponCategoryValue(attackData?.weaponCategory || attackData?.rawCategory);
+    if (attackCategory === THROWING_WEAPON_CATEGORY) return true;
+
+    return false;
+  }
+
+  async _consumeEquippedConsumableWeapon(attackData) {
+    if (!attackData?.slotName) return;
+    const equipment = this.actor.system?.equipment || {};
+    const slot = equipment[attackData.slotName];
+    if (!slot?.item?._id) return;
+
+    const item = this.actor.items.get(slot.item._id);
+    if (!item) return;
+    if (!this._isConsumableWeapon(item, attackData)) return;
+
+    const itemName = item.name;
+
+    const slotQuantityRaw = Number(slot.quantity);
+    let slotQuantity = Number.isFinite(slotQuantityRaw) ? Math.max(Math.floor(slotQuantityRaw), 0) : this._determineEquippedQuantity(item);
+    if (slotQuantity <= 0) slotQuantity = this._determineEquippedQuantity(item);
+
+    const newSlotQuantity = Math.max(slotQuantity - 1, 0);
+    const updates = {};
+
+    if (newSlotQuantity > 0) {
+      const updatedSlotItem = foundry.utils.deepClone(slot.item) || {};
+      if (!updatedSlotItem.system) updatedSlotItem.system = {};
+      updatedSlotItem.system.quantity = newSlotQuantity;
+      updates[`system.equipment.${attackData.slotName}.item`] = updatedSlotItem;
+      updates[`system.equipment.${attackData.slotName}.quantity`] = newSlotQuantity;
+    } else {
+      updates[`system.equipment.${attackData.slotName}.item`] = null;
+      updates[`system.equipment.${attackData.slotName}.equippedAt`] = null;
+      updates[`system.equipment.${attackData.slotName}.quantity`] = 1;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await this.actor.update(updates);
+    }
+
+    const currentItemQuantityRaw = Number(item.system.quantity);
+    const currentItemQuantity = Number.isFinite(currentItemQuantityRaw) ? Math.max(Math.floor(currentItemQuantityRaw), 0) : 0;
+    const newItemQuantity = Math.max(currentItemQuantity - 1, 0);
+
+    if (newItemQuantity !== currentItemQuantity) {
+      await item.update({ 'system.quantity': newItemQuantity });
+    }
+
+    if (newSlotQuantity <= 0) {
+      ui.notifications.info(`${itemName} stack is depleted and has been unequipped.`);
+    }
+
+    this.render(false);
   }
 
   /**
@@ -1946,6 +2229,11 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
    * @private
    */
   async _equipItem(item, slotName) {
+    if (this._isExtraWeaponSlot(slotName) && this._isComplexWeapon(item) && !this._hasWeaponCollectorTrait()) {
+      ui.notifications.warn(`${item.name} requires the Weapon Collector trait to equip in extra weapon slots.`);
+      return;
+    }
+
     // Validate the item can be equipped to this slot
     if (!this._validateItemSlot(item, slotName)) {
       ui.notifications.warn(`${item.name} cannot be equipped to ${slotName}`);
@@ -1955,22 +2243,29 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const updateData = {};
 
     // Special handling for 2-handed weapons
-    if (item.system.itemType === 'weapon' && item.system.hands === 2 && slotName === 'mainhand') {
+    if (slotName === 'mainhand' && this._isTwoHandedWeapon(item)) {
       // Unequip offhand when equipping 2-handed weapon to mainhand
       updateData[`system.equipment.offhand.item`] = null;
       updateData[`system.equipment.offhand.equippedAt`] = null;
+      updateData[`system.equipment.offhand.quantity`] = 1;
       ui.notifications.info(`Unequipped offhand item to make room for 2-handed weapon`);
     }
 
-    // Handle single-item slots - store item reference
-    updateData[`system.equipment.${slotName}.item`] = {
+    const equippedQuantity = this._determineEquippedQuantity(item, { allowZero: false });
+    const storedItem = {
       _id: item._id,
       name: item.name,
       img: item.img,
       type: item.type,
-      system: item.system
+      system: foundry.utils.deepClone(item.system)
     };
+    if (!storedItem.system) storedItem.system = {};
+    storedItem.system.quantity = equippedQuantity;
+
+    // Handle single-item slots - store item reference
+    updateData[`system.equipment.${slotName}.item`] = storedItem;
     updateData[`system.equipment.${slotName}.equippedAt`] = new Date().toISOString();
+    updateData[`system.equipment.${slotName}.quantity`] = equippedQuantity;
 
     await this.actor.update(updateData);
     ui.notifications.info(`${item.name} equipped to ${slotName}`);
@@ -1991,6 +2286,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Handle single-item slots
     updateData[`system.equipment.${slotName}.item`] = null;
     updateData[`system.equipment.${slotName}.equippedAt`] = null;
+    updateData[`system.equipment.${slotName}.quantity`] = 1;
 
     await this.actor.update(updateData);
     ui.notifications.info(`Item unequipped from ${slotName}`);
@@ -2012,13 +2308,17 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     if (!item) return;
 
-    const currentQuantity = item.system.quantity || 1;
-    if (currentQuantity > 1) {
-      await item.update({ "system.quantity": currentQuantity - 1 });
-    } else {
-      // If quantity would go to 0, delete the item
-      await item.delete();
-      ui.notifications.info(`${item.name} removed from inventory`);
+    const currentQuantityRaw = Number(item.system.quantity);
+    const currentQuantity = Number.isFinite(currentQuantityRaw) ? Math.max(Math.floor(currentQuantityRaw), 0) : 0;
+
+    const newQuantity = Math.max(currentQuantity - 1, 0);
+    if (newQuantity === currentQuantity) return;
+
+    await item.update({ "system.quantity": newQuantity });
+    await this._syncEquippedQuantitiesForItem(item);
+
+    if (newQuantity === 0) {
+      ui.notifications.info(`${item.name} stack is now empty.`);
     }
   }
 
@@ -2035,8 +2335,25 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     if (!item) return;
 
-    const currentQuantity = item.system.quantity || 1;
-    await item.update({ "system.quantity": currentQuantity + 1 });
+    const currentQuantityRaw = Number(item.system.quantity);
+    const currentQuantity = Number.isFinite(currentQuantityRaw) ? currentQuantityRaw : 1;
+    const stackLimitRaw = Number(item.system.stack_limit);
+    const stackLimit = Number.isFinite(stackLimitRaw) ? stackLimitRaw : 0;
+
+    if (stackLimit > 0) {
+      if (currentQuantity >= stackLimit) {
+        ui.notifications.warn(`${item.name} is already at its stack limit (${stackLimit}).`);
+        return;
+      }
+      const newQuantity = Math.min(currentQuantity + 1, stackLimit);
+      await item.update({ "system.quantity": Math.max(newQuantity, 1) });
+      await this._syncEquippedQuantitiesForItem(item);
+      return;
+    }
+
+    const newQuantity = Math.max(currentQuantity + 1, 1);
+    await item.update({ "system.quantity": newQuantity });
+    await this._syncEquippedQuantitiesForItem(item);
   }
 
   /**
@@ -2188,6 +2505,153 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       console.error("Error recalculating character:", error);
       ui.notifications.error("Failed to recalculate character stats. See console for details.");
     }
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle spell casting
+   * @param {Event} event   The triggering click event
+   * @private
+   */
+  async _onSpellRoll(event) {
+    event.preventDefault();
+
+    // Prevent edit/delete buttons from triggering spell roll
+    if ($(event.target).closest('.spell-controls').length > 0) {
+      return;
+    }
+
+    const spellCard = $(event.currentTarget);
+    const itemId = spellCard.data("itemId");
+    const spell = this.actor.items.get(itemId);
+
+    if (!spell || spell.type !== 'spell') return;
+
+    // Get magic school skill
+    const magicSkill = this.actor.system.magic?.[spell.system.school];
+    if (!magicSkill) {
+      ui.notifications.warn(`No skill found for ${spell.system.school} magic school`);
+      return;
+    }
+
+    const baseDice = magicSkill.talent || 1;
+    const diceType = this._getDiceTypeForLevel(magicSkill.value || 0);
+
+    // Create spell cast dialog
+    const dialog = new AnyventureSpellCastDialog({
+      title: `Cast ${spell.name}`,
+      spellName: spell.name,
+      baseDice: baseDice,
+      diceType: diceType,
+      energy: spell.system.energy || 0,
+      concentration: spell.system.concentration,
+      checkToCast: spell.system.checkToCast || 0,
+      isFizzled: spell.system.fizzled || false,
+      spell: spell,
+      actor: this.actor
+    });
+
+    dialog.render(true);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle toggling wonder token state
+   * @param {Event} event   The triggering click event
+   * @private
+   */
+  async _onToggleWonder(event) {
+    event.preventDefault();
+    if (this.actor.type !== 'character') return;
+
+    const currentState = this.actor.system.wonder || false;
+    await this.actor.update({
+      'system.wonder': !currentState
+    });
+
+    // Visual feedback
+    ui.notifications.info(`Wonder token ${!currentState ? 'activated' : 'deactivated'}`);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle toggling woe token state
+   * @param {Event} event   The triggering click event
+   * @private
+   */
+  async _onToggleWoe(event) {
+    event.preventDefault();
+    if (this.actor.type !== 'character') return;
+
+    const currentState = this.actor.system.woe || false;
+    await this.actor.update({
+      'system.woe': !currentState
+    });
+
+    // Visual feedback
+    ui.notifications.info(`Woe token ${!currentState ? 'activated' : 'deactivated'}`);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Helper method to convert skill level to dice type
+   * @param {number} level - The skill level (0-6)
+   * @returns {string} - The dice type (d4-d20)
+   * @private
+   */
+  _getDiceTypeForLevel(level) {
+    const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20'];
+    return diceTypes[Math.min(Math.max(level, 0), 6)] || 'd4';
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Enhance spell data with casting information
+   * @param {Object} spell - The spell item
+   * @param {Object} context - The actor context with system data
+   * @returns {Object} - Enhanced spell with casting data
+   * @private
+   */
+  _enhanceSpellData(spell, context) {
+    const enhancedSpell = foundry.utils.deepClone(spell);
+
+    // Get magic school skill
+    const magicSkill = context.system.magic?.[spell.system.school];
+
+    if (magicSkill) {
+      const talent = magicSkill.talent || 1;
+      const skillLevel = magicSkill.value || 0;
+      const diceType = this._getDiceTypeForLevel(skillLevel);
+      const maxRoll = parseInt(diceType.substring(1)); // Extract number from "d20" -> 20
+
+      enhancedSpell.system.castingFormula = `${talent}${diceType}`;
+      enhancedSpell.system.maxPossibleRoll = maxRoll;
+      enhancedSpell.system.cantChannel = maxRoll < spell.system.checkToCast;
+    } else {
+      enhancedSpell.system.castingFormula = "No Skill";
+      enhancedSpell.system.cantChannel = true;
+    }
+
+    return enhancedSpell;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Helper method to render energy as stars
+   * @param {number} energy - The energy amount
+   * @returns {string} - HTML string with stars or "None"
+   * @private
+   */
+  _renderEnergy(energy) {
+    const e = Number(energy) || 0;
+    if (e === 0) return 'None';
+    return Array.from({ length: e }).map(() => '<i class="fas fa-star"></i>').join('');
   }
 }
 

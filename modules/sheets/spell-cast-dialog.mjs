@@ -196,12 +196,13 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
       const highest = diceResults[0] || 0;
       const required = this.checkToCast + (mode === 'charge' ? 2 : 0);
       const ok = highest >= required;
-      flavorText += `<div class="formula" style="margin-top:4px;"><strong>Check:</strong> ${highest}</div>`;
-      flavorText += `<div class="formula"><strong>Required:</strong> ${required} ${ok ? '<span style="color:#4ade80;">(SUCCESS)</span>' : '<span style="color:#f87171;">(FAIL)</span>'}</div>`;
+      const requiredDisplay = mode === 'charge' ? `${this.checkToCast} + 2 (Charge) = ${required}` : `${required}`;
+      flavorText += `<div class="formula" style="margin-top:4px;"><strong>Check Result:</strong> ${highest} ${ok ? '<span style="color:#4ade80;">(SUCCESS)</span>' : '<span style="color:#f87171;">(FAIL)</span>'}</div>`;
+      flavorText += `<div class="formula"><strong>Required Check:</strong> ${requiredDisplay}</div>`;
       // On failure, set fizzle flag on the spell
       if (!ok && this.spell?.update) {
         try {
-          await this.spell.update({ 'system.fizzle': true });
+          await this.spell.update({ 'system.fizzled': true });
         } catch (e) {
           console.warn('[Anyventure] Failed to set fizzle flag', e);
         }
@@ -263,7 +264,7 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
   async handleUnfizzle(event, button, dialog) {
     try {
       if (this.spell?.update) {
-        await this.spell.update({ 'system.fizzle': false });
+        await this.spell.update({ 'system.fizzled': false });
         ui.notifications?.info?.('Spell unfizzled.');
         this.isFizzled = false;
       }
