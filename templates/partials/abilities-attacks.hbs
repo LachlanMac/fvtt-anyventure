@@ -3,6 +3,37 @@
     <h3>{{#if header}}{{header}}{{else}}Attacks{{/if}}</h3>
   </div>
   <div class="moves-list">
+    {{#if attackActions}}
+    {{!-- NPC Attack Actions --}}
+    {{#each attackActions as |ability|}}
+    <div class="anyventure-ability-card attack-action" data-item-id="{{ability._id}}" data-ability-type="attack" data-energy-cost="{{ability.system.energy}}" title="Click to use this attack">
+      <div class="ability-icon">
+        <img src="{{ability.img}}" alt="{{ability.name}}" />
+      </div>
+      <div class="ability-content">
+        <div class="ability-name attack">{{removeActionPrefix ability.name}}</div>
+        <div class="energy-cost">
+          Energy:
+          {{#if (eq ability.system.energy 0)}}
+            None
+          {{else}}
+            {{#times ability.system.energy}}
+              <i class="fas fa-star filled"></i>
+            {{/times}}
+          {{/if}}
+        </div>
+        {{#if ability.system.description}}
+        <div class="ability-description">{{ability.system.description}}</div>
+        {{/if}}
+      </div>
+      <div class="ability-controls">
+        <a class="item-control item-edit" data-item-id="{{ability._id}}" title="Edit Item"><i class="fas fa-edit"></i></a>
+        <a class="item-control item-delete" data-item-id="{{ability._id}}" title="Delete Item"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{/each}}
+    {{else}}
+    {{!-- Character Equipped Weapons --}}
     {{#each equippedWeapons as |attack|}}
     <div class="weapon-attack-item">
       <div class="weapon-attack-header">
@@ -44,5 +75,11 @@
       <em>No weapons equipped</em>
     </div>
     {{/each}}
+    {{/if}}
+    {{#if (and (not attackActions) (not equippedWeapons))}}
+    <div class="empty-message">
+      <em>No attacks available</em>
+    </div>
+    {{/if}}
   </div>
 </div>

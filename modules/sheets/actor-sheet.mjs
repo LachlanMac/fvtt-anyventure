@@ -72,6 +72,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     if (actorData.type == 'npc') {
       this._prepareItems(context);
       this._prepareCharacterData(context); // NPCs use the same skill preparation
+      this._prepareAbilities(context); // NPCs also need abilities prepared
     }
 
     // Add roll data for TinyMCE editors.
@@ -270,16 +271,50 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
    */
   _prepareAbilities(context) {
     // Filter items to get actions and reactions
-    const actions = context.items.filter(i => i.type === 'action');
+    const allActions = context.items.filter(i => i.type === 'action');
     const reactions = context.items.filter(i => i.type === 'reaction');
 
+    // Debug logging for NPCs only
+    if (this.actor.type === 'npc') {
+      console.log('[Anyventure] NPC Abilities Debug - Actor:', this.actor.name);
+      console.log('[Anyventure] All actions found:', allActions.length);
+
+      // Log each action and why it's being categorized
+      allActions.forEach(action => {
+        const actionType = action.system?.actionType;
+        const isAttack = actionType === 'attack';
+        console.log(action);
+        console.log(`[Anyventure] Action: "${action.name}" | actionType: "${actionType}" | Goes to: ${isAttack ? 'ATTACKS section' : 'ACTIONS section'}`);
+      });
+
+      // Log reactions
+      console.log('[Anyventure] All reactions found:', reactions.length);
+      reactions.forEach(reaction => {
+        console.log(`[Anyventure] Reaction: "${reaction.name}" | Goes to: REACTIONS section`);
+      });
+    }
+
+    // Separate attack actions from regular actions
+    const attackActions = allActions.filter(i => i.system.actionType === 'attack');
+    const regularActions = allActions.filter(i => i.system.actionType !== 'attack');
+
     // Sort by name for better organization
-    actions.sort((a, b) => a.name.localeCompare(b.name));
+    attackActions.sort((a, b) => a.name.localeCompare(b.name));
+    regularActions.sort((a, b) => a.name.localeCompare(b.name));
     reactions.sort((a, b) => a.name.localeCompare(b.name));
 
+    // Debug logging results for NPCs
+    if (this.actor.type === 'npc') {
+      console.log('[Anyventure] Final sorting results:');
+      console.log(`[Anyventure] - Attack Actions (${attackActions.length}):`, attackActions.map(a => a.name));
+      console.log(`[Anyventure] - Regular Actions (${regularActions.length}):`, regularActions.map(a => a.name));
+      console.log(`[Anyventure] - Reactions (${reactions.length}):`, reactions.map(r => r.name));
+    }
+
     // Add to context for template use
-    context.actionItems = actions;
+    context.actionItems = regularActions; // Keep existing for characters
     context.reactionItems = reactions;
+    context.attackActions = attackActions; // New for NPCs (and characters if they have attack actions)
   }
 
   /**
