@@ -119,9 +119,9 @@ If the dice is at 1, and there is more penalty dice, we start rolling more dice 
 
 Combat works similarly except the talent and skills are attached to each other. Talents are only chosen at character creation barring some options to modify a character in game. Skills are obtained through modules.
 
-Weapon Skill Types: Unarmed, Throwing, Simple Melee Weapons, Simple Ranged Weapons, Complex Melee Weapons, Complex Ranged Weapons
+Weapon Skill Types: Brawling, Throwing, Simple Melee Weapons, Simple Ranged Weapons, Complex Melee Weapons, Complex Ranged Weapons
 
-Unarmed, throwing, and the simple weapons start with +1 talent..The others are +0.
+Brawling, throwing, and the simple weapons start with +1 talent..The others are +0.
 Skills are likewise obtained through modules.  So even if you had extreme talent (+4) in Throwing, if you had no skill, your max throw would only ever be a 4, but you'd be very likely to get a 4 every time rolling 4 dice.
 
 Instead of rolling damage for weapons, the damage done is resolved by the weapon check.
@@ -161,8 +161,9 @@ Nearby	1	Just out of arm’s reach
 Very Short 2-5  Close AF
 Short	6–10	Easily reached with effort
 Moderate	11–20	Noticeable gap; needs focus
-Distant	21–40	Clearly far; limited detail
-Remote	41–100	Hard to perceive clearly
+Far	21–40	Clearly far; limited detail
+Very Far	41–60	Clearly far; limited detail
+Distant	61–100	Hard to perceive clearly
 
 A longbow may have a Distant range, giving a penalty for anything outside of it. 
 Spells work in a similar way.  here are the types of magic:

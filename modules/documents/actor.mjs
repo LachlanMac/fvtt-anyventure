@@ -1,5 +1,7 @@
 // Baseline and overlays approach: parsing happens during Recalculate only.
 
+import { logError, logWarning, logInfo } from '../utils/logger.js';
+
 /**
  * Extend the base Actor document to implement the Anyventure system
  * @extends {Actor}
@@ -46,6 +48,31 @@ export class AnyventureActor extends Actor {
    */
   prepareDerivedData() {
     const actorData = this;
+
+    // Set the initiative formula for this actor (only if we have the method)
+    console.log(`[Initiative] prepareDerivedData called for ${this.name}`);
+    if (this.getInitiativeFormula) {
+      const formula = this.getInitiativeFormula();
+
+      // Try multiple places Foundry might look for the formula
+      this.system.initiative = {
+        formula: formula
+      };
+      this.system.attributes = this.system.attributes || {};
+      this.system.attributes.init = {
+        formula: formula
+      };
+      this.data = this.data || {};
+      this.data.initiative = formula;
+
+      console.log('[Initiative] Set formula to:', formula, 'in multiple locations');
+    } else {
+      // Fallback initiative formula
+      this.system.initiative = {
+        formula: '1d20'
+      };
+      console.warn('[Initiative] getInitiativeFormula method not found, using default d20');
+    }
     const systemData = actorData.system;
     const flags = actorData.flags.anyventure || {};
 
@@ -78,6 +105,9 @@ export class AnyventureActor extends Actor {
     // Apply equipment bonuses (weapons, armor, etc.)
     this._applyEquipmentBonuses(systemData);
 
+    // Apply injury effects
+    this._applyInjuries(systemData);
+
     // Apply conditions and temporary effects
     this._applyConditions(systemData);
 
@@ -96,7 +126,6 @@ export class AnyventureActor extends Actor {
     // Skeleton: iterate equipped items and log their slot + name.
     // Skip ephemeral overlays while building the baseline during Recalculate
     if (this._blockOverlays) return;
-    console.log("HERE");
     try {
       const equipment = systemData.equipment || {};
       const slotNames = [
@@ -132,12 +161,9 @@ export class AnyventureActor extends Actor {
         if (equipped) {
           const name = equipped.name || '(unnamed)';
           const type = equipped.system?.itemType || equipped.type || 'unknown';
-          console.log(`[Anyventure] === Processing Equipment: ${name} (type: ${type}) in slot: ${slot} ===`);
-          console.log(`[Anyventure] Item system data:`, equipped.system);
 
           // Encumbrance penalty
           const pen = Number(equipped.system?.encumbrance_penalty || 0);
-          console.log(`[Anyventure] Encumbrance penalty: ${equipped.system?.encumbrance_penalty} -> ${pen} (isNaN: ${Number.isNaN(pen)})`);
           if (!Number.isNaN(pen)) encumbrancePenalty += pen;
 
           // Parse item bonuses
@@ -147,7 +173,6 @@ export class AnyventureActor extends Actor {
           if (itemSystem.health) {
             const healthMax = Number(itemSystem.health.max || 0);
             const healthRecovery = Number(itemSystem.health.recovery || 0);
-            console.log(`[Anyventure] Health bonuses: max=${itemSystem.health.max} -> ${healthMax}, recovery=${itemSystem.health.recovery} -> ${healthRecovery}`);
             equipmentBonuses.resources.health.max += healthMax;
             equipmentBonuses.resources.health.recovery += healthRecovery;
           }
@@ -156,7 +181,6 @@ export class AnyventureActor extends Actor {
           if (itemSystem.energy) {
             const energyMax = Number(itemSystem.energy.max || 0);
             const energyRecovery = Number(itemSystem.energy.recovery || 0);
-            console.log(`[Anyventure] Energy bonuses: max=${itemSystem.energy.max} -> ${energyMax}, recovery=${itemSystem.energy.recovery} -> ${energyRecovery}`);
             equipmentBonuses.resources.energy.max += energyMax;
             equipmentBonuses.resources.energy.recovery += energyRecovery;
           }
@@ -165,7 +189,6 @@ export class AnyventureActor extends Actor {
           if (itemSystem.resolve) {
             const resolveMax = Number(itemSystem.resolve.max || 0);
             const resolveRecovery = Number(itemSystem.resolve.recovery || 0);
-            console.log(`[Anyventure] Resolve bonuses: max=${itemSystem.resolve.max} -> ${resolveMax}, recovery=${itemSystem.resolve.recovery} -> ${resolveRecovery}`);
             equipmentBonuses.resources.resolve.max += resolveMax;
             equipmentBonuses.resources.resolve.recovery += resolveRecovery;
           }
@@ -173,18 +196,15 @@ export class AnyventureActor extends Actor {
           // Movement bonus
           if (itemSystem.movement) {
             const movementBonus = Number(itemSystem.movement || 0);
-            console.log(`[Anyventure] Movement bonus: ${itemSystem.movement} -> ${movementBonus}`);
             equipmentBonuses.movement += movementBonus;
           }
 
           // Attribute bonuses (nested objects with add_talent/set_talent)
           if (itemSystem.attributes && typeof itemSystem.attributes === 'object') {
-            console.log(`[Anyventure] Processing attributes:`, itemSystem.attributes);
             for (const [attr, attrData] of Object.entries(itemSystem.attributes)) {
               if (attrData && typeof attrData === 'object') {
                 const addTalent = Number(attrData.add_talent || 0);
                 const setTalent = Number(attrData.set_talent || 0);
-                console.log(`[Anyventure] Attribute ${attr}: add_talent=${attrData.add_talent} -> ${addTalent}, set_talent=${attrData.set_talent} -> ${setTalent}`);
                 // For now, just use add_talent (we can implement set_talent logic later)
                 if (addTalent !== 0) {
                   equipmentBonuses.attributes[attr] = (equipmentBonuses.attributes[attr] || 0) + addTalent;
@@ -195,12 +215,10 @@ export class AnyventureActor extends Actor {
 
           // Basic skill bonuses (nested objects with add_bonus/set_bonus)
           if (itemSystem.basic && typeof itemSystem.basic === 'object') {
-            console.log(`[Anyventure] Processing basic skills:`, itemSystem.basic);
             for (const [skill, skillData] of Object.entries(itemSystem.basic)) {
               if (skillData && typeof skillData === 'object') {
                 const addBonus = Number(skillData.add_bonus || 0);
                 const setBonus = Number(skillData.set_bonus || 0);
-                console.log(`[Anyventure] Basic skill ${skill}: add_bonus=${skillData.add_bonus} -> ${addBonus}, set_bonus=${skillData.set_bonus} -> ${setBonus}`);
                 // For now, just use add_bonus (we can implement set_bonus logic later)
                 if (addBonus !== 0) {
                   equipmentBonuses.basic[skill] = (equipmentBonuses.basic[skill] || 0) + addBonus;
@@ -211,12 +229,10 @@ export class AnyventureActor extends Actor {
 
           // Weapon skill bonuses (nested objects with add_bonus/set_bonus/add_talent/set_talent)
           if (itemSystem.weapon && typeof itemSystem.weapon === 'object') {
-            console.log(`[Anyventure] Processing weapon skills:`, itemSystem.weapon);
             for (const [skill, skillData] of Object.entries(itemSystem.weapon)) {
               if (skillData && typeof skillData === 'object') {
                 const addBonus = Number(skillData.add_bonus || 0);
                 const addTalent = Number(skillData.add_talent || 0);
-                console.log(`[Anyventure] Weapon skill ${skill}: add_bonus=${skillData.add_bonus} -> ${addBonus}, add_talent=${skillData.add_talent} -> ${addTalent}`);
                 // For now, just use add_bonus for skill values (talents would need different handling)
                 if (addBonus !== 0) {
                   equipmentBonuses.weapon[skill] = (equipmentBonuses.weapon[skill] || 0) + addBonus;
@@ -227,12 +243,10 @@ export class AnyventureActor extends Actor {
 
           // Magic skill bonuses (nested objects with add_bonus/set_bonus/add_talent/set_talent)
           if (itemSystem.magic && typeof itemSystem.magic === 'object') {
-            console.log(`[Anyventure] Processing magic skills:`, itemSystem.magic);
             for (const [skill, skillData] of Object.entries(itemSystem.magic)) {
               if (skillData && typeof skillData === 'object') {
                 const addBonus = Number(skillData.add_bonus || 0);
                 const addTalent = Number(skillData.add_talent || 0);
-                console.log(`[Anyventure] Magic skill ${skill}: add_bonus=${skillData.add_bonus} -> ${addBonus}, add_talent=${skillData.add_talent} -> ${addTalent}`);
                 // For now, just use add_bonus for skill values
                 if (addBonus !== 0) {
                   equipmentBonuses.magic[skill] = (equipmentBonuses.magic[skill] || 0) + addBonus;
@@ -243,12 +257,10 @@ export class AnyventureActor extends Actor {
 
           // Craft skill bonuses (nested objects with add_bonus/set_bonus/add_talent/set_talent)
           if (itemSystem.craft && typeof itemSystem.craft === 'object') {
-            console.log(`[Anyventure] Processing craft skills:`, itemSystem.craft);
             for (const [skill, skillData] of Object.entries(itemSystem.craft)) {
               if (skillData && typeof skillData === 'object') {
                 const addBonus = Number(skillData.add_bonus || 0);
                 const addTalent = Number(skillData.add_talent || 0);
-                console.log(`[Anyventure] Craft skill ${skill}: add_bonus=${skillData.add_bonus} -> ${addBonus}, add_talent=${skillData.add_talent} -> ${addTalent}`);
                 // For now, just use add_bonus for skill values
                 if (addBonus !== 0) {
                   equipmentBonuses.craft[skill] = (equipmentBonuses.craft[skill] || 0) + addBonus;
@@ -259,11 +271,9 @@ export class AnyventureActor extends Actor {
 
           // Mitigation bonuses (flat numeric values)
           if (itemSystem.mitigation && typeof itemSystem.mitigation === 'object') {
-            console.log(`[Anyventure] Processing mitigation:`, itemSystem.mitigation);
             for (const [type, value] of Object.entries(itemSystem.mitigation)) {
               if (value != null && value !== '') {
                 const bonus = Number(value);
-                console.log(`[Anyventure] Mitigation ${type}: ${value} -> ${bonus} (isNaN: ${Number.isNaN(bonus)})`);
                 if (!Number.isNaN(bonus) && bonus !== 0) {
                   equipmentBonuses.mitigation[type] = (equipmentBonuses.mitigation[type] || 0) + bonus;
                 }
@@ -273,11 +283,9 @@ export class AnyventureActor extends Actor {
 
           // Detection bonuses (flat numeric values)
           if (itemSystem.detections && typeof itemSystem.detections === 'object') {
-            console.log(`[Anyventure] Processing detections:`, itemSystem.detections);
             for (const [detection, value] of Object.entries(itemSystem.detections)) {
               if (value != null && value !== '') {
                 const bonus = Number(value);
-                console.log(`[Anyventure] Detection ${detection}: ${value} -> ${bonus} (isNaN: ${Number.isNaN(bonus)})`);
                 if (!Number.isNaN(bonus) && bonus !== 0) {
                   equipmentBonuses.detections[detection] = (equipmentBonuses.detections[detection] || 0) + bonus;
                 }
@@ -287,10 +295,8 @@ export class AnyventureActor extends Actor {
 
           // Immunities (object with boolean values, not array)
           if (itemSystem.immunities && typeof itemSystem.immunities === 'object') {
-            console.log(`[Anyventure] Processing immunities:`, itemSystem.immunities);
             for (const [immunity, enabled] of Object.entries(itemSystem.immunities)) {
               if (enabled === true) {
-                console.log(`[Anyventure] Adding immunity: ${immunity}`);
                 if (!equipmentBonuses.immunities.includes(immunity)) {
                   equipmentBonuses.immunities.push(immunity);
                 }
@@ -300,123 +306,107 @@ export class AnyventureActor extends Actor {
 
           // Effects (arrays - should work as before)
           if (itemSystem.effects && Array.isArray(itemSystem.effects)) {
-            console.log(`[Anyventure] Processing effects:`, itemSystem.effects);
             for (const effect of itemSystem.effects) {
               if (effect && effect !== null && effect !== '') {
-                console.log(`[Anyventure] Adding effect:`, effect);
                 equipmentBonuses.effects.push(effect);
               }
             }
           }
 
-          console.log(`[Anyventure] === Finished processing ${name} ===`);
         }
       }
 
-      console.log(`[Anyventure] === APPLYING EQUIPMENT BONUSES ===`);
-      console.log(`[Anyventure] Base resources:`, systemData._base.resources);
-      console.log(`[Anyventure] Equipment bonuses:`, equipmentBonuses);
+
+      // Ensure _base exists - if not, create a backup of current values
+      if (!systemData._base) {
+        systemData._base = foundry.utils?.duplicate ? foundry.utils.duplicate(systemData) : JSON.parse(JSON.stringify(systemData));
+      }
+
 
       // Apply equipment bonuses to character stats (idempotent overlay from base)
       // Resources
       const baseHealthMax = systemData._base.resources.health.max;
       const healthBonus = equipmentBonuses.resources.health.max;
       systemData.resources.health.max = baseHealthMax + healthBonus;
-      console.log(`[Anyventure] Health max: ${baseHealthMax} + ${healthBonus} = ${systemData.resources.health.max}`);
 
       const baseEnergyMax = systemData._base.resources.energy.max;
       const energyBonus = equipmentBonuses.resources.energy.max;
       systemData.resources.energy.max = baseEnergyMax + energyBonus;
-      console.log(`[Anyventure] Energy max: ${baseEnergyMax} + ${energyBonus} = ${systemData.resources.energy.max}`);
 
       const baseResolveMax = systemData._base.resources.resolve.max;
       const resolveBonus = equipmentBonuses.resources.resolve.max;
       systemData.resources.resolve.max = baseResolveMax + resolveBonus;
-      console.log(`[Anyventure] Resolve max: ${baseResolveMax} + ${resolveBonus} = ${systemData.resources.resolve.max}`);
 
       // Movement (apply to walk speed as base)
       if (systemData.movement?.walk !== undefined) {
         const baseWalk = systemData._base.movement?.walk || 5;
         const walkBonus = equipmentBonuses.movement;
         systemData.movement.walk = baseWalk + walkBonus;
-        console.log(`[Anyventure] Walk speed: ${baseWalk} + ${walkBonus} = ${systemData.movement.walk}`);
       }
 
       // Attributes
-      console.log(`[Anyventure] Applying attribute bonuses:`, equipmentBonuses.attributes);
       for (const [attr, bonus] of Object.entries(equipmentBonuses.attributes)) {
         if (systemData.attributes?.[attr] !== undefined && systemData._base.attributes?.[attr] !== undefined) {
           const baseValue = systemData._base.attributes[attr].value;
           const newValue = baseValue + bonus;
           systemData.attributes[attr].value = newValue;
-          console.log(`[Anyventure] Attribute ${attr}: ${baseValue} + ${bonus} = ${newValue}`);
         } else {
-          console.log(`[Anyventure] Attribute ${attr} not found in systemData or _base`);
+          logWarning(`Attribute ${attr} not found in systemData or _base`);
         }
       }
 
       // Skills - Basic
-      console.log(`[Anyventure] Applying basic skill bonuses:`, equipmentBonuses.basic);
       for (const [skill, bonus] of Object.entries(equipmentBonuses.basic)) {
         if (systemData.basic?.[skill] !== undefined && systemData._base.basic?.[skill] !== undefined) {
           const baseValue = systemData._base.basic[skill].value;
           const newValue = baseValue + bonus;
           systemData.basic[skill].value = newValue;
-          console.log(`[Anyventure] Basic skill ${skill}: ${baseValue} + ${bonus} = ${newValue}`);
         } else {
-          console.log(`[Anyventure] Basic skill ${skill} not found in systemData or _base`);
+          logWarning(`Basic skill ${skill} not found in systemData or _base`);
         }
       }
 
       // Skills - Weapon
-      console.log(`[Anyventure] Applying weapon skill bonuses:`, equipmentBonuses.weapon);
       for (const [skill, bonus] of Object.entries(equipmentBonuses.weapon)) {
         if (systemData.weapon?.[skill] !== undefined && systemData._base.weapon?.[skill] !== undefined) {
           const baseValue = systemData._base.weapon[skill].value;
           const newValue = baseValue + bonus;
           systemData.weapon[skill].value = newValue;
-          console.log(`[Anyventure] Weapon skill ${skill}: ${baseValue} + ${bonus} = ${newValue}`);
         } else {
-          console.log(`[Anyventure] Weapon skill ${skill} not found in systemData or _base`);
+          logWarning(`Weapon skill ${skill} not found in systemData or _base`);
         }
       }
 
       // Skills - Magic
-      console.log(`[Anyventure] Applying magic skill bonuses:`, equipmentBonuses.magic);
       for (const [skill, bonus] of Object.entries(equipmentBonuses.magic)) {
         if (systemData.magic?.[skill] !== undefined && systemData._base.magic?.[skill] !== undefined) {
           const baseValue = systemData._base.magic[skill].value;
           const newValue = baseValue + bonus;
           systemData.magic[skill].value = newValue;
-          console.log(`[Anyventure] Magic skill ${skill}: ${baseValue} + ${bonus} = ${newValue}`);
         } else {
-          console.log(`[Anyventure] Magic skill ${skill} not found in systemData or _base`);
+          logWarning(`Magic skill ${skill} not found in systemData or _base`);
         }
       }
 
       // Skills - Craft
-      console.log(`[Anyventure] Applying craft skill bonuses:`, equipmentBonuses.craft);
       for (const [skill, bonus] of Object.entries(equipmentBonuses.craft)) {
         if (systemData.craft?.[skill] !== undefined && systemData._base.craft?.[skill] !== undefined) {
           const baseValue = systemData._base.craft[skill].value;
           const newValue = baseValue + bonus;
           systemData.craft[skill].value = newValue;
-          console.log(`[Anyventure] Craft skill ${skill}: ${baseValue} + ${bonus} = ${newValue}`);
         } else {
-          console.log(`[Anyventure] Craft skill ${skill} not found in systemData or _base`);
+          logWarning(`Craft skill ${skill} not found in systemData or _base`);
         }
       }
 
       // Mitigation
-      console.log(`[Anyventure] Applying mitigation bonuses:`, equipmentBonuses.mitigation);
       for (const [type, bonus] of Object.entries(equipmentBonuses.mitigation)) {
         if (systemData.mitigation?.[type] !== undefined && systemData._base.mitigation?.[type] !== undefined) {
           const baseValue = systemData._base.mitigation[type];
           const newValue = baseValue + bonus;
           systemData.mitigation[type] = newValue;
-          console.log(`[Anyventure] Mitigation ${type}: ${baseValue} + ${bonus} = ${newValue}`);
         } else {
-          console.log(`[Anyventure] Mitigation ${type} not found in systemData or _base`);
+          logWarning(`Mitigation ${type} not found in systemData or _base`);
         }
       }
 
@@ -424,11 +414,58 @@ export class AnyventureActor extends Actor {
       systemData._equipmentBonuses = equipmentBonuses;
       systemData.encumbrance_penalty = encumbrancePenalty;
 
-      console.log('[Anyventure] Equipment bonuses applied:', equipmentBonuses);
+      systemData.magic.divine.value = 2
+      systemData.magic.divine.talent = 4
+
+      console.log(systemData.magic.divine.value);
 
 
     } catch (err) {
-      console.warn('Equipment parsing (skeleton) encountered an error:', err);
+      logWarning('Equipment parsing encountered an error:', err);
+    }
+  }
+
+  /**
+   * Apply injury effects
+   * This runs in prepareDerivedData before conditions
+   */
+  _applyInjuries(systemData) {
+    try {
+      // Get all injury items on the character
+      const injuries = this.items.filter(item => item.type === 'injury');
+
+      // Count cosmetic injuries
+      let cosmeticInjuryCount = 0;
+
+      // Loop through all injuries
+      for (const injury of injuries) {
+        const injuryType = injury.system?.injuryType;
+
+        // Count cosmetic injuries
+        if (injuryType === 'cosmetic_injury') {
+          cosmeticInjuryCount++;
+        }
+
+        // TODO: Add other injury type effects here as needed
+        // For now, we only handle cosmetic injuries for Badge of Honor
+      }
+
+      // Check for Badge of Honor trait and apply morale bonus
+      if (this.system.conditionals?.flags?.BADGE_OF_HONOR === true && cosmeticInjuryCount > 0) {
+
+        // Get base max morale (before any bonuses)
+        const baseMorale = systemData._base?.resources?.morale?.max || systemData.resources.morale.max;
+
+        // Apply the bonus: max morale = base max morale + cosmetic injury count
+        systemData.resources.morale.max = baseMorale + cosmeticInjuryCount;
+      }
+
+
+      // Debugging: Print the entire cultural item
+      const cultureItem = this.items.find(item => item.type === 'culture');
+
+    } catch (err) {
+      logWarning('Injury parsing encountered an error:', err);
     }
   }
 
@@ -463,9 +500,8 @@ export class AnyventureActor extends Actor {
     
     // Calculate resources
     this._calculateResources(systemData);
-    
-    // Apply any module effects (NPCs can have modules too)
-    this._applyModuleEffects(systemData);
+
+    // NPCs use static stats from the template, no module effects needed
   }
 
   /**
@@ -647,9 +683,22 @@ export class AnyventureActor extends Actor {
       return null;
     }
 
-    // Get the dice type based on skill value (0=d4, 1=d6, 2=d8, etc.)
-    const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20'];
-    const diceType = diceTypes[Math.min(skill.value, 6)] || 'd4';
+    // Get the dice type based on skill value WITH upgrade/downgrade modifier
+    // This matches the skillDieWithUpgrade helper logic
+    const diceTable = [
+      ['d2', 'd4', 'd6'],   // Level 0
+      ['d4', 'd6', 'd8'],   // Level 1
+      ['d6', 'd8', 'd10'],  // Level 2
+      ['d8', 'd10', 'd12'], // Level 3
+      ['d10', 'd12', 'd16'], // Level 4
+      ['d12', 'd16', 'd20'], // Level 5
+      ['d16', 'd20', 'd30']  // Level 6
+    ];
+
+    const skillLevel = Math.min(Math.max(skill.value || 0, 0), 6);
+    const tierModifier = skill.diceTierModifier || 0;
+    const upgradeLevel = Math.min(Math.max(tierModifier + 1, 0), 2); // Convert -1,0,1 to 0,1,2
+    const diceType = diceTable[skillLevel][upgradeLevel];
     const baseDice = skill.talent || 1;
 
     // Import the roll dialog
@@ -666,5 +715,179 @@ export class AnyventureActor extends Actor {
         // Optional callback for additional processing
       }
     });
+  }
+
+  /**
+   * Provide the initiative formula for this actor
+   * @returns {string} The initiative roll formula
+   */
+  getInitiativeFormula() {
+    // Get coordination skill and finesse attribute
+    const coordination = this.system.basic?.coordination;
+    const finesse = this.system.attributes?.finesse;
+
+    console.log(`[Initiative] Getting formula for ${this.name}`);
+    console.log(`[Initiative] Coordination:`, coordination);
+    console.log(`[Initiative] Finesse:`, finesse);
+
+    if (!coordination || !finesse) {
+      console.warn('[Initiative] Missing coordination or finesse data, using default d20');
+      console.warn('[Initiative] Coordination exists:', !!coordination, 'Finesse exists:', !!finesse);
+      if (!coordination) console.warn('[Initiative] Coordination is missing/null/undefined');
+      if (!finesse) console.warn('[Initiative] Finesse is missing/null/undefined');
+      return '1d20';
+    }
+
+    // Calculate dice based on Anyventure rules
+    const diceTable = [
+      'd4',   // Level 0
+      'd6',   // Level 1
+      'd8',   // Level 2
+      'd10',  // Level 3
+      'd12',  // Level 4
+      'd16',  // Level 5
+      'd20'   // Level 6
+    ];
+
+    const skillLevel = Math.min(Math.max(coordination.value || 0, 0), 6);
+    const diceType = diceTable[skillLevel] || 'd4';
+    const talent = Math.max(finesse.value || 1, 1);
+    console.log(`[Initiative] Using finesse.value: ${finesse.value} as talent: ${talent}`);
+
+    // Build the roll formula
+    let formula;
+    if (talent > 1) {
+      formula = `${talent}${diceType}kh1`;
+    } else {
+      formula = `1${diceType}`;
+    }
+
+    console.log(`[Initiative] Formula: ${formula} (${talent} dice of ${diceType}${talent > 1 ? ', keep highest' : ''})`);
+    return formula;
+  }
+
+  /**
+   * Get the initiative formula for this Actor - Foundry v11+ method
+   * @returns {string} The initiative formula
+   */
+  get initiativeFormula() {
+    console.log('[Initiative] initiativeFormula getter called');
+    return this.getInitiativeFormula();
+  }
+
+  /**
+   * Get the initiative roll formula - Alternative Foundry method
+   * @returns {string} The initiative formula
+   */
+  getInitiativeRoll() {
+    console.log('[Initiative] getInitiativeRoll called');
+    return this.getInitiativeFormula();
+  }
+
+  /**
+   * Override Foundry's default initiative roll to use coordination skill
+   * @override
+   */
+  async rollInitiative(options = {}) {
+    console.log('[Initiative] Actor.rollInitiative called for', this.name);
+    console.log('[Initiative] This should show if our override is working');
+
+    // Get coordination skill and finesse attribute
+    // Coordination is under basic, not skills
+    const coordination = this.system.basic?.coordination;
+    const finesse = this.system.attributes?.finesse;
+
+    console.log('[Anyventure] Coordination:', coordination);
+    console.log('[Anyventure] Finesse:', finesse);
+
+    if (!coordination || !finesse) {
+      ui.notifications.warn('Cannot roll initiative: coordination skill or finesse attribute not found');
+      // Fall back to default d20 roll
+      const roll = new Roll('1d20');
+      await roll.evaluate({async: true});
+      return roll;
+    }
+
+    // Calculate dice based on Anyventure rules
+    const diceTable = [
+      'd4',   // Level 0
+      'd6',   // Level 1
+      'd8',   // Level 2
+      'd10',  // Level 3
+      'd12',  // Level 4
+      'd16',  // Level 5
+      'd20'   // Level 6
+    ];
+
+    // Handle dice tier modifier if needed (upgrade/downgrade)
+    const diceTableWithTiers = [
+      ['d2', 'd4', 'd6'],   // Level 0
+      ['d4', 'd6', 'd8'],   // Level 1
+      ['d6', 'd8', 'd10'],  // Level 2
+      ['d8', 'd10', 'd12'], // Level 3
+      ['d10', 'd12', 'd16'], // Level 4
+      ['d12', 'd16', 'd20'], // Level 5
+      ['d16', 'd20', 'd30']  // Level 6
+    ];
+
+    const skillLevel = Math.min(Math.max(coordination.value || 0, 0), 6);
+    const tierModifier = coordination.diceTierModifier || 0;
+
+    let diceType;
+    if (tierModifier !== 0) {
+      const upgradeLevel = Math.min(Math.max(tierModifier + 1, 0), 2);
+      diceType = diceTableWithTiers[skillLevel]?.[upgradeLevel] || 'd4';
+    } else {
+      diceType = diceTable[skillLevel] || 'd4';
+    }
+
+    // Finesse value determines number of dice (keep highest)
+    const talent = Math.max(finesse.value || 1, 1);
+    console.log(`[Initiative] Using finesse.value: ${finesse.value} as talent: ${talent}`);
+
+    // Build the roll formula (roll multiple dice, keep highest)
+    let formula;
+    if (talent > 1) {
+      formula = `${talent}${diceType}kh1`;
+    } else {
+      formula = `1${diceType}`;
+    }
+
+    console.log(`[Anyventure] Initiative formula: ${formula} (${talent} dice of ${diceType}${talent > 1 ? ', keep highest' : ''})`);
+
+    try {
+      // Create and evaluate the roll
+      const roll = new Roll(formula);
+      await roll.evaluate({async: true});
+
+      // Get the combatant for this actor
+      const combat = game.combat;
+      if (!combat) return roll;
+
+      const combatant = combat.combatants.find(c => c.actor?.id === this.id);
+      if (!combatant) return roll;
+
+      // Update the combatant's initiative
+      await combat.updateEmbeddedDocuments('Combatant', [{
+        _id: combatant.id,
+        initiative: roll.total
+      }]);
+
+      // Display the roll to chat
+      await roll.toMessage({
+        speaker: ChatMessage.getSpeaker({actor: this}),
+        flavor: `${this.name} rolls initiative (Coordination: ${skillLevel}, Finesse Talent: ${talent})!`
+      });
+
+      return roll;
+    } catch (error) {
+      console.error('[Anyventure] Error rolling initiative:', error);
+      ui.notifications.error('Error rolling initiative. Using default d20.');
+
+      // Fallback to d20
+      const roll = new Roll('1d20');
+      await roll.evaluate({async: true});
+      return roll;
+    }
   }
 }

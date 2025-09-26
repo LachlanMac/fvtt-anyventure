@@ -15,47 +15,47 @@
     <tbody>
       <tr>
         <td class="damage-type"><i class="fas fa-fist-raised"></i> Physical</td>
-        <td class="mitigation-value">{{system.mitigation.physical}}</td>
+        <td class="mitigation-value">{{#if (eq actor.type "npc")}}<input type="number" name="system.mitigation.physical" value="{{system.mitigation.physical}}" data-dtype="Number"/>{{else}}{{system.mitigation.physical}}{{/if}}</td>
         <td class="resist-value">{{resistance system.mitigation.physical}}</td>
       </tr>
       <tr>
         <td class="damage-type"><i class="fas fa-fire"></i> Heat</td>
-        <td class="mitigation-value">{{system.mitigation.heat}}</td>
+        <td class="mitigation-value">{{#if (eq actor.type "npc")}}<input type="number" name="system.mitigation.heat" value="{{system.mitigation.heat}}" data-dtype="Number"/>{{else}}{{system.mitigation.heat}}{{/if}}</td>
         <td class="resist-value">{{resistance system.mitigation.heat}}</td>
       </tr>
       <tr>
         <td class="damage-type"><i class="fas fa-snowflake"></i> Cold</td>
-        <td class="mitigation-value">{{system.mitigation.cold}}</td>
+        <td class="mitigation-value">{{#if (eq actor.type "npc")}}<input type="number" name="system.mitigation.cold" value="{{system.mitigation.cold}}" data-dtype="Number"/>{{else}}{{system.mitigation.cold}}{{/if}}</td>
         <td class="resist-value">{{resistance system.mitigation.cold}}</td>
       </tr>
       <tr>
         <td class="damage-type"><i class="fas fa-bolt"></i> Electric</td>
-        <td class="mitigation-value">{{system.mitigation.electric}}</td>
+        <td class="mitigation-value">{{#if (eq actor.type "npc")}}<input type="number" name="system.mitigation.electric" value="{{system.mitigation.electric}}" data-dtype="Number"/>{{else}}{{system.mitigation.electric}}{{/if}}</td>
         <td class="resist-value">{{resistance system.mitigation.electric}}</td>
       </tr>
       <tr>
         <td class="damage-type"><i class="fas fa-moon"></i> Dark</td>
-        <td class="mitigation-value">{{system.mitigation.dark}}</td>
+        <td class="mitigation-value">{{#if (eq actor.type "npc")}}<input type="number" name="system.mitigation.dark" value="{{system.mitigation.dark}}" data-dtype="Number"/>{{else}}{{system.mitigation.dark}}{{/if}}</td>
         <td class="resist-value">{{resistance system.mitigation.dark}}</td>
       </tr>
       <tr>
         <td class="damage-type"><i class="fas fa-sun"></i> Divine</td>
-        <td class="mitigation-value">{{system.mitigation.divine}}</td>
+        <td class="mitigation-value">{{#if (eq actor.type "npc")}}<input type="number" name="system.mitigation.divine" value="{{system.mitigation.divine}}" data-dtype="Number"/>{{else}}{{system.mitigation.divine}}{{/if}}</td>
         <td class="resist-value">{{resistance system.mitigation.divine}}</td>
       </tr>
       <tr>
         <td class="damage-type"><i class="fas fa-magic"></i> Aetheric</td>
-        <td class="mitigation-value">{{system.mitigation.aether}}</td>
+        <td class="mitigation-value">{{#if (eq actor.type "npc")}}<input type="number" name="system.mitigation.aether" value="{{system.mitigation.aether}}" data-dtype="Number"/>{{else}}{{system.mitigation.aether}}{{/if}}</td>
         <td class="resist-value">{{resistance system.mitigation.aether}}</td>
       </tr>
       <tr>
         <td class="damage-type"><i class="fas fa-brain"></i> Psychic</td>
-        <td class="mitigation-value">{{system.mitigation.psychic}}</td>
+        <td class="mitigation-value">{{#if (eq actor.type "npc")}}<input type="number" name="system.mitigation.psychic" value="{{system.mitigation.psychic}}" data-dtype="Number"/>{{else}}{{system.mitigation.psychic}}{{/if}}</td>
         <td class="resist-value">{{resistance system.mitigation.psychic}}</td>
       </tr>
       <tr>
         <td class="damage-type"><i class="fas fa-biohazard"></i> Toxic</td>
-        <td class="mitigation-value">{{system.mitigation.toxic}}</td>
+        <td class="mitigation-value">{{#if (eq actor.type "npc")}}<input type="number" name="system.mitigation.toxic" value="{{system.mitigation.toxic}}" data-dtype="Number"/>{{else}}{{system.mitigation.toxic}}{{/if}}</td>
         <td class="resist-value">{{resistance system.mitigation.toxic}}</td>
       </tr>
     </tbody>

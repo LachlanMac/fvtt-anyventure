@@ -64,6 +64,9 @@
               {{#if system.equipment.mainhand.item}}
                 <div class="equipped-item">
                   <img src="{{system.equipment.mainhand.item.img}}" alt="{{system.equipment.mainhand.item.name}}">
+                  {{#if (and system.equipment.mainhand.item.system.stack_limit (gt system.equipment.mainhand.item.system.stack_limit 0))}}
+                    <div class="quantity-display-only">{{system.equipment.mainhand.quantity}}</div>
+                  {{/if}}
                   <button class="unequip-btn" data-slot="mainhand"><i class="fas fa-times"></i></button>
                 </div>
               {{else}}
@@ -94,6 +97,9 @@
               {{#if system.equipment.offhand.item}}
                 <div class="equipped-item">
                   <img src="{{system.equipment.offhand.item.img}}" alt="{{system.equipment.offhand.item.name}}">
+                  {{#if (and system.equipment.offhand.item.system.stack_limit (gt system.equipment.offhand.item.system.stack_limit 0))}}
+                    <div class="quantity-display-only">{{system.equipment.offhand.quantity}}</div>
+                  {{/if}}
                   <button class="unequip-btn" data-slot="offhand"><i class="fas fa-times"></i></button>
                 </div>
               {{else}}
@@ -160,6 +166,9 @@
               {{#if system.equipment.extra1.item}}
                 <div class="equipped-item">
                   <img src="{{system.equipment.extra1.item.img}}" alt="{{system.equipment.extra1.item.name}}">
+                  {{#if (and system.equipment.extra1.item.system.stack_limit (gt system.equipment.extra1.item.system.stack_limit 0))}}
+                    <div class="quantity-display-only">{{system.equipment.extra1.quantity}}</div>
+                  {{/if}}
                   <button class="unequip-btn" data-slot="extra1"><i class="fas fa-times"></i></button>
                 </div>
               {{else}}
@@ -175,6 +184,9 @@
               {{#if system.equipment.extra2.item}}
                 <div class="equipped-item">
                   <img src="{{system.equipment.extra2.item.img}}" alt="{{system.equipment.extra2.item.name}}">
+                  {{#if (and system.equipment.extra2.item.system.stack_limit (gt system.equipment.extra2.item.system.stack_limit 0))}}
+                    <div class="quantity-display-only">{{system.equipment.extra2.quantity}}</div>
+                  {{/if}}
                   <button class="unequip-btn" data-slot="extra2"><i class="fas fa-times"></i></button>
                 </div>
               {{else}}
@@ -190,6 +202,9 @@
               {{#if system.equipment.extra3.item}}
                 <div class="equipped-item">
                   <img src="{{system.equipment.extra3.item.img}}" alt="{{system.equipment.extra3.item.name}}">
+                  {{#if (and system.equipment.extra3.item.system.stack_limit (gt system.equipment.extra3.item.system.stack_limit 0))}}
+                    <div class="quantity-display-only">{{system.equipment.extra3.quantity}}</div>
+                  {{/if}}
                   <button class="unequip-btn" data-slot="extra3"><i class="fas fa-times"></i></button>
                 </div>
               {{else}}
@@ -312,7 +327,15 @@
           </span>
           <span class="col-weight">{{item.system.weight}}</span>
           <span class="col-encumbrance">{{#unless (eq item.system.encumbrance_penalty 0)}}{{item.system.encumbrance_penalty}}{{/unless}}</span>
-          <span class="col-quantity">{{item.system.quantity}}</span>
+          <span class="col-quantity">
+            {{#if (and item.system.stack_limit (gt item.system.stack_limit 0))}}
+              <i class="fas fa-minus quantity-minus" data-item-id="{{item._id}}"></i>
+            {{/if}}
+            {{item.system.quantity}}
+            {{#if (and item.system.stack_limit (gt item.system.stack_limit 0))}}
+              <i class="fas fa-plus quantity-plus" data-item-id="{{item._id}}"></i>
+            {{/if}}
+          </span>
           <span class="col-actions">
             <a class="item-control item-edit" title="Edit"><i class="fas fa-edit"></i></a>
             <a class="item-control item-delete" title="Delete"><i class="fas fa-trash"></i></a>

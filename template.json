@@ -59,102 +59,154 @@
           "fly": 0
         },
         "mitigation": {
-        "physical": 0,
-        "heat": 0,
-        "cold": 0,
-        "electric": 0,
-        "dark": 0,
-        "divine": 0,
-        "aether": 0,
-        "psychic": 0,
-        "toxic": 0
+          "physical": 0,
+          "heat": 0,
+          "cold": 0,
+          "electric": 0,
+          "dark": 0,
+          "divine": 0,
+          "aether": 0,
+          "psychic": 0,
+          "toxic": 0
+        },
+        "detection": {
+          "normal": 8,
+          "darksight": 0,
+          "infravision": 0,
+          "deadsight": 0,
+          "echolocation": 0,
+          "tremorsense": 0,
+          "truesight": 0,
+          "aethersight": 0
+        },
+        "immunity": {
+          "afraid": false,
+          "bleeding": false,
+          "blinded": false,
+          "broken": false,
+          "charmed": false,
+          "confused": false,
+          "dazed": false,
+          "deafened": false,
+          "diseased": false,
+          "hidden": false,
+          "ignited": false,
+          "impaired": false,
+          "incapacitated": false,
+          "maddened": false,
+          "muted": false,
+          "numbed": false,
+          "poisoned": false,
+          "prone": false,
+          "stunned": false,
+          "winded": false
         }
       },
       "skills": {
         "basic": {
           "fitness": {
             "value": 0,
+            "tier": 0,
             "attribute": "physique"
           },
           "deflection": {
             "value": 0,
+            "tier": 0,
             "attribute": "physique"
           },
           "might": {
             "value": 0,
+            "tier": 0,
             "attribute": "physique"
           },
           "endurance": {
             "value": 0,
+            "tier": 0,
             "attribute": "physique"
           },
           "evasion": {
             "value": 0,
+            "tier": 0,
             "attribute": "finesse"
           },
           "stealth": {
             "value": 0,
+            "tier": 0,
             "attribute": "finesse"
           },
           "coordination": {
             "value": 0,
+            "tier": 0,
             "attribute": "finesse"
           },
           "thievery": {
             "value": 0,
+            "tier": 0,
             "attribute": "finesse"
           },
           "resilience": {
             "value": 0,
+            "tier": 0,
             "attribute": "mind"
           },
           "concentration": {
             "value": 0,
+            "tier": 0,
             "attribute": "mind"
           },
           "senses": {
             "value": 0,
+            "tier": 0,
             "attribute": "mind"
           },
           "logic": {
             "value": 0,
+            "tier": 0,
             "attribute": "mind"
           },
           "wildcraft": {
             "value": 0,
+            "tier": 0,
             "attribute": "knowledge"
           },
           "academics": {
             "value": 0,
+            "tier": 0,
             "attribute": "knowledge"
           },
           "magic": {
             "value": 0,
+            "tier": 0,
             "attribute": "knowledge"
           },
           "medicine": {
             "value": 0,
+            "tier": 0,
             "attribute": "knowledge"
           },
           "expression": {
             "value": 0,
+            "tier": 0,
             "attribute": "social"
           },
           "presence": {
             "value": 0,
+            "tier": 0,
             "attribute": "social"
           },
           "insight": {
             "value": 0,
+            "tier": 0,
             "attribute": "social"
           },
           "persuasion": {
             "value": 0,
+            "tier": 0,
             "attribute": "social"
           }
         },
         "weapon": {
-          "unarmed": {
+          "brawling": {
             "value": 0,
             "talent": 1
           },
@@ -291,18 +343,64 @@
       "modules": [],
       "spells": [],
       "actions": [],
-      "conditions": []
+      "conditions": [],
+      "equipment": {
+        "mainhand": {
+          "item": null,
+          "quantity": 1
+        },
+        "offhand": {
+          "item": null,
+          "quantity": 1
+        },
+        "extra1": {
+          "item": null,
+          "quantity": 1
+        },
+        "extra2": {
+          "item": null,
+          "quantity": 1
+        },
+        "extra3": {
+          "item": null,
+          "quantity": 1
+        }
+      }
     },
     "npc": {
       "templates": ["base", "skills"],
       "npcType": "foe",
+      "creatureTier": "foe",
+      "challengeRating": 1,
       "modules": [],
       "actions": [],
-      "conditions": []
+      "conditions": [],
+      "physicalTraits": {
+        "size": "medium",
+        "creatureType": "",
+        "description": "",
+        "appearance": ""
+      },
+      "loot": {
+        "coins": {
+          "copper": 0,
+          "silver": 0,
+          "gold": 0
+        },
+        "items": []
+      },
+      "behavior": {
+        "aggressive": true,
+        "territorial": false,
+        "pack": false,
+        "intelligent": true
+      },
+      "biography": "",
+      "spells": []
     }
   },
   "Item": {
-    "types": ["module", "ancestry", "culture", "trait", "item", "spell", "language", "action", "reaction", "passive", "injury"],
+    "types": ["module", "ancestry", "culture", "trait", "item", "spell", "song", "language", "action", "reaction", "passive", "injury"],
     "templates": {
       "base": {
         "description": "",
@@ -411,19 +509,37 @@
     },
     "spell": {
       "templates": ["base"],
-      "magicType": "primal",
+      "school": "primal",
       "subschool": "elemental",
-      "complexity": 4,
-      "range": "short",
+      "charge": "",
+      "duration": "Instantaneous",
+      "range": "Self",
+      "checkToCast": 4,
+      "components": [],
+      "ritualDuration": "",
+      "concentration": false,
+      "reaction": false,
+      "energy": 1,
       "damage": 0,
-      "damageType": "aether",
-      "dodgeDifficulty": 6,
-      "component": {
-        "name": "",
-        "cost": 0
+      "damageType": "",
+      "fizzled": false,
+      "foundry_icon": ""
+    },
+    "song": {
+      "templates": ["base"],
+      "type": "song",
+      "magical": false,
+      "difficulty": 0,
+      "effect": "",
+      "harmony_1": {
+        "instrument": "vocal",
+        "effect": ""
       },
-      "ritual": true,
-      "special": ""
+      "harmony_2": {
+        "instrument": "vocal",
+        "effect": ""
+      },
+      "used": false
     },
     "ancestry": {
       "templates": ["base"],
@@ -452,6 +568,8 @@
       "itemType": "",
       "weapon_category": "",
       "hands": 1,
+      "stack_limit": 0,
+      "holdable": false,
       "shield_category": "",
       "consumable_category": "",
       "bonus_attack": 0,

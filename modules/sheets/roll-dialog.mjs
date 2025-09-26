@@ -111,27 +111,51 @@ export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
     const roll = new Roll(formula, this.actor?.getRollData() || {});
     await roll.evaluate();
     
-    // Determine flavor text based on roll type
-    let flavorText = `${this.skillName} Check`;
+    // Extract individual die results for display [x, y, z]
+    const diceResults = [];
+    if (roll.terms[0] && roll.terms[0].results) {
+      for (let result of roll.terms[0].results) {
+        diceResults.push(result.result);
+      }
+    }
+
+    // Sort dice results in descending order for easier reading (match attack card)
+    diceResults.sort((a, b) => b - a);
+
+    // Build structured flavor text similar to attack card
+    let flavorText = `<div class="anyventure-skill-card">`;
+
+    // 1. Skill name/title
+    flavorText += `<div class="skill-name"><strong>${this.skillName} Check</strong></div>`;
+
+    // 2. Dice Results
+    flavorText += `<div class=\"dice-results\"><strong>Results:</strong> [${diceResults.join(', ')}]</div>`;
+
+    // 3. Formula summary (mirrors attack formatting and ordering)
     let totalDice = this.baseDice + bonusDice - penaltyDice;
-    
+    let formulaText = `${totalDice}${this.diceType}`;
+
     if (bonusDice > 0 && penaltyDice === 0) {
-      flavorText += ` (${bonusDice} bonus dice)`;
+      formulaText += ` (+${bonusDice} bonus)`;
     } else if (penaltyDice > 0 && bonusDice === 0) {
       if (totalDice >= 1) {
-        flavorText += ` (${penaltyDice} penalty dice)`;
+        formulaText += ` (-${penaltyDice} penalty)`;
       } else {
-        flavorText += ` (disadvantage - keep lowest)`;
+        formulaText += ` (disadvantage)`;
       }
     } else if (bonusDice > 0 && penaltyDice > 0) {
       const net = bonusDice - penaltyDice;
       if (net > 0) {
-        flavorText += ` (net +${net} dice)`;
+        formulaText += ` (net +${net})`;
       } else if (net < 0) {
-        flavorText += ` (net ${net} dice)`;
+        formulaText += ` (net ${net})`;
       }
     }
-    
+
+    flavorText += `<div class=\"formula\">Formula: ${formulaText}</div>`;
+
+    flavorText += `</div>`;
+
     // Send to chat
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),

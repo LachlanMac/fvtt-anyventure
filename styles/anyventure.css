@@ -603,6 +603,22 @@
   color: #cdaa3d;
   font-weight: bold;
 }
+.anyventure .movement-table td.movement-value .movement-input {
+  width: 60px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  padding: 0;
+}
+.anyventure .movement-table td.movement-value .movement-input:focus {
+  outline: none;
+  color: #ffd700;
+}
+.anyventure .movement-table td.movement-value .movement-input::-webkit-outer-spin-button, .anyventure .movement-table td.movement-value .movement-input::-webkit-inner-spin-button {
+  margin: 0;
+}
 .anyventure .movement-table td.sprint-value {
   color: #cdaa3d;
   font-weight: bold;
@@ -2348,4 +2364,54 @@
   font-style: italic;
   padding: 20px;
   font-size: 12px;
+}
+
+/* ========================================= */
+/*  Combat Phase Tracker (Global)           */
+/* ========================================= */
+.anyventure-combat-tracker .phase-header {
+  background: rgba(42, 26, 58, 0.8);
+  color: #f0f0f0;
+  font-weight: bold;
+  text-align: center;
+  padding: 8px;
+  margin: 4px 0;
+  border-radius: 4px;
+  border: 1px solid #666;
+}
+.anyventure-combat-tracker .phase-header.preparation {
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.8), rgba(75, 0, 130, 0.8));
+  border-color: #8b2be2;
+  color: #e6e6fa;
+}
+.anyventure-combat-tracker .phase-header.early {
+  background: linear-gradient(135deg, rgba(34, 139, 34, 0.8), rgba(0, 100, 0, 0.8));
+  border-color: #228b22;
+  color: #f0fff0;
+}
+.anyventure-combat-tracker .phase-header.middle {
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.8), rgba(255, 69, 0, 0.8));
+  border-color: #ff8c00;
+  color: #fff8dc;
+}
+.anyventure-combat-tracker .phase-header.late {
+  background: linear-gradient(135deg, rgba(178, 34, 34, 0.8), rgba(139, 0, 0, 0.8));
+  border-color: #b22222;
+  color: #ffe4e1;
+}
+.anyventure-combat-tracker .combatant-row.empty {
+  text-align: center;
+  font-style: italic;
+  color: #888;
+  padding: 4px;
+  opacity: 0.6;
+}
+.anyventure-combat-tracker .phase-duplicate {
+  opacity: 0.85;
+  border-left: 3px solid #b8860b;
+}
+.anyventure-combat-tracker .phase-current {
+  background: rgba(184, 134, 11, 0.2) !important;
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
 }/*# sourceMappingURL=anyventure.css.map */

@@ -15,22 +15,30 @@
     <tbody>
       <tr>
         <td class="movement-type"><i class="fas fa-walking"></i> Walk</td>
-        <td class="movement-value">{{system.movement.walk}}</td>
+        <td class="movement-value">
+          <input class="movement-input" type="number" name="system.movement.walk" value="{{system.movement.walk}}" data-dtype="Number" min="0" />
+        </td>
         <td class="sprint-value">{{multiply system.movement.walk 2}}</td>
       </tr>
       <tr>
         <td class="movement-type"><i class="fas fa-swimmer"></i> Swim</td>
-        <td class="movement-value">{{system.movement.swim}}</td>
+        <td class="movement-value">
+          <input class="movement-input" type="number" name="system.movement.swim" value="{{system.movement.swim}}" data-dtype="Number" min="0" />
+        </td>
         <td class="sprint-value">{{multiply system.movement.swim 2}}</td>
       </tr>
       <tr>
         <td class="movement-type"><i class="fas fa-mountain"></i> Climb</td>
-        <td class="movement-value">{{system.movement.climb}}</td>
+        <td class="movement-value">
+          <input class="movement-input" type="number" name="system.movement.climb" value="{{system.movement.climb}}" data-dtype="Number" min="0" />
+        </td>
         <td class="sprint-value">{{multiply system.movement.climb 2}}</td>
       </tr>
       <tr>
         <td class="movement-type"><i class="fas fa-feather"></i> Fly</td>
-        <td class="movement-value">{{system.movement.fly}}</td>
+        <td class="movement-value">
+          <input class="movement-input" type="number" name="system.movement.fly" value="{{system.movement.fly}}" data-dtype="Number" min="0" />
+        </td>
         <td class="sprint-value">{{multiply system.movement.fly 2}}</td>
       </tr>
     </tbody>

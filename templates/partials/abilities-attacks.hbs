@@ -1,0 +1,48 @@
+<div class="moves-section">
+  <div class="section-header">
+    <h3>{{#if header}}{{header}}{{else}}Attacks{{/if}}</h3>
+  </div>
+  <div class="moves-list">
+    {{#each equippedWeapons as |attack|}}
+    <div class="weapon-attack-item">
+      <div class="weapon-attack-header">
+        <div class="weapon-icon">
+          <img src="{{attack.weaponIcon}}" alt="{{attack.weaponName}}" />
+        </div>
+        <div class="weapon-info">
+          <h4 class="weapon-name">{{attack.weaponName}} [{{attack.category}}]</h4>
+          <div class="weapon-meta">
+            <span class="attack-type">{{attack.attackType}}</span>
+            <span class="energy-cost">
+              Energy:
+              {{#if (eq attack.energy 0)}}
+                None
+              {{else}}
+                {{#times attack.energy}}
+                  <i class="fas fa-star filled"></i>
+                {{/times}}
+              {{/if}}
+            </span>
+            <span class="range">{{attack.rangeText}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="weapon-attack-details weapon-attack-clickable" data-attack-index="{{@index}}" title="Click to roll attack">
+        <div class="damage-info">
+          <span class="damage-dice">[{{attack.damage}}/{{attack.damageExtra}}]</span>
+          <span class="damage-type-box {{attack.damageType.cssClass}}">{{attack.damageType.text}}</span>
+          <span class="attack-dice">{{attack.attackDice}}{{attack.attackDiceType}}</span>
+          {{#if (gt attack.secondaryDamage 0)}}
+          <span class="secondary-damage-dice">[{{attack.secondaryDamage}}/{{attack.secondaryDamageExtra}}]</span>
+          <span class="damage-type-box {{attack.secondaryDamageType.cssClass}}">{{attack.secondaryDamageType.text}}</span>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+    {{else}}
+    <div class="no-weapons-message">
+      <em>No weapons equipped</em>
+    </div>
+    {{/each}}
+  </div>
+</div>

@@ -9,62 +9,14 @@ import { AnyventureItem } from './documents/item.mjs';
 import { AnyventureActorSheet } from './sheets/actor-sheet.mjs';
 import { AnyventureItemSheet } from './sheets/item-sheet.mjs';
 import { logError, logWarning } from './utils/logger.js';
+import { AnyventureCombatTracker } from './ui/anyventure-combat-tracker.mjs';
 import { AnyventureRollDialog } from './sheets/roll-dialog.mjs';
-import { registerCombatUIHooks } from './combat.mjs';
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
 /* -------------------------------------------- */
 
 Hooks.once('init', async function() {
-
-  // Set up initiative configuration FIRST to prevent undefined errors
-  CONFIG.Combat.initiative = {
-    formula: "1d20",  // Default fallback
-    decimals: 0
-  };
-
-  // Hook to intercept initiative rolls and use our custom formulas
-  Hooks.on("preUpdateCombat", async (combat, update, options, userId) => {
-    console.log('[Initiative] preUpdateCombat hook triggered');
-  });
-
-  // Override Combat.rollInitiative to use our custom formulas
-  const originalRollInitiative = Combat.prototype.rollInitiative;
-  Combat.prototype.rollInitiative = async function(ids, options = {}) {
-    console.log('[Initiative] Combat.rollInitiative intercepted');
-
-    // Get the combatant(s)
-    const combatants = this.combatants.filter(c => ids.includes(c.id));
-
-    for (const combatant of combatants) {
-      if (combatant.actor?.getInitiativeFormula) {
-        const customFormula = combatant.actor.getInitiativeFormula();
-        console.log(`[Initiative] Using custom formula ${customFormula} for ${combatant.name}`);
-
-        // Create and evaluate the roll
-        const roll = new Roll(customFormula);
-        await roll.evaluate({ async: true });
-
-        // Update the combatant's initiative
-        await this.updateEmbeddedDocuments('Combatant', [{
-          _id: combatant.id,
-          initiative: roll.total
-        }]);
-
-        // Display the roll to chat
-        await roll.toMessage({
-          speaker: ChatMessage.getSpeaker({actor: combatant.actor}),
-          flavor: `${combatant.name} rolls initiative!`
-        });
-      } else {
-        console.log(`[Initiative] No custom formula found for ${combatant.name}, using default`);
-      }
-    }
-
-    // Don't call the original method - we've handled it
-    return this;
-  };
 
   // Assign custom classes and constants here
   game.anyventure = {
@@ -125,6 +77,14 @@ Hooks.once('init', async function() {
     return Number(index) < Number(talent);
   });
 
+  // Register custom UI classes (must occur before UI construction)
+  try {
+    CONFIG.ui.combat = AnyventureCombatTracker;
+    console.log('[Anyventure] Custom Combat Tracker UI registered during init');
+  } catch (e) {
+    console.warn('[Anyventure] Failed to register custom Combat Tracker UI', e);
+  }
+
   // Preload Handlebars templates
   return preloadHandlebarsTemplates();
 });
@@ -136,10 +96,100 @@ Hooks.once('init', async function() {
 
 Hooks.once('ready', async function() {
 
-  // Register combat UI hooks (phase tracker)
-  try { registerCombatUIHooks(); } catch (e) { console.warn('[Anyventure] Failed to register combat UI hooks', e); }
+  // Register custom Handlebars helpers
 
-CONFIG.statusEffects = [
+  try {
+    console.log('[Anyventure] Ready hook: ui.combat class/template', {
+      class: ui?.combat?.constructor?.name,
+      template: ui?.combat?.options?.template
+    });
+    if (!(ui?.combat instanceof AnyventureCombatTracker)) {
+      console.warn('[Anyventure] ui.combat is not AnyventureCombatTracker. Replacing instance...');
+      try { ui.combat?.close?.(); } catch (_e) {}
+      ui.combat = new AnyventureCombatTracker();
+      ui.combat.render(true);
+      console.log('[Anyventure] ui.combat replaced. New class/template', {
+        class: ui?.combat?.constructor?.name,
+        template: ui?.combat?.options?.template
+      });
+    }
+  } catch (e) {
+    console.warn('[Anyventure] Error ensuring custom Combat Tracker UI', e);
+  }
+
+  // Intercept Combat Tracker rendering and inject our phase-based layout (UI only)
+  Hooks.on('renderCombatTracker', async (app, html /*, data*/) => {
+    try {
+      console.log('[Anyventure] renderCombatTracker hook fired');
+      const combat = game.combat;
+      const list = combat?.combatants?.contents || [];
+      const round = combat?.round || 0;
+      // Assign phases from initiative for characters; NPCs after characters
+      const phases = { preparation: [], early: [], middle: [], late: [] };
+      for (const c of list) {
+        const init = Number(c.initiative ?? -Infinity);
+        let phase = 'middle';
+        if (isFinite(init)) {
+          if (init < 4) phase = 'late';
+          else if (init <= 7) phase = 'middle';
+          else phase = 'early';
+        }
+        phases[phase].push(c);
+        if (round === 1 and isFinite(init) and init > 10): pass
+      }
+
+      // Find the tracker list only (keep Foundry header/footer)
+      const container = html instanceof HTMLElement ? html : (html?.[0] instanceof HTMLElement ? html[0] : null);
+      const tracker = container?.querySelector?.('[data-application-part="tracker"], ol.combat-tracker');
+      if (!tracker) {
+        console.warn('[Anyventure] Could not find tracker list to inject');
+        return;
+      }
+
+      // Map existing combatant <li> nodes by combatant id so we preserve Foundry controls
+      const existingLis = Array.from(tracker.querySelectorAll('li.combatant'));
+      const byId = new Map(existingLis.map(li => [li.dataset.combatantId, li]));
+
+      // Build new ordered content
+      const frag = document.createDocumentFragment();
+      const makeHeader = (cls, text) => {
+        const li = document.createElement('li');
+        li.className = `phase-header ${cls}`;
+        li.textContent = text;
+        return li;
+      };
+
+      // Helper to append a phase
+      const appendPhase = (key, label) => {
+        frag.appendChild(makeHeader(key, label));
+        const arr = context.phases[key] || [];
+        if (arr.length === 0) {
+          const empty = document.createElement('li');
+          empty.className = 'combatant-row empty';
+          empty.textContent = '—';
+          frag.appendChild(empty);
+        } else {
+          for (const c of arr) {
+            const li = byId.get(c.id);
+            if (li) frag.appendChild(li);
+          }
+        }
+      };
+
+      appendPhase('early', 'Early Phase');
+      appendPhase('middle', 'Middle Phase');
+      appendPhase('late', 'Late Phase');
+
+      tracker.classList.add('anyventure-combat-tracker');
+      // Replace children while preserving listeners bound by delegation
+      tracker.replaceChildren(frag);
+      console.log('[Anyventure] Combat tracker list injected (preserved Foundry rows)');
+    } catch (e) {
+      console.warn('[Anyventure] Failed to inject custom Combat Tracker UI', e);
+    }
+  });
+
+  CONFIG.statusEffects = [
     {
       id: "dead",
       label: "Dead",
@@ -392,14 +442,11 @@ CONFIG.statusEffects = [
       ['d16', 'd20', 'd30']  // Level 6
     ];
 
-    const nlevel = Number(level);
-    const skillLevel = Math.min(Math.max(isNaN(nlevel) ? 0 : nlevel, 0), 6);
+    const skillLevel = Math.min(Math.max(level || 0, 0), 6);
     const tierModifier = diceTierModifier || 0;
     const upgradeLevel = Math.min(Math.max(tierModifier + 1, 0), 2); // Convert -1,0,1 to 0,1,2
 
-    const row = diceTable[skillLevel];
-    if (!row) return 'd4';
-    return row[upgradeLevel] || 'd4';
+    return diceTable[skillLevel][upgradeLevel];
   });
 
   // Helper for skill upgrade CSS class (using diceTierModifier)
@@ -622,9 +669,6 @@ async function preloadHandlebarsTemplates() {
     "systems/anyventure/templates/partials/modules.hbs",
     "systems/anyventure/templates/partials/mitigations.hbs",
     "systems/anyventure/templates/partials/movement.hbs",
-    "systems/anyventure/templates/partials/abilities-attacks.hbs",
-    "systems/anyventure/templates/partials/abilities-list.hbs",
-    "systems/anyventure/templates/partials/npc-abilities.hbs",
 
     // Item Partial templates
     "systems/anyventure/templates/partials/items/item-header.hbs",
@@ -643,6 +687,7 @@ async function preloadHandlebarsTemplates() {
     "systems/anyventure/templates/partials/items/song-properties.hbs",
 
     // UI templates
-    "systems/anyventure/templates/partials/npc-skills.hbs",
+    "systems/anyventure/templates/anyventure-combat-tracker.hbs",
+    "systems/anyventure/templates/partials/anyventure-combat-tracker-body.hbs",
   ]);
 }

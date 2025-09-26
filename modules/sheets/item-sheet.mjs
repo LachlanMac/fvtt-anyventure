@@ -94,7 +94,7 @@ export class AnyventureItemSheet extends foundry.appv1.sheets.ItemSheet {
    */
   _prepareWeaponData(context) {
     context.weaponCategories = [
-      { value: 'unarmed', label: 'Unarmed' },
+      { value: 'brawling', label: 'Brawling' },
       { value: 'throwing', label: 'Throwing' },
       { value: 'simpleMeleeWeapons', label: 'Simple Melee' },
       { value: 'simpleRangedWeapons', label: 'Simple Ranged' },

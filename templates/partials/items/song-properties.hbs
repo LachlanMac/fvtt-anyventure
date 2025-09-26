@@ -1,0 +1,84 @@
+{{!-- Song Properties Partial --}}
+<div class="song-properties-section">
+  <h3>Song Properties</h3>
+
+  <div class="song-fields">
+    <div class="form-group">
+      <label>Song Type</label>
+      <select name="system.type" data-dtype="String">
+        <option value="song" {{#if (eq system.type "song")}}selected{{/if}}>Song</option>
+        <option value="ballad" {{#if (eq system.type "ballad")}}selected{{/if}}>Ballad</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Magical</label>
+      <input type="checkbox" name="system.magical" {{#if system.magical}}checked{{/if}}/>
+    </div>
+
+    <div class="form-group">
+      <label>Difficulty</label>
+      <input type="number" name="system.difficulty" value="{{system.difficulty}}" data-dtype="Number" min="0" max="20" placeholder="0"/>
+    </div>
+
+    <div class="form-group">
+      <label>Used</label>
+      <input type="checkbox" name="system.used" {{#if system.used}}checked{{/if}}/>
+    </div>
+  </div>
+
+  {{!-- Song Effect --}}
+  <div class="effect-section">
+    <h3>Song Effect</h3>
+    <div class="form-group stacked">
+      <label>Effect Description</label>
+      <textarea name="system.effect" placeholder="Describe the mechanical effect of this song">{{system.effect}}</textarea>
+    </div>
+  </div>
+
+  {{!-- Harmony 1 --}}
+  <div class="harmony-section">
+    <h3>Harmony 1</h3>
+    <div class="harmony-fields">
+      <div class="form-group">
+        <label>Instrument</label>
+        <select name="system.harmony_1.instrument" data-dtype="String">
+          <option value="vocal" {{#if (eq system.harmony_1.instrument "vocal")}}selected{{/if}}>Vocal</option>
+          <option value="percussion" {{#if (eq system.harmony_1.instrument "percussion")}}selected{{/if}}>Percussion</option>
+          <option value="wind" {{#if (eq system.harmony_1.instrument "wind")}}selected{{/if}}>Wind</option>
+          <option value="strings" {{#if (eq system.harmony_1.instrument "strings")}}selected{{/if}}>Strings</option>
+          <option value="brass" {{#if (eq system.harmony_1.instrument "brass")}}selected{{/if}}>Brass</option>
+          <option value="any" {{#if (eq system.harmony_1.instrument "any")}}selected{{/if}}>Any</option>
+        </select>
+      </div>
+
+      <div class="form-group stacked">
+        <label>Harmony 1 Effect</label>
+        <textarea name="system.harmony_1.effect" placeholder="Additional effect when played with this instrument">{{system.harmony_1.effect}}</textarea>
+      </div>
+    </div>
+  </div>
+
+  {{!-- Harmony 2 --}}
+  <div class="harmony-section">
+    <h3>Harmony 2</h3>
+    <div class="harmony-fields">
+      <div class="form-group">
+        <label>Instrument</label>
+        <select name="system.harmony_2.instrument" data-dtype="String">
+          <option value="vocal" {{#if (eq system.harmony_2.instrument "vocal")}}selected{{/if}}>Vocal</option>
+          <option value="percussion" {{#if (eq system.harmony_2.instrument "percussion")}}selected{{/if}}>Percussion</option>
+          <option value="wind" {{#if (eq system.harmony_2.instrument "wind")}}selected{{/if}}>Wind</option>
+          <option value="strings" {{#if (eq system.harmony_2.instrument "strings")}}selected{{/if}}>Strings</option>
+          <option value="brass" {{#if (eq system.harmony_2.instrument "brass")}}selected{{/if}}>Brass</option>
+          <option value="any" {{#if (eq system.harmony_2.instrument "any")}}selected{{/if}}>Any</option>
+        </select>
+      </div>
+
+      <div class="form-group stacked">
+        <label>Harmony 2 Effect</label>
+        <textarea name="system.harmony_2.effect" placeholder="Additional effect when played with this instrument">{{system.harmony_2.effect}}</textarea>
+      </div>
+    </div>
+  </div>
+</div>

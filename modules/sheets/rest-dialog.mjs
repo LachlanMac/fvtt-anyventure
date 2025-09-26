@@ -1,3 +1,5 @@
+import { logError, logWarning } from "../utils/logger.js";
+
 export class AnyventureRestDialog extends foundry.applications.api.DialogV2 {
   constructor(options = {}) {
     super({
@@ -60,7 +62,6 @@ export class AnyventureRestDialog extends foundry.applications.api.DialogV2 {
       const cur = res.morale.value || 0; const max = res.morale.max || 0; const nv = Math.max(0, Math.min(cur + delta.morale, max));
       up['system.resources.morale.value'] = nv; logs.push(`Morale: ${delta.morale >= 0 ? '+' : ''}${delta.morale} (${cur} → ${nv})`);
     }
-    console.log('[Anyventure] Rest dialog apply:', type, 'Base', base, 'Bonus', bonus, 'Delta', delta, '|', logs.join(' | '));
     if (Object.keys(up).length) {
       await this.actor.update(up);
       this.actor.sheet?.render(false);

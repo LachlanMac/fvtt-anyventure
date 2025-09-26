@@ -9,7 +9,7 @@
         <option value="simpleRangedWeapons" {{#if (eq system.weapon_data.category "simpleRangedWeapons")}}selected{{/if}}>Simple Ranged</option>
         <option value="complexMeleeWeapons" {{#if (eq system.weapon_data.category "complexMeleeWeapons")}}selected{{/if}}>Complex Melee</option>
         <option value="complexRangedWeapons" {{#if (eq system.weapon_data.category "complexRangedWeapons")}}selected{{/if}}>Complex Ranged</option>
-        <option value="unarmed" {{#if (eq system.weapon_data.category "unarmed")}}selected{{/if}}>Unarmed</option>
+        <option value="brawling" {{#if (eq system.weapon_data.category "brawling")}}selected{{/if}}>Brawling</option>
         <option value="throwing" {{#if (eq system.weapon_data.category "throwing")}}selected{{/if}}>Throwing</option>
       </select>
     </div>
@@ -57,27 +57,28 @@
       <div class="form-group">
         <label for="system.weapon_data.primary.min_range">Min Range</label>
         <select name="system.weapon_data.primary.min_range">
-          <option value="0" {{#if (eq system.weapon_data.primary.min_range 0)}}selected{{/if}}>Adjacent</option>
-          <option value="1" {{#if (eq system.weapon_data.primary.min_range 1)}}selected{{/if}}>Nearby</option>
-          <option value="2" {{#if (eq system.weapon_data.primary.min_range 2)}}selected{{/if}}>Very Short</option>
-          <option value="3" {{#if (eq system.weapon_data.primary.min_range 3)}}selected{{/if}}>Short</option>
-          <option value="4" {{#if (eq system.weapon_data.primary.min_range 4)}}selected{{/if}}>Moderate</option>
-          <option value="5" {{#if (eq system.weapon_data.primary.min_range 5)}}selected{{/if}}>Distant</option>
-          <option value="6" {{#if (eq system.weapon_data.primary.min_range 6)}}selected{{/if}}>Remote</option>
-          <option value="7" {{#if (eq system.weapon_data.primary.min_range 7)}}selected{{/if}}>Unlimited</option>
+          <option value="1" {{#if (eq system.weapon_data.primary.min_range 1)}}selected{{/if}}>Adjacent</option>
+          <option value="2" {{#if (eq system.weapon_data.primary.min_range 2)}}selected{{/if}}>Nearby</option>
+          <option value="3" {{#if (eq system.weapon_data.primary.min_range 3)}}selected{{/if}}>Very Short</option>
+          <option value="4" {{#if (eq system.weapon_data.primary.min_range 4)}}selected{{/if}}>Short</option>
+          <option value="5" {{#if (eq system.weapon_data.primary.min_range 5)}}selected{{/if}}>Moderate</option>
+          <option value="6" {{#if (eq system.weapon_data.primary.min_range 6)}}selected{{/if}}>Far</option>
+          <option value="7" {{#if (eq system.weapon_data.primary.min_range 7)}}selected{{/if}}>Very Far</option>
+          <option value="8" {{#if (eq system.weapon_data.primary.min_range 8)}}selected{{/if}}>Distant</option>
         </select>
       </div>
       <div class="form-group">
         <label for="system.weapon_data.primary.max_range">Max Range</label>
         <select name="system.weapon_data.primary.max_range">
-          <option value="0" {{#if (eq system.weapon_data.primary.max_range 0)}}selected{{/if}}>Adjacent</option>
-          <option value="1" {{#if (eq system.weapon_data.primary.max_range 1)}}selected{{/if}}>Nearby</option>
-          <option value="2" {{#if (eq system.weapon_data.primary.max_range 2)}}selected{{/if}}>Very Short</option>
-          <option value="3" {{#if (eq system.weapon_data.primary.max_range 3)}}selected{{/if}}>Short</option>
-          <option value="4" {{#if (eq system.weapon_data.primary.max_range 4)}}selected{{/if}}>Moderate</option>
-          <option value="5" {{#if (eq system.weapon_data.primary.max_range 5)}}selected{{/if}}>Distant</option>
-          <option value="6" {{#if (eq system.weapon_data.primary.max_range 6)}}selected{{/if}}>Remote</option>
-          <option value="7" {{#if (eq system.weapon_data.primary.max_range 7)}}selected{{/if}}>Unlimited</option>
+
+          <option value="1" {{#if (eq system.weapon_data.primary.max_range 1)}}selected{{/if}}>Adjacent</option>
+          <option value="2" {{#if (eq system.weapon_data.primary.max_range 2)}}selected{{/if}}>Nearby</option>
+          <option value="3" {{#if (eq system.weapon_data.primary.max_range 3)}}selected{{/if}}>Very Short</option>
+          <option value="4" {{#if (eq system.weapon_data.primary.max_range 4)}}selected{{/if}}>Short</option>
+          <option value="5" {{#if (eq system.weapon_data.primary.max_range 5)}}selected{{/if}}>Moderate</option>
+          <option value="6" {{#if (eq system.weapon_data.primary.max_range 6)}}selected{{/if}}>Far</option>
+          <option value="7" {{#if (eq system.weapon_data.primary.max_range 7)}}selected{{/if}}>Very Far</option>
+          <option value="8" {{#if (eq system.weapon_data.primary.max_range 8)}}selected{{/if}}>Distant</option>
         </select>
       </div>
     </div>
@@ -153,27 +154,27 @@
       <div class="form-group">
         <label for="system.weapon_data.secondary.min_range">Min Range</label>
         <select name="system.weapon_data.secondary.min_range">
-          <option value="0" {{#if (eq system.weapon_data.secondary.min_range 0)}}selected{{/if}}>Adjacent</option>
-          <option value="1" {{#if (eq system.weapon_data.secondary.min_range 1)}}selected{{/if}}>Nearby</option>
-          <option value="2" {{#if (eq system.weapon_data.secondary.min_range 2)}}selected{{/if}}>Very Short</option>
-          <option value="3" {{#if (eq system.weapon_data.secondary.min_range 3)}}selected{{/if}}>Short</option>
-          <option value="4" {{#if (eq system.weapon_data.secondary.min_range 4)}}selected{{/if}}>Moderate</option>
-          <option value="5" {{#if (eq system.weapon_data.secondary.min_range 5)}}selected{{/if}}>Distant</option>
-          <option value="6" {{#if (eq system.weapon_data.secondary.min_range 6)}}selected{{/if}}>Remote</option>
-          <option value="7" {{#if (eq system.weapon_data.secondary.min_range 7)}}selected{{/if}}>Unlimited</option>
+          <option value="1" {{#if (eq system.weapon_data.primary.max_range 1)}}selected{{/if}}>Adjacent</option>
+          <option value="2" {{#if (eq system.weapon_data.primary.max_range 2)}}selected{{/if}}>Nearby</option>
+          <option value="3" {{#if (eq system.weapon_data.primary.max_range 3)}}selected{{/if}}>Very Short</option>
+          <option value="4" {{#if (eq system.weapon_data.primary.max_range 4)}}selected{{/if}}>Short</option>
+          <option value="5" {{#if (eq system.weapon_data.primary.max_range 5)}}selected{{/if}}>Moderate</option>
+          <option value="6" {{#if (eq system.weapon_data.primary.max_range 6)}}selected{{/if}}>Far</option>
+          <option value="7" {{#if (eq system.weapon_data.primary.max_range 7)}}selected{{/if}}>Very Far</option>
+          <option value="8" {{#if (eq system.weapon_data.primary.max_range 8)}}selected{{/if}}>Distant</option>
         </select>
       </div>
       <div class="form-group">
         <label for="system.weapon_data.secondary.max_range">Max Range</label>
         <select name="system.weapon_data.secondary.max_range">
-          <option value="0" {{#if (eq system.weapon_data.secondary.max_range 0)}}selected{{/if}}>Adjacent</option>
-          <option value="1" {{#if (eq system.weapon_data.secondary.max_range 1)}}selected{{/if}}>Nearby</option>
-          <option value="2" {{#if (eq system.weapon_data.secondary.max_range 2)}}selected{{/if}}>Very Short</option>
-          <option value="3" {{#if (eq system.weapon_data.secondary.max_range 3)}}selected{{/if}}>Short</option>
-          <option value="4" {{#if (eq system.weapon_data.secondary.max_range 4)}}selected{{/if}}>Moderate</option>
-          <option value="5" {{#if (eq system.weapon_data.secondary.max_range 5)}}selected{{/if}}>Distant</option>
-          <option value="6" {{#if (eq system.weapon_data.secondary.max_range 6)}}selected{{/if}}>Remote</option>
-          <option value="7" {{#if (eq system.weapon_data.secondary.max_range 7)}}selected{{/if}}>Unlimited</option>
+          <option value="1" {{#if (eq system.weapon_data.primary.max_range 1)}}selected{{/if}}>Adjacent</option>
+          <option value="2" {{#if (eq system.weapon_data.primary.max_range 2)}}selected{{/if}}>Nearby</option>
+          <option value="3" {{#if (eq system.weapon_data.primary.max_range 3)}}selected{{/if}}>Very Short</option>
+          <option value="4" {{#if (eq system.weapon_data.primary.max_range 4)}}selected{{/if}}>Short</option>
+          <option value="5" {{#if (eq system.weapon_data.primary.max_range 5)}}selected{{/if}}>Moderate</option>
+          <option value="6" {{#if (eq system.weapon_data.primary.max_range 6)}}selected{{/if}}>Far</option>
+          <option value="7" {{#if (eq system.weapon_data.primary.max_range 7)}}selected{{/if}}>Very Far</option>
+          <option value="8" {{#if (eq system.weapon_data.primary.max_range 8)}}selected{{/if}}>Distant</option>
         </select>
       </div>
     </div>

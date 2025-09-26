@@ -635,7 +635,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       slotName: 'unarmed'
     };
 
-    equippedWeapons.push(unarmedAttack);
+    if (this.actor?.type === 'character') {
+      equippedWeapons.push(unarmedAttack);
+    }
 
     return equippedWeapons;
   }

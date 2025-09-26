@@ -1,30 +1,89 @@
 {{!-- Spell Properties Partial --}}
 <div class="spell-properties-section">
   <h3>Spell Properties</h3>
-  
+
   <div class="spell-fields">
     <div class="form-group">
-      <label>Complexity</label>
-      <input type="number" name="system.complexity" value="{{system.complexity}}" data-dtype="Number" min="1" max="20" placeholder="4"/>
-    </div>
-    
-    <div class="form-group">
-      <label>Range</label>
-      <select name="system.range" data-dtype="String">
-        {{#each rangeTypes as |range|}}
-        <option value="{{range}}" {{#if (eq ../system.range range)}}selected{{/if}}>{{capitalize range}}</option>
-        {{/each}}
+      <label>School</label>
+      <select name="system.school" data-dtype="String">
+        <option value="meta" {{#if (eq system.school "meta")}}selected{{/if}}>Metamagic</option>
+        <option value="black" {{#if (eq system.school "black")}}selected{{/if}}>Black Magic</option>
+        <option value="divine" {{#if (eq system.school "divine")}}selected{{/if}}>Divine</option>
+        <option value="mysticism" {{#if (eq system.school "mysticism")}}selected{{/if}}>Mysticism</option>
+        <option value="primal" {{#if (eq system.school "primal")}}selected{{/if}}>Primal</option>
       </select>
-    </div>
-    
-    <div class="form-group">
-      <label>Dodge Difficulty</label>
-      <input type="number" name="system.dodgeDifficulty" value="{{system.dodgeDifficulty}}" data-dtype="Number" min="1" max="20" placeholder="6"/>
     </div>
 
     <div class="form-group">
-      <label>Can be Ritual?</label>
-      <input type="checkbox" name="system.ritual" {{#if system.ritual}}checked{{/if}}/>
+      <label>Subschool</label>
+      <select name="system.subschool" data-dtype="String">
+        {{#if (eq system.school "meta")}}
+          <option value="fey" {{#if (eq system.subschool "fey")}}selected{{/if}}>Fey</option>
+          <option value="illusion" {{#if (eq system.subschool "illusion")}}selected{{/if}}>Illusion</option>
+          <option value="transmutation" {{#if (eq system.subschool "transmutation")}}selected{{/if}}>Transmutation</option>
+        {{else if (eq system.school "black")}}
+          <option value="fiend" {{#if (eq system.subschool "fiend")}}selected{{/if}}>Fiend</option>
+          <option value="necromancy" {{#if (eq system.subschool "necromancy")}}selected{{/if}}>Necromancy</option>
+          <option value="witchcraft" {{#if (eq system.subschool "witchcraft")}}selected{{/if}}>Witchcraft</option>
+        {{else if (eq system.school "divine")}}
+          <option value="celestial" {{#if (eq system.subschool "celestial")}}selected{{/if}}>Celestial</option>
+          <option value="radiant" {{#if (eq system.subschool "radiant")}}selected{{/if}}>Radiant</option>
+          <option value="protection" {{#if (eq system.subschool "protection")}}selected{{/if}}>Protection</option>
+        {{else if (eq system.school "mysticism")}}
+          <option value="spirit" {{#if (eq system.subschool "spirit")}}selected{{/if}}>Spirit</option>
+          <option value="divination" {{#if (eq system.subschool "divination")}}selected{{/if}}>Divination</option>
+          <option value="cosmic" {{#if (eq system.subschool "cosmic")}}selected{{/if}}>Cosmic</option>
+        {{else if (eq system.school "primal")}}
+          <option value="draconic" {{#if (eq system.subschool "draconic")}}selected{{/if}}>Draconic</option>
+          <option value="elemental" {{#if (eq system.subschool "elemental")}}selected{{/if}}>Elemental</option>
+          <option value="nature" {{#if (eq system.subschool "nature")}}selected{{/if}}>Nature</option>
+        {{/if}}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Check to Cast</label>
+      <input type="number" name="system.checkToCast" value="{{system.checkToCast}}" data-dtype="Number" min="1" max="20" placeholder="4"/>
+    </div>
+
+    <div class="form-group">
+      <label>Energy Cost</label>
+      <input type="number" name="system.energy" value="{{system.energy}}" data-dtype="Number" min="1" max="10" placeholder="1"/>
+    </div>
+
+    <div class="form-group">
+      <label>Range</label>
+      <input type="text" name="system.range" value="{{system.range}}" placeholder="Self"/>
+    </div>
+
+    <div class="form-group">
+      <label>Duration</label>
+      <input type="text" name="system.duration" value="{{system.duration}}" placeholder="Instantaneous"/>
+    </div>
+
+    <div class="form-group">
+      <label>Ritual Duration</label>
+      <input type="text" name="system.ritualDuration" value="{{system.ritualDuration}}" placeholder="1 hour"/>
+    </div>
+
+    <div class="form-group">
+      <label>Concentration</label>
+      <input type="checkbox" name="system.concentration" {{#if system.concentration}}checked{{/if}}/>
+    </div>
+
+    <div class="form-group">
+      <label>Reaction</label>
+      <input type="checkbox" name="system.reaction" {{#if system.reaction}}checked{{/if}}/>
+    </div>
+
+    <div class="form-group">
+      <label>Fizzled</label>
+      <input type="checkbox" name="system.fizzled" {{#if system.fizzled}}checked{{/if}}/>
+    </div>
+
+    <div class="form-group">
+      <label>Foundry Icon</label>
+      <input type="text" name="system.foundry_icon" value="{{system.foundry_icon}}" placeholder="icons/magic/..."/>
     </div>
   </div>
 
@@ -36,40 +95,44 @@
         <label>Damage</label>
         <input type="number" name="system.damage" value="{{system.damage}}" data-dtype="Number" placeholder="0"/>
       </div>
-      
+
       <div class="form-group">
         <label>Damage Type</label>
         <select name="system.damageType" data-dtype="String">
-          {{#each damageTypes as |type|}}
-          <option value="{{type}}" {{#if (eq ../system.damageType type)}}selected{{/if}}>{{capitalize type}}</option>
-          {{/each}}
+          <option value="" {{#if (eq system.damageType "")}}selected{{/if}}>None</option>
+          <option value="Dark" {{#if (eq system.damageType "Dark")}}selected{{/if}}>Dark</option>
+          <option value="Divine" {{#if (eq system.damageType "Divine")}}selected{{/if}}>Divine</option>
+          <option value="Psychic" {{#if (eq system.damageType "Psychic")}}selected{{/if}}>Psychic</option>
+          <option value="Heat" {{#if (eq system.damageType "Heat")}}selected{{/if}}>Heat</option>
+          <option value="Cold" {{#if (eq system.damageType "Cold")}}selected{{/if}}>Cold</option>
+          <option value="Electric" {{#if (eq system.damageType "Electric")}}selected{{/if}}>Electric</option>
+          <option value="Aetheric" {{#if (eq system.damageType "Aetheric")}}selected{{/if}}>Aetheric</option>
+          <option value="Toxic" {{#if (eq system.damageType "Toxic")}}selected{{/if}}>Toxic</option>
+          <option value="Physical" {{#if (eq system.damageType "Physical")}}selected{{/if}}>Physical</option>
+          <option value="True" {{#if (eq system.damageType "True")}}selected{{/if}}>True</option>
+          <option value="Variable" {{#if (eq system.damageType "Variable")}}selected{{/if}}>Variable</option>
         </select>
       </div>
     </div>
   </div>
 
-  {{!-- Component --}}
+  {{!-- Components --}}
   <div class="component-section">
-    <h3>Component</h3>
+    <h3>Components</h3>
     <div class="component-fields">
-      <div class="form-group">
-        <label>Component Name</label>
-        <input type="text" name="system.component.name" value="{{system.component.name}}" placeholder="Material component"/>
-      </div>
-      
-      <div class="form-group">
-        <label>Component Cost</label>
-        <input type="number" name="system.component.cost" value="{{system.component.cost}}" data-dtype="Number" placeholder="0"/>
+      <div class="form-group stacked">
+        <label>Component List (one per line)</label>
+        <textarea name="system.components" placeholder="Gold Idol&#10;Dragon Scale&#10;Crystal">{{#each system.components}}{{this}}&#10;{{/each}}</textarea>
       </div>
     </div>
   </div>
 
-  {{!-- Special Properties --}}
-  <div class="special-properties">
-    <h3>Special Properties</h3>
+  {{!-- Charge Effect --}}
+  <div class="charge-section">
+    <h3>Charge Effect</h3>
     <div class="form-group stacked">
-      <label>Notes</label>
-      <textarea name="system.special" placeholder="Any special effects or notes about this spell">{{system.special}}</textarea>
+      <label>Charge Description</label>
+      <textarea name="system.charge" placeholder="Enhanced effect when channeled with extra energy">{{system.charge}}</textarea>
     </div>
   </div>
 </div>

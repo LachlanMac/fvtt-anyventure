@@ -1,0 +1,19 @@
+<section class="moves-container npc-abilities">
+  {{> "systems/anyventure/templates/partials/abilities-attacks.hbs"
+    header="Attacks"
+  }}
+  {{> "systems/anyventure/templates/partials/abilities-list.hbs"
+    header="Actions"
+    items=actionItems
+    abilityType="action"
+    clickTitle="Click to use this action"
+    emptyMessage="No actions available"
+  }}
+  {{> "systems/anyventure/templates/partials/abilities-list.hbs"
+    header="Reactions"
+    items=reactionItems
+    abilityType="reaction"
+    clickTitle="Click to use this reaction"
+    emptyMessage="No reactions available"
+  }}
+</section>

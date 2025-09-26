@@ -14,153 +14,30 @@
 
   {{!-- Attacks Tab Content --}}
   <div class="inventory-tab-content active" data-tab-content="attacks">
-    <div class="moves-section">
-      <div class="section-header">
-        <h3>{{localize "ANYVENTURE.WeaponAttacks"}}</h3>
-      </div>
-    <div class="moves-list">
-      {{#each equippedWeapons as |attack|}}
-      <div class="weapon-attack-item">
-        <div class="weapon-attack-header">
-          <div class="weapon-icon">
-            <img src="{{attack.weaponIcon}}" alt="{{attack.weaponName}}" />
-          </div>
-          <div class="weapon-info">
-            <h4 class="weapon-name">{{attack.weaponName}} [{{attack.category}}]</h4>
-            <div class="weapon-meta">
-              <span class="attack-type">{{attack.attackType}}</span>
-              <span class="energy-cost">
-                Energy:
-                {{#if (eq attack.energy 0)}}
-                  None
-                {{else}}
-                  {{#times attack.energy}}
-                    <i class="fas fa-star filled"></i>
-                  {{/times}}
-                {{/if}}
-              </span>
-              <span class="range">{{attack.rangeText}}</span>
-            </div>
-          </div>
-        </div>
-        <div class="weapon-attack-details weapon-attack-clickable" data-attack-index="{{@index}}" title="Click to roll attack">
-          <div class="damage-info">
-            <span class="damage-dice">[{{attack.damage}}/{{attack.damageExtra}}]</span>
-            <span class="damage-type-box {{attack.damageType.cssClass}}">{{attack.damageType.text}}</span>
-            <span class="attack-dice">{{attack.attackDice}}{{attack.attackDiceType}}</span>
-            {{#if (gt attack.secondaryDamage 0)}}
-            <span class="secondary-damage-dice">[{{attack.secondaryDamage}}/{{attack.secondaryDamageExtra}}]</span>
-            <span class="damage-type-box {{attack.secondaryDamageType.cssClass}}">{{attack.secondaryDamageType.text}}</span>
-            {{/if}}
-          </div>
-        </div>
-      </div>
-      {{else}}
-      <div class="no-weapons-message">
-        <em>No weapons equipped</em>
-      </div>
-      {{/each}}
-    </div>
-    </div>
+    {{> "systems/anyventure/templates/partials/abilities-attacks.hbs"
+      header="Weapon Attacks"
+    }}
   </div>
 
   {{!-- Actions Tab Content --}}
   <div class="inventory-tab-content" data-tab-content="actions">
-    <div class="moves-section">
-      <div class="section-header">
-        <h3>{{localize "ANYVENTURE.Actions"}}</h3>
-      </div>
-      <div class="moves-list">
-        {{#each actionItems as |action|}}
-        <div class="ability-item ability-clickable" data-item-id="{{action._id}}" data-ability-type="action" data-energy-cost="{{action.system.energy}}" title="Click to use this action">
-          <div class="ability-icon">
-            <img src="{{action.img}}" alt="{{action.name}}" />
-          </div>
-          <div class="ability-content">
-            <div class="ability-header">
-              <h4 class="ability-name">{{removeActionPrefix action.name}}</h4>
-              <div class="ability-energy">
-                Energy:
-                {{#if (eq action.system.energy 0)}}
-                  None
-                {{else}}
-                  {{#times action.system.energy}}
-                    <i class="fas fa-star filled"></i>
-                  {{/times}}
-                {{/if}}
-              </div>
-              <div class="ability-tags">
-                {{#if action.system.daily}}
-                  <span class="daily-badge">Daily</span>
-                {{/if}}
-                {{#if action.system.magic}}
-                  <span class="magic-badge">Magic</span>
-                {{/if}}
-              </div>
-            </div>
-            {{#if action.system.description}}
-            <p class="ability-description">{{action.system.description}}</p>
-            {{/if}}
-          </div>
-          <div class="ability-controls">
-            <a class="item-control item-edit" data-item-id="{{action._id}}" title="Edit Item"><i class="fas fa-edit"></i></a>
-            <a class="item-control item-delete" data-item-id="{{action._id}}" title="Delete Item"><i class="fas fa-trash"></i></a>
-          </div>
-        </div>
-        {{else}}
-        <div class="empty-message">No actions available</div>
-        {{/each}}
-      </div>
-    </div>
+    {{> "systems/anyventure/templates/partials/abilities-list.hbs"
+      header="Actions"
+      items=actionItems
+      abilityType="action"
+      clickTitle="Click to use this action"
+      emptyMessage="No actions available"
+    }}
   </div>
 
   {{!-- Reactions Tab Content --}}
   <div class="inventory-tab-content" data-tab-content="reactions">
-    <div class="moves-section">
-      <div class="section-header">
-        <h3>{{localize "ANYVENTURE.Reactions"}}</h3>
-      </div>
-      <div class="moves-list">
-        {{#each reactionItems as |reaction|}}
-        <div class="ability-item ability-clickable" data-item-id="{{reaction._id}}" data-ability-type="reaction" data-energy-cost="{{reaction.system.energy}}" title="Click to use this reaction">
-          <div class="ability-icon">
-            <img src="{{reaction.img}}" alt="{{reaction.name}}" />
-          </div>
-          <div class="ability-content">
-            <div class="ability-header">
-              <h4 class="ability-name">{{removeActionPrefix reaction.name}}</h4>
-              <div class="ability-energy">
-                Energy:
-                {{#if (eq reaction.system.energy 0)}}
-                  None
-                {{else}}
-                  {{#times reaction.system.energy}}
-                    <i class="fas fa-star filled"></i>
-                  {{/times}}
-                {{/if}}
-              </div>
-              <div class="ability-tags">
-                {{#if reaction.system.daily}}
-                  <span class="daily-badge">Daily</span>
-                {{/if}}
-                {{#if reaction.system.magic}}
-                  <span class="magic-badge">Magic</span>
-                {{/if}}
-              </div>
-            </div>
-            {{#if reaction.system.description}}
-            <p class="ability-description">{{reaction.system.description}}</p>
-            {{/if}}
-          </div>
-          <div class="ability-controls">
-            <a class="item-control item-edit" data-item-id="{{reaction._id}}" title="Edit Item"><i class="fas fa-edit"></i></a>
-            <a class="item-control item-delete" data-item-id="{{reaction._id}}" title="Delete Item"><i class="fas fa-trash"></i></a>
-          </div>
-        </div>
-        {{else}}
-        <div class="empty-message">No reactions available</div>
-        {{/each}}
-      </div>
-    </div>
+    {{> "systems/anyventure/templates/partials/abilities-list.hbs"
+      header="Reactions"
+      items=reactionItems
+      abilityType="reaction"
+      clickTitle="Click to use this reaction"
+      emptyMessage="No reactions available"
+    }}
   </div>
 </section>

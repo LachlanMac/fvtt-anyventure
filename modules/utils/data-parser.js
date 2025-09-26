@@ -5,6 +5,8 @@
  * data codes from the datakey.txt specification into structured deltas.
  */
 
+import { logError, logWarning } from './logger.js';
+
 /**
  * Create an empty character delta structure
  */
@@ -69,7 +71,7 @@ export function createEmptyDelta() {
 
     // Weapon Skills (WS1-WS6, WT1-WT6)
     weaponSkills: {
-      unarmed: { skill: 0, talent: 0, diceTierModifier: 0 },
+      brawling: { skill: 0, talent: 0, diceTierModifier: 0 },
       throwing: { skill: 0, talent: 0, diceTierModifier: 0 },
       simpleMeleeWeapons: { skill: 0, talent: 0, diceTierModifier: 0 },
       simpleRangedWeapons: { skill: 0, talent: 0, diceTierModifier: 0 },
@@ -257,11 +259,12 @@ function parseIndividualEffect(effect, delta) {
       'C': 'URBAN_COMFORT',
       'D': 'BADGE_OF_HONOR',
       'E': 'WEAPON_COLLECTOR',
-      'F': 'TWIN_FURY'
+      'F': 'TWIN_FURY',
+      'G': 'PASSIVE_SHELL'
     };
     const key = flagMap[code];
     if (key) delta.flags[key] = true;
-    else console.warn(`[DataParser] Unrecognized F-flag code: F${code}`);
+    else logWarning(`Unrecognized F-flag code: F${code}`);
     return;
   }
 
@@ -269,7 +272,6 @@ function parseIndividualEffect(effect, delta) {
   const traitMatch = effect.match(/^(T[AGC])$/);
   if (traitMatch) {
     const traitType = traitMatch[1];
-    console.log(`[DataParser] Trait marker: ${traitType}`);
 
     // Collect trait information for later processing
     if (!delta.traits) delta.traits = [];
@@ -282,7 +284,6 @@ function parseIndividualEffect(effect, delta) {
 
   // Handle personality marker (legacy)
   if (effect === 'TP') {
-    console.log(`[DataParser] Personality marker: TP (no mechanical effect)`);
     return;
   }
 
@@ -295,7 +296,6 @@ function parseIndividualEffect(effect, delta) {
     const isDaily = frequency === 'D';
     const isMagic = magicType === 'M';
 
-    console.log(`[DataParser] Special ability code without name: ${effect} (${abilityType}, ${isDaily ? 'daily' : 'non-daily'}, ${isMagic ? 'magic' : 'non-magic'}, ${energy} energy)`);
 
     // These don't have direct mechanical stat effects, they grant abilities
     if (!delta.abilities) delta.abilities = [];
@@ -310,7 +310,7 @@ function parseIndividualEffect(effect, delta) {
   }
 
   // Log unrecognized effects for debugging
-  console.warn(`[DataParser] Unrecognized effect: ${effect}`);
+  logWarning(`Unrecognized effect: ${effect}`);
 }
 
 /**
@@ -359,7 +359,7 @@ function parseWeaponEffect([_, type, code, valueStr], delta) {
   const value = isNaN(parseInt(valueStr)) ? valueStr : parseInt(valueStr);
 
   const weaponMap = {
-    '1': 'unarmed',
+    '1': 'brawling',
     '2': 'throwing',
     '3': 'simpleMeleeWeapons',
     '4': 'simpleRangedWeapons',

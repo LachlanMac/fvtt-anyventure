@@ -1,13 +1,16 @@
 {{!-- Character Tab Content --}}
 <div class="character-page">
   {{!-- Character Utilities --}}
+  {{#unless (eq actor.type "npc")}}
   <div class="character-utilities" style="text-align: center; margin-bottom: 15px;">
     <button type="button" class="recalculate-character" title="Recalculate all character stats from modules">
       <i class="fas fa-calculator"></i> Recalculate Stats
     </button>
   </div>
+  {{/unless}}
 
   {{!-- Character Essentials Section --}}
+  {{#unless (eq actor.type "npc")}}
   <div class="character-essentials">
     {{!-- Ancestry Section --}}
     {{#if ancestry}}
@@ -102,16 +105,42 @@
     {{/if}}
   </div>
 
+  {{/unless}}
+
   {{!-- Traits & Modules Section --}}
   <div class="traits-modules-section">
     {{!-- Tab Navigation --}}
     <nav class="sheet-tabs tabs" data-group="character-secondary">
       <a class="item active" data-tab="traits">Traits</a>
-      <a class="item" data-tab="modules">Modules</a>
+      {{#unless (eq actor.type "npc")}}<a class="item" data-tab="modules">Modules</a>{{/unless}}
+      <a class="item" data-tab="injuries">Injuries</a>
     </nav>
 
     {{!-- Traits Tab --}}
     <div class="tab traits active" data-group="character-secondary" data-tab="traits">
+{{#if (eq actor.type "npc")}}
+  <div class="character-essentials" style="margin-bottom: 10px;">
+    <div class="essential-controls" style="justify-content:flex-end;">
+      <a class="item-control item-create" title="Add Trait" data-type="trait"><i class="fas fa-plus"></i> Add Trait</a>
+    </div>
+  </div>
+  <div class="trait-list">
+    {{#each items as |item|}}
+      {{#if (eq item.type 'trait')}}
+      <div class="trait-item">
+        <div class="trait-content">
+          <h5 class="trait-name">{{item.name}}</h5>
+          {{#if item.system.description}}<p class="trait-description">{{item.system.description}}</p>{{/if}}
+        </div>
+        <div class="essential-controls">
+          <a class="item-control item-edit" data-item-id="{{item._id}}" title="Edit"><i class="fas fa-edit"></i></a>
+          <a class="item-control item-delete" data-item-id="{{item._id}}" title="Delete"><i class="fas fa-trash"></i></a>
+        </div>
+      </div>
+      {{/if}}
+    {{/each}}
+  </div>
+{{else}}
       {{!-- Ancestry Traits --}}
       <div class="trait-category">
         <h4 class="trait-category-header">
@@ -213,7 +242,8 @@
       </div>
     </div>
 
-    {{!-- Modules Tab --}}
+    {{/if}}
+{{!-- Modules Tab --}}
     <div class="tab modules" data-group="character-secondary" data-tab="modules">
       {{!-- Module Points --}}
       <div class="module-points">
@@ -251,6 +281,35 @@
         </li>
         {{/each}}
       </ol>
+    </div>
+
+    {{!-- Injuries Tab --}}
+    <div class="tab injuries" data-group="character-secondary" data-tab="injuries">
+      {{!-- Injuries List --}}
+      <div class="injuries-container">
+        {{#each injuries as |injury id|}}
+        <div class="character-essential-section injury-section {{injury.system.injuryType}}" data-item-id="{{injury._id}}">
+          <div class="essential-icon">
+            <img src="{{injury.img}}" alt="{{injury.name}}" />
+          </div>
+          <div class="essential-content">
+            <h4 class="essential-title">{{injury.name}}</h4>
+            <p class="injury-description">{{injury.system.description}}</p>
+          </div>
+          <div class="essential-controls">
+            <a class="item-control item-edit" data-item-id="{{injury._id}}" title="Edit"><i class="fas fa-edit"></i></a>
+            <a class="item-control item-delete" data-item-id="{{injury._id}}" title="Delete"><i class="fas fa-trash"></i></a>
+          </div>
+        </div>
+        {{else}}
+        <div class="injuries-empty">
+          <div class="essential-drop-zone" data-essential-type="injury">
+            <i class="fas fa-upload"></i>
+            <span>No injuries (drag and drop injuries here)</span>
+          </div>
+        </div>
+        {{/each}}
+      </div>
     </div>
   </div>
 </div>

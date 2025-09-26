@@ -1,3 +1,5 @@
+import { logError, logWarning } from "../utils/logger.js";
+
 export class AnyventureRecoverResourcesDialog extends foundry.applications.api.DialogV2 {
   constructor(options = {}) {
     super({
@@ -67,7 +69,6 @@ export class AnyventureRecoverResourcesDialog extends foundry.applications.api.D
       logs.push(`Energy: +${delta.energy} (${cur} → ${nv}, max ${max})`);
     }
 
-    console.log('[Anyventure] Recover dialog apply:', logs.join(' | '));
     if (Object.keys(up).length) {
       await this.actor.update(up);
       this.actor.sheet?.render(false);

@@ -1,3 +1,5 @@
+import { logError, logWarning } from "../utils/logger.js";
+
 export class AnyventureTakeDamageDialog extends foundry.applications.api.DialogV2 {
   constructor(options = {}) {
     const typeOptions = [
@@ -107,11 +109,7 @@ export class AnyventureTakeDamageDialog extends foundry.applications.api.DialogV
       const cur = this.actor.system.resources?.health?.value || 0;
       up['system.resources.health.value'] = Math.max(0, cur - finalDmg);
     }
-    console.log('[Anyventure] Damage dialog apply:', {
-      base, dtype, extra, cond, phase,
-      baseMitigation: mval, totalMitigation: mitigation, resistance,
-      totalDamage, preFactor, postFactor, finalDmg
-    }, 'Update:', up);
+
     if (Object.keys(up).length) {
       await this.actor.update(up);
       this.actor.sheet?.render(false);

@@ -691,6 +691,26 @@
       &.movement-value {
         color: $gold-muted;
         font-weight: bold;
+
+        .movement-input {
+          width: 60px;
+          background: transparent;
+          border: none;
+          color: inherit;
+          font: inherit;
+          text-align: center;
+          padding: 0;
+
+          &:focus {
+            outline: none;
+            color: $gold-bright;
+          }
+
+          &::-webkit-outer-spin-button,
+          &::-webkit-inner-spin-button {
+            margin: 0;
+          }
+        }
       }
 
       &.sprint-value {
@@ -2822,5 +2842,66 @@
       padding: 20px;
       font-size: 12px;
     }
+  }
+
+}
+
+/* ========================================= */
+/*  Combat Phase Tracker (Global)           */
+/* ========================================= */
+
+.anyventure-combat-tracker {
+  .phase-header {
+    background: rgba(#2a1a3a, 0.8);
+    color: #f0f0f0;
+    font-weight: bold;
+    text-align: center;
+    padding: 8px;
+    margin: 4px 0;
+    border-radius: 4px;
+    border: 1px solid #666;
+
+    &.preparation {
+      background: linear-gradient(135deg, rgba(138, 43, 226, 0.8), rgba(75, 0, 130, 0.8));
+      border-color: #8b2be2;
+      color: #e6e6fa;
+    }
+
+    &.early {
+      background: linear-gradient(135deg, rgba(34, 139, 34, 0.8), rgba(0, 100, 0, 0.8));
+      border-color: #228b22;
+      color: #f0fff0;
+    }
+
+    &.middle {
+      background: linear-gradient(135deg, rgba(255, 140, 0, 0.8), rgba(255, 69, 0, 0.8));
+      border-color: #ff8c00;
+      color: #fff8dc;
+    }
+
+    &.late {
+      background: linear-gradient(135deg, rgba(178, 34, 34, 0.8), rgba(139, 0, 0, 0.8));
+      border-color: #b22222;
+      color: #ffe4e1;
+    }
+  }
+
+  .combatant-row.empty {
+    text-align: center;
+    font-style: italic;
+    color: #888;
+    padding: 4px;
+    opacity: 0.6;
+  }
+
+  .phase-duplicate {
+    opacity: 0.85;
+    border-left: 3px solid #b8860b;
+  }
+
+  .phase-current {
+    background: rgba(184, 134, 11, 0.2) !important;
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
   }
 }

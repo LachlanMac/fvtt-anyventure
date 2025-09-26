@@ -15,9 +15,10 @@ const RANGE_DEFINITIONS = [
   { key: 3, name: "Very Short", minUnits: 2, maxUnits: 5 },
   { key: 4, name: "Short", minUnits: 6, maxUnits: 10 },
   { key: 5, name: "Moderate", minUnits: 11, maxUnits: 20 },
-  { key: 6, name: "Distant", minUnits: 21, maxUnits: 40 },
-  { key: 7, name: "Remote", minUnits: 41, maxUnits: 100 },
-  { key: 8, name: "Planar", minUnits: 100, maxUnits: Infinity }
+  { key: 6, name: "Far", minUnits: 21, maxUnits: 40 },
+  { key: 7, name: "Very Far", minUnits: 41, maxUnits: 60 },
+  { key: 8, name: "Distant", minUnits: 61, maxUnits: 100 },
+  { key: 9, name: "Planar", minUnits: 100, maxUnits: Infinity }
 ];
 
 /**
@@ -27,7 +28,7 @@ const RANGE_DEFINITIONS = [
  */
 function getRangeCategory(rangeKey) {
   const rangeDef = RANGE_DEFINITIONS.find(def => def.key === rangeKey);
-  return rangeDef || RANGE_DEFINITIONS[8]; // Default to Planar for out of range
+  return rangeDef || RANGE_DEFINITIONS[9]; // Default to Planar for out of range
 }
 
 /**
