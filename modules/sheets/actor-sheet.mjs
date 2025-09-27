@@ -60,6 +60,53 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     return adjustedEnergy;
   }
 
+  /**
+   * Calculate modified weapon ranges with range modifiers
+   */
+  _calculateModifiedRanges(baseMinRange, baseMaxRange, weaponCategory, attackCategory) {
+    // Only apply to character actors, not NPCs
+    if (this.actor.type !== 'character') {
+      return { minRange: baseMinRange, maxRange: baseMaxRange };
+    }
+
+    const weaponMods = this.actor.system.weaponModifications || {};
+    let minRange = baseMinRange;
+    let maxRange = baseMaxRange;
+
+    // Determine the weapon type for range modifications
+    let rangeType = null;
+
+    // Handle special case: gunblades and other weapons with ranged attacks
+    if (attackCategory === 'ranged' && weaponCategory !== 'simpleRangedWeapons' && weaponCategory !== 'complexRangedWeapons') {
+      // Assume complex ranged for non-categorized ranged attacks
+      rangeType = 'complex';
+    } else if (weaponCategory === 'simpleRangedWeapons') {
+      rangeType = 'simple';
+    } else if (weaponCategory === 'complexRangedWeapons') {
+      rangeType = 'complex';
+    } else if (weaponCategory === 'throwing') {
+      rangeType = 'throwing';
+    }
+
+    // Apply range modifications based on weapon type
+    if (rangeType === 'simple') {
+      minRange += (weaponMods.simpleRangedMinRange || 0);
+      maxRange += (weaponMods.simpleRangedMaxRange || 0);
+    } else if (rangeType === 'complex') {
+      minRange += (weaponMods.complexRangedMinRange || 0);
+      maxRange += (weaponMods.complexRangedMaxRange || 0);
+    } else if (rangeType === 'throwing') {
+      minRange += (weaponMods.throwingMinRange || 0);
+      maxRange += (weaponMods.throwingMaxRange || 0);
+    }
+
+    // Clamp ranges to valid bounds
+    minRange = Math.max(1, minRange); // Minimum 1 (0 is "Self")
+    maxRange = Math.min(8, Math.max(minRange, maxRange)); // Maximum 8 ("Distant"), and ensure max >= min
+
+    return { minRange, maxRange };
+  }
+
   /** @override */
   get template() {
     return `systems/anyventure/templates/actor/actor-${this.actor.type}-sheet.hbs`;
@@ -592,6 +639,12 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         const buildAttack = (attackData) => {
           if (!attackData) return null;
           const diceInfo = this._calculateAttackDice({ system: { weapon_category: weaponCategory, weapon_data: wdata } }, attackData);
+
+          // Calculate modified ranges with modifiers
+          const baseMinRange = Number(attackData.min_range ?? 0);
+          const baseMaxRange = Number(attackData.max_range ?? 1);
+          const { minRange, maxRange } = this._calculateModifiedRanges(baseMinRange, baseMaxRange, weaponCategory, attackData.category);
+
           return {
             weaponName: weapon.name,
             weaponIcon: weapon.img || 'icons/weapons/swords/sword-broad-steel.webp',
@@ -606,9 +659,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
             secondaryDamageExtra: Number(attackData.secondary_damage_extra ?? 0),
             secondaryDamageType: formatDamageType(attackData.secondary_damage_type || 'none'),
             energy: this._calculateEnergyWithTraits(Number(attackData.energy ?? 0), weaponCategory),
-            minRange: Number(attackData.min_range ?? 0),
-            maxRange: Number(attackData.max_range ?? 1),
-            rangeText: formatRange(Number(attackData.min_range ?? 0), Number(attackData.max_range ?? 1)),
+            minRange,
+            maxRange,
+            rangeText: formatRange(minRange, maxRange),
             attackDice: diceInfo.dice,
             attackDiceType: diceInfo.diceType,
             attackKeepLowest: diceInfo.keepLowest,
@@ -644,6 +697,12 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         const buildWearableAttack = (attackData) => {
           if (!attackData) return null;
           const diceInfo = this._calculateAttackDice({ system: { weapon_category: weaponCategory, weapon_data: {} } }, attackData);
+
+          // Calculate modified ranges with modifiers
+          const baseMinRange = Number(attackData.min_range ?? 0);
+          const baseMaxRange = Number(attackData.max_range ?? 1);
+          const { minRange, maxRange } = this._calculateModifiedRanges(baseMinRange, baseMaxRange, weaponCategory, attackData.category);
+
           return {
             weaponName: item.name,
             weaponIcon: item.img || 'icons/equipment/hand/gauntlet-armored-steel.webp',
@@ -658,9 +717,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
             secondaryDamageExtra: Number(attackData.secondary_damage_extra ?? 0),
             secondaryDamageType: formatDamageType(attackData.secondary_damage_type || 'none'),
             energy: this._calculateEnergyWithTraits(Number(attackData.energy ?? 0), weaponCategory),
-            minRange: Number(attackData.min_range ?? 0),
-            maxRange: Number(attackData.max_range ?? 1),
-            rangeText: formatRange(Number(attackData.min_range ?? 0), Number(attackData.max_range ?? 1)),
+            minRange,
+            maxRange,
+            rangeText: formatRange(minRange, maxRange),
             attackDice: diceInfo.dice,
             attackDiceType: diceInfo.diceType,
             attackKeepLowest: diceInfo.keepLowest,
@@ -1730,10 +1789,13 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     if (!parsedRoll) return null;
 
     const energyCost = Number(item.system.energy ?? 0);
-    const minRangeRaw = Number(attackData.min_range ?? 0);
-    const maxRangeRaw = Number(attackData.max_range ?? minRangeRaw);
-    const minRange = Number.isFinite(minRangeRaw) ? minRangeRaw : 0;
-    const maxRange = Number.isFinite(maxRangeRaw) ? maxRangeRaw : minRange;
+
+    // Calculate modified ranges with modifiers
+    const baseMinRange = Number(attackData.min_range ?? 0);
+    const baseMaxRange = Number(attackData.max_range ?? baseMinRange);
+    // For abilities, assume throwing for simplicity, or use category-based logic
+    const abilityWeaponCategory = attackData.category === 'ranged' ? 'complexRangedWeapons' : 'throwing';
+    const { minRange, maxRange } = this._calculateModifiedRanges(baseMinRange, baseMaxRange, abilityWeaponCategory, attackData.category);
 
     const abilityAttack = {
       weaponName: item.name,

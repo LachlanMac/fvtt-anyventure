@@ -96,6 +96,8 @@ export class AnyventureActor extends Actor {
     // Restore working values from the persisted base snapshot (if present)
     this._restoreFromBase(systemData);
 
+    console.log(this.name, this.system);
+
     // Ensure skills expose standardized tier data
     this._normalizeSkillTiers(systemData);
 
@@ -330,6 +332,22 @@ export class AnyventureActor extends Actor {
         systemData._base.resources.mana = { value: 0, max: 0, temp: 0 };
       }
 
+      // Ensure weaponModifications exist (for legacy characters that don't have it)
+      if (!systemData.weaponModifications) {
+        systemData.weaponModifications = {
+          simpleRangedMinRange: 0, simpleRangedMaxRange: 0,
+          complexRangedMinRange: 0, complexRangedMaxRange: 0,
+          throwingMinRange: 0, throwingMaxRange: 0
+        };
+      }
+      if (!systemData._base.weaponModifications) {
+        systemData._base.weaponModifications = {
+          simpleRangedMinRange: 0, simpleRangedMaxRange: 0,
+          complexRangedMinRange: 0, complexRangedMaxRange: 0,
+          throwingMinRange: 0, throwingMaxRange: 0
+        };
+      }
+
 
       // Apply equipment bonuses to character stats (idempotent overlay from base)
       // Resources
@@ -528,7 +546,6 @@ export class AnyventureActor extends Actor {
    * Following your old system pattern
    */
   _calculateResources(systemData) {
-    console.log('[Mana] _calculateResources - systemData.resources:', systemData.resources);
     // Ensure current values don't exceed max; do not increase current
     if (systemData.resources?.health) {
       const cur = systemData.resources.health.value;
@@ -653,11 +670,17 @@ export class AnyventureActor extends Actor {
       const res = clone(base.resources);
       ['health','resolve','morale','energy','mana'].forEach((k) => {
         if (!res[k]) res[k] = {};
-        if (current[k] !== undefined) res[k].value = current[k];
+        if (current[k] !== undefined) {
+          res[k].value = current[k];
+        } else if (k === 'mana' && res[k].max > 0) {
+          // Initialize mana current value to 0 when character first gains mana
+          res[k].value = 0;
+        }
       });
       systemData.resources = res;
     }
     if (base.movement) systemData.movement = clone(base.movement);
+    if (base.weaponModifications) systemData.weaponModifications = clone(base.weaponModifications);
 
     // Ensure the working copy also has normalized tier data
     this._normalizeSkillTiers(systemData);

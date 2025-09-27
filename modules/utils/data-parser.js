@@ -506,10 +506,6 @@ function parseAutoEffect([_, code, valueStr], delta) {
   };
 
   if (autoMap[code]) {
-    // Simple logging for mana parsing
-    if (code === 'M') {
-      console.log(`[Data Parser] Adding ${value} mana points`);
-    }
     delta.resources[autoMap[code]] += value;
   } else if (weaponModMap[code]) {
     delta.weaponModifications[weaponModMap[code]] += value;

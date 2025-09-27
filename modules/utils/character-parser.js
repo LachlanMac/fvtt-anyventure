@@ -86,6 +86,20 @@ function mergeDeltas(sourceDelta, targetDelta) {
     targetDelta.conditionals[condition].push(...effects);
   });
 
+  // Merge weapon modifications
+  Object.entries(sourceDelta.weaponModifications).forEach(([modification, value]) => {
+    targetDelta.weaponModifications[modification] += value;
+  });
+
+  // Merge combat features (take highest tier for dual wield)
+  Object.entries(sourceDelta.combatFeatures).forEach(([feature, value]) => {
+    if (feature === 'dualWieldTier') {
+      targetDelta.combatFeatures[feature] = Math.max(targetDelta.combatFeatures[feature], value);
+    } else {
+      targetDelta.combatFeatures[feature] += value;
+    }
+  });
+
   // Merge boolean flags
   Object.entries(sourceDelta.flags || {}).forEach(([name, val]) => {
     if (val) targetDelta.flags[name] = true;
@@ -421,7 +435,9 @@ export function applyParsedEffectsToCharacter(actor, delta) {
     resources: dup(actor.system.resources || {}),
     movement: dup(actor.system.movement ?? 0),
     immunities: dup(actor.system.immunities || []),
-    conditionals: dup(actor.system.conditionals || {})
+    conditionals: dup(actor.system.conditionals || {}),
+    weaponModifications: dup(actor.system.weaponModifications || {}),
+    combatFeatures: dup(actor.system.combatFeatures || {})
   };
 
   // Ensure baseline resource maxima before applying deltas (so +X adds to defaults, not zero)
@@ -439,12 +455,9 @@ export function applyParsedEffectsToCharacter(actor, delta) {
   if (!r.energy.max) r.energy.max = baseMax.energy;
   if (!r.mana.max) r.mana.max = baseMax.mana;
 
-  console.log('[Mana] Before applying delta - mana.max:', r.mana.max);
 
   // Apply the delta
   applyDeltaToCharacter(character, delta);
-
-  console.log('[Mana] After applying delta - mana.max:', character.resources.mana.max);
 
   // Convert back and update the actor
   const updateData = {
@@ -457,7 +470,9 @@ export function applyParsedEffectsToCharacter(actor, delta) {
     'system.resources': character.resources,
     'system.movement': character.movement,
     'system.immunities': character.immunities,
-    'system.conditionals': character.conditionals
+    'system.conditionals': character.conditionals,
+    'system.weaponModifications': character.weaponModifications,
+    'system.combatFeatures': character.combatFeatures
   };
 
   return updateData;
@@ -491,7 +506,9 @@ export function parseAndApplyCharacterEffectsInPlace(actor) {
       resources: actor.system.resources || {},
       movement: actor.system.movement || 0,
       immunities: actor.system.immunities || [],
-      conditionals: actor.system.conditionals || {}
+      conditionals: actor.system.conditionals || {},
+      weaponModifications: actor.system.weaponModifications || {},
+      combatFeatures: actor.system.combatFeatures || {}
     };
 
     // Apply the delta directly
@@ -508,6 +525,8 @@ export function parseAndApplyCharacterEffectsInPlace(actor) {
     actor.system.movement = character.movement;
     actor.system.immunities = character.immunities;
     actor.system.conditionals = character.conditionals;
+    actor.system.weaponModifications = character.weaponModifications;
+    actor.system.combatFeatures = character.combatFeatures;
 
 
   } catch (error) {
@@ -630,8 +649,6 @@ export async function parseAndApplyCharacterEffects(actor) {
     })
   };
   updateData['system._base'] = dup(baseSnapshot);
-
-  console.log('[Mana] About to save _base snapshot with resources:', baseSnapshot.resources);
 
     // Update the actor with the new data (including base snapshot)
     await actor.update(updateData);
