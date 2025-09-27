@@ -26,29 +26,29 @@ function mergeDeltas(sourceDelta, targetDelta) {
   });
 
   // Merge skill dice tier modifiers
-  Object.entries(sourceDelta.skillDiceTierModifiers).forEach(([skill, modifier]) => {
-    targetDelta.skillDiceTierModifiers[skill] += modifier;
+  Object.entries(sourceDelta.skillTierModifiers).forEach(([skill, modifier]) => {
+    targetDelta.skillTierModifiers[skill] += modifier;
   });
 
   // Merge weapon skills
   Object.entries(sourceDelta.weaponSkills).forEach(([weapon, data]) => {
     targetDelta.weaponSkills[weapon].skill += data.skill;
     targetDelta.weaponSkills[weapon].talent += data.talent;
-    targetDelta.weaponSkills[weapon].diceTierModifier += data.diceTierModifier;
+    targetDelta.weaponSkills[weapon].tier += data.tier;
   });
 
   // Merge magic skills
   Object.entries(sourceDelta.magicSkills).forEach(([magic, data]) => {
     targetDelta.magicSkills[magic].skill += data.skill;
     targetDelta.magicSkills[magic].talent += data.talent;
-    targetDelta.magicSkills[magic].diceTierModifier += data.diceTierModifier;
+    targetDelta.magicSkills[magic].tier += data.tier;
   });
 
   // Merge crafting skills
   Object.entries(sourceDelta.craftingSkills).forEach(([craft, data]) => {
     targetDelta.craftingSkills[craft].skill += data.skill;
     targetDelta.craftingSkills[craft].talent += data.talent;
-    targetDelta.craftingSkills[craft].diceTierModifier += data.diceTierModifier;
+    targetDelta.craftingSkills[craft].tier += data.tier;
   });
 
   // Merge mitigation
@@ -101,8 +101,8 @@ function mergeDeltas(sourceDelta, targetDelta) {
 export function parseCharacter(actor) {
   // Create single delta that will be mutated by all parsing functions
   const delta = createEmptyDelta();
-  // 2. Parse trait effects (commented out for now)
-  // parseTrait(actor, delta);
+  // 2. Parse trait items (item.type === 'trait')
+  parseTrait(actor, delta);
   // 3. Parse ancestry effects
   parseAncestry(actor, delta);
   // 4. Parse culture effects
@@ -120,15 +120,51 @@ export function parseCharacter(actor) {
  * @param {Object} delta - The delta object to mutate
  */
 export function parseTrait(actor, delta) {
-  // TODO: Implement trait parsing logic
-  // This would handle character traits like:
-  // - Background traits
-  // - Personality traits
-  // - Custom traits
+  // Get all trait items from the actor
+  const traits = actor.items?.filter(item => item.type === 'trait') || [];
 
-  // Trait parsing logic would go here
-  // For example, iterating through actor.system.traits
-  // and parsing each trait's data codes, then merging into delta
+  for (const trait of traits) {
+    console.log(`[Character Parser] Processing trait item: "${trait.name}"`);
+
+    // Get trait options
+    const options = trait.system?.options || [];
+    const selectedOptions = options.filter(option => option.selected);
+
+    console.log(`[Character Parser] Trait "${trait.name}" has ${selectedOptions.length} selected options out of ${options.length} total`);
+
+    // Parse each selected option and apply directly to the delta
+    for (const option of selectedOptions) {
+      if (option.data) {
+        console.log(`[Character Parser] Processing trait option: "${option.name}" with data: "${option.data}"`);
+
+        // Check if this contains an ability code (XIME=1, ZINE=2, etc.)
+        const hasAbilityCode = option.data.match(/[XZ][ID][MN]E=\d+/);
+
+        if (hasAbilityCode) {
+          // Parse the data code
+          const optionDelta = parseDataCode(option.data);
+
+          // If abilities were added, use the OPTION's name and description
+          if (optionDelta.abilities && optionDelta.abilities.length > 0) {
+            optionDelta.abilities.forEach(ability => {
+              ability.name = option.name || 'Unknown Ability'; // Use the OPTION's name field
+              ability.description = option.description || ''; // Use the OPTION's description field
+            });
+          }
+
+          mergeDeltas(optionDelta, delta);
+        } else {
+          // Normal parsing for non-ability data (includes Auto codes like A1=5)
+          console.log(`[Character Parser] Processing trait non-ability data: "${option.data}" from option: "${option.name}"`);
+          const optionDelta = parseDataCode(option.data);
+          console.log('[Character Parser] Parsed trait delta:', optionDelta);
+          mergeDeltas(optionDelta, delta);
+        }
+      } else {
+        console.log(`[Character Parser] Skipping trait option: ${option.name} (no data code)`);
+      }
+    }
+  }
 }
 
 /**
@@ -148,8 +184,11 @@ export function parseAncestry(actor, delta) {
     // Get selected subchoices from flags for this ancestry
     const selectedOptionsFlags = ancestry.flags?.anyventure?.selectedOptions || [];
 
-    // Process ALL ancestry options (they should all be selected: true)
-    for (const option of options) {
+    // Filter for selected options only (same as cultures and modules)
+    const selectedOptions = options.filter(option => option.selected);
+
+    // Process each selected option
+    for (const option of selectedOptions) {
 
       // Check if this option has subchoices
       if (option.subchoices && option.subchoices.length > 0) {
@@ -296,8 +335,10 @@ export function parseModules(actor, delta) {
 
           mergeDeltas(optionDelta, delta);
         } else {
-          // Normal parsing for non-ability data
+          // Normal parsing for non-ability data (includes Auto codes like A1=5)
+          console.log(`[Character Parser] Processing non-ability data: "${option.data}" from option: "${option.name}"`);
           const optionDelta = parseDataCode(option.data);
+          console.log('[Character Parser] Parsed delta:', optionDelta);
           mergeDeltas(optionDelta, delta);
         }
       } else {
@@ -390,14 +431,20 @@ export function applyParsedEffectsToCharacter(actor, delta) {
   r.resolve = ensureObj(r.resolve);
   r.morale = ensureObj(r.morale);
   r.energy = ensureObj(r.energy);
-  const baseMax = { health: 20, resolve: 20, morale: 10, energy: 5 };
+  r.mana = ensureObj(r.mana);
+  const baseMax = { health: 20, resolve: 20, morale: 10, energy: 5, mana: 0 };
   if (!r.health.max) r.health.max = baseMax.health;
   if (!r.resolve.max) r.resolve.max = baseMax.resolve;
   if (!r.morale.max) r.morale.max = baseMax.morale;
   if (!r.energy.max) r.energy.max = baseMax.energy;
+  if (!r.mana.max) r.mana.max = baseMax.mana;
+
+  console.log('[Mana] Before applying delta - mana.max:', r.mana.max);
 
   // Apply the delta
   applyDeltaToCharacter(character, delta);
+
+  console.log('[Mana] After applying delta - mana.max:', character.resources.mana.max);
 
   // Convert back and update the actor
   const updateData = {
@@ -503,16 +550,19 @@ export async function parseAndApplyCharacterEffects(actor) {
     const rv = r.resolve || (r.resolve = { value: undefined, max: 0, temp: 0 });
     const m = r.morale || (r.morale = { value: undefined, max: 0, temp: 0 });
     const e = r.energy || (r.energy = { value: undefined, max: 0, temp: 0 });
-    const base = { health: 20, resolve: 20, morale: 10, energy: 5 };
+    const mn = r.mana || (r.mana = { value: undefined, max: 0, temp: 0 });
+    const base = { health: 20, resolve: 20, morale: 10, energy: 5, mana: 0 };
     if (!h.max) h.max = base.health;
     if (!rv.max) rv.max = base.resolve;
     if (!m.max) m.max = base.morale;
     if (!e.max) e.max = base.energy;
+    if (!mn.max) mn.max = base.mana;
     // Only clamp current down if it exceeds max; never raise it to max
     if (typeof h.value === 'number' && h.value > h.max) h.value = h.max;
     if (typeof rv.value === 'number' && rv.value > rv.max) rv.value = rv.max;
     if (typeof m.value === 'number' && m.value > m.max) m.value = m.max;
     if (typeof e.value === 'number' && e.value > e.max) e.value = e.max;
+    if (typeof mn.value === 'number' && mn.value > mn.max) mn.value = mn.max;
     return r;
   };
 
@@ -535,6 +585,31 @@ export async function parseAndApplyCharacterEffects(actor) {
 
   updateData['system.movement'] = ensureBaseMovement(updateData['system.movement']);
 
+  // Ensure weapon modification defaults are present in the recalculated data
+  const ensureBaseWeaponModifications = (wm) => {
+    const w = wm || {};
+    return {
+      simpleRangedMinRange: typeof w.simpleRangedMinRange === 'number' ? w.simpleRangedMinRange : 0,
+      simpleRangedMaxRange: typeof w.simpleRangedMaxRange === 'number' ? w.simpleRangedMaxRange : 0,
+      complexRangedMinRange: typeof w.complexRangedMinRange === 'number' ? w.complexRangedMinRange : 0,
+      complexRangedMaxRange: typeof w.complexRangedMaxRange === 'number' ? w.complexRangedMaxRange : 0,
+      throwingMinRange: typeof w.throwingMinRange === 'number' ? w.throwingMinRange : 0,
+      throwingMaxRange: typeof w.throwingMaxRange === 'number' ? w.throwingMaxRange : 0
+    };
+  };
+
+  updateData['system.weaponModifications'] = ensureBaseWeaponModifications(updateData['system.weaponModifications']);
+
+  // Ensure combat features defaults are present in the recalculated data
+  const ensureBaseCombatFeatures = (cf) => {
+    const c = cf || {};
+    return {
+      dualWieldTier: typeof c.dualWieldTier === 'number' ? c.dualWieldTier : 0
+    };
+  };
+
+  updateData['system.combatFeatures'] = ensureBaseCombatFeatures(updateData['system.combatFeatures']);
+
   // Create a persistent base snapshot from the recalculated state only
   // Use the fresh updateData to avoid capturing any transient/derived values
   const baseSnapshot = {
@@ -545,9 +620,18 @@ export async function parseAndApplyCharacterEffects(actor) {
     crafting: dup(updateData['system.crafting'] || {}),
     mitigation: dup(updateData['system.mitigation'] || {}),
     resources: dup(updateData['system.resources'] || {}),
-    movement: dup(updateData['system.movement'] || { walk: 5, swim: 0, climb: 0, fly: 0 })
+    movement: dup(updateData['system.movement'] || { walk: 5, swim: 0, climb: 0, fly: 0 }),
+    weaponModifications: dup(updateData['system.weaponModifications'] || {
+      simpleRangedMinRange: 0, simpleRangedMaxRange: 0, complexRangedMinRange: 0,
+      complexRangedMaxRange: 0, throwingMinRange: 0, throwingMaxRange: 0
+    }),
+    combatFeatures: dup(updateData['system.combatFeatures'] || {
+      dualWieldTier: 0
+    })
   };
   updateData['system._base'] = dup(baseSnapshot);
+
+  console.log('[Mana] About to save _base snapshot with resources:', baseSnapshot.resources);
 
     // Update the actor with the new data (including base snapshot)
     await actor.update(updateData);
@@ -596,8 +680,8 @@ async function resetCharacterToBase(actor) {
   if (actor.system.basic) {
     Object.keys(actor.system.basic).forEach(skillKey => {
       updateData[`system.basic.${skillKey}.value`] = 0;
-      if (actor.system.basic[skillKey].diceTierModifier !== undefined) {
-        updateData[`system.basic.${skillKey}.diceTierModifier`] = 0;
+      if (actor.system.basic[skillKey].tier !== undefined) {
+        updateData[`system.basic.${skillKey}.tier`] = 0;
       }
     });
   }
@@ -615,7 +699,7 @@ async function resetCharacterToBase(actor) {
         const skill = actor.system[systemKey][skillKey];
 
         updateData[`system.${systemKey}.${skillKey}.value`] = 0;
-        updateData[`system.${systemKey}.${skillKey}.diceTierModifier`] = 0;
+        updateData[`system.${systemKey}.${skillKey}.tier`] = 0;
 
         // Reset talent to base talent (character creation choice) if it exists
         if (skill.baseTalent !== undefined) {
@@ -648,6 +732,21 @@ async function resetCharacterToBase(actor) {
     lightShield: [],
     heavyShield: [],
     flags: existingFlags
+  };
+
+  // Reset weapon modifications to zero
+  updateData['system.weaponModifications'] = {
+    simpleRangedMinRange: 0,
+    simpleRangedMaxRange: 0,
+    complexRangedMinRange: 0,
+    complexRangedMaxRange: 0,
+    throwingMinRange: 0,
+    throwingMaxRange: 0
+  };
+
+  // Reset combat features to zero
+  updateData['system.combatFeatures'] = {
+    dualWieldTier: 0
   };
 
   // Apply the reset

@@ -1,6 +1,15 @@
 /* ========================================= */
 /*  Anyventure System Styles               */
 /* ========================================= */
+.window-app.anyventure-attack-roll-window {
+  width: 512px !important;
+  min-width: 512px;
+}
+
+.anyventure-attack-roll-dialog .dialog-content.standard-form {
+  padding: 12px;
+}
+
 .anyventure {
   /* ----------------------------------------- */
   /*  Window & Base Layout                    */
@@ -235,6 +244,38 @@
   border-bottom: 1px solid #b8860b;
   text-align: center;
 }
+.anyventure .character-header .npc-type-select {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+.anyventure .character-header .npc-type-select label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #daa520;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.anyventure .character-header .npc-type-select select {
+  width: 100%;
+  background: rgba(26, 21, 37, 0.8);
+  border: 1px solid #b8860b;
+  border-radius: 4px;
+  color: #e8e3f0;
+  padding: 2px 4px;
+  transition: all 0.15s ease;
+}
+.anyventure .character-header .npc-type-select select:hover, .anyventure .character-header .npc-type-select select:focus {
+  border-color: #ffd700;
+  background: rgba(26, 21, 37, 0.95);
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
+}
+.anyventure .character-header .npc-type-select select option {
+  background: #1a1525;
+  color: #e8e3f0;
+}
 .anyventure .character-header .character-portrait-row {
   display: flex;
   align-items: center;
@@ -255,6 +296,10 @@
 .anyventure .character-header .profile-img:hover {
   transform: scale(1.05);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.4);
+}
+.anyventure .character-header .npc .character-header .profile-img {
+  display: block;
+  margin: 0 auto 4px;
 }
 .anyventure .character-header .woe-token, .anyventure .character-header .wonder-token {
   width: 64px;
@@ -458,6 +503,9 @@
 }
 .anyventure .resource-bar.energy .resource-fill {
   background: linear-gradient(90deg, #20c997, rgb(39.9386266094, 220.7613733906, 167.2635193133));
+}
+.anyventure .resource-bar.mana .resource-fill {
+  background: linear-gradient(90deg, #87ceeb, rgb(147, 210.9, 237));
 }
 .anyventure .resource-bar.morale .resource-fill {
   background: linear-gradient(90deg, #b8860b, rgb(228.5846153846, 166.4692307692, 13.6653846154));
@@ -982,6 +1030,11 @@
 }
 .anyventure .skill-row .skill-name.rollable:hover {
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+.anyventure .skill-row .skill-name:not(.rollable) {
+  color: #c5bdd1;
+  cursor: default;
+  opacity: 0.5;
 }
 .anyventure .skill-row .skill-value-group {
   display: flex;
@@ -3106,13 +3159,16 @@
 
 .chat-message:has(.anyventure-attack-card) .dice-roll,
 .chat-message:has(.anyventure-skill-card) .dice-roll,
-.chat-message:has(.anyventure-ability-card) .dice-roll {
+.chat-message:has(.anyventure-ability-card) .dice-roll,
+.chat-message:has(.initiative-card) .dice-roll,
+.chat-message:has(.initiative-card) .dice-result {
   display: none;
 }
 
 .chat-message:has(.anyventure-attack-card) .message-content,
 .chat-message:has(.anyventure-skill-card) .message-content,
-.chat-message:has(.anyventure-ability-card) .message-content {
+.chat-message:has(.anyventure-ability-card) .message-content,
+.chat-message:has(.initiative-card) .message-content {
   padding: 0;
 }
 
@@ -3173,12 +3229,18 @@
 .anyventure-skill-card .damage-info,
 .anyventure-ability-card .damage-info {
   margin: 2px 0;
-  text-align: center;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 .anyventure-attack-card .damage-info .damage-type,
 .anyventure-skill-card .damage-info .damage-type,
 .anyventure-ability-card .damage-info .damage-type {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.9em;
@@ -3342,6 +3404,21 @@
   font-size: 11px;
 }
 
+.anyventure-skill-card.initiative-card .result-total {
+  margin-top: 4px;
+  font-size: 1.1em;
+  font-weight: 700;
+  text-align: center;
+  color: #daa520;
+}
+.anyventure-skill-card.initiative-card .meta-info {
+  margin-top: 2px;
+  text-align: center;
+  font-size: 0.85em;
+  color: #c5bdd1;
+  letter-spacing: 0.25px;
+}
+
 .anyventure-attack-card,
 .anyventure-skill-card {
   background: rgba(26, 21, 37, 0.9);
@@ -3410,6 +3487,116 @@
 .anyventure-spell-cast-dialog .spell-charge pre {
   white-space: pre-wrap;
   word-break: break-word;
+}
+.anyventure-spell-cast-dialog .spell-header {
+  margin-bottom: 8px;
+}
+.anyventure-spell-cast-dialog .spell-header h3 {
+  margin: 0 0 2px 0;
+  color: #ffd700;
+  font-size: 1.2em;
+}
+.anyventure-spell-cast-dialog .spell-header .spell-school {
+  color: #c5bdd1;
+  font-size: 11px;
+  font-style: italic;
+}
+.anyventure-spell-cast-dialog .spell-details {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.anyventure-spell-cast-dialog .spell-details .details-column {
+  flex: 1;
+  min-width: 0;
+}
+.anyventure-spell-cast-dialog .spell-details .detail-group {
+  margin-bottom: 8px;
+}
+.anyventure-spell-cast-dialog .spell-details .detail-group h4 {
+  margin: 0 0 2px 0;
+  color: #cdaa3d;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+}
+.anyventure-spell-cast-dialog .spell-details .detail-group .detail-row {
+  padding: 2px 0;
+  color: #e8e3f0;
+}
+.anyventure-spell-cast-dialog .spell-details .detail-group .detail-row strong {
+  color: #cdaa3d;
+  margin-right: 2px;
+}
+.anyventure-spell-cast-dialog .spell-text-section {
+  margin-bottom: 8px;
+}
+.anyventure-spell-cast-dialog .spell-text-section h4 {
+  margin: 0 0 2px 0;
+  color: #cdaa3d;
+  font-size: 14px;
+}
+.anyventure-spell-cast-dialog .spell-text-section .spell-description,
+.anyventure-spell-cast-dialog .spell-text-section .spell-charge {
+  background: rgba(26, 21, 37, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  padding: 4px;
+  color: #e8e3f0;
+  line-height: 1.4;
+}
+.anyventure-spell-cast-dialog .fas.fa-star.filled {
+  color: #ffd700;
+}
+.anyventure-spell-cast-dialog .casting-options {
+  background: rgba(26, 21, 37, 0.4);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  padding: 8px;
+}
+.anyventure-spell-cast-dialog .casting-options h4 {
+  margin: 0 0 4px 0;
+  color: #ffd700;
+  font-size: 14px;
+}
+.anyventure-spell-cast-dialog .casting-options .roll-info {
+  margin-bottom: 4px;
+  color: #e8e3f0;
+}
+.anyventure-spell-cast-dialog .casting-options .form-group {
+  margin-bottom: 4px;
+}
+.anyventure-spell-cast-dialog .casting-options .form-group label {
+  display: block;
+  color: #cdaa3d;
+  margin-bottom: 2px;
+  font-size: 11px;
+}
+.anyventure-spell-cast-dialog .casting-options .form-group input[type=number] {
+  width: 80px;
+  padding: 2px;
+  background: rgba(26, 21, 37, 0.8);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  color: #e8e3f0;
+}
+.anyventure-spell-cast-dialog .casting-options .form-group input[type=number]:focus {
+  outline: none;
+  border-color: #cdaa3d;
+}
+.anyventure-spell-cast-dialog .casting-options .roll-preview {
+  color: #e8e3f0;
+  font-weight: bold;
+}
+.anyventure-spell-cast-dialog .casting-options .roll-preview #final-formula {
+  color: #ffd700;
+  font-family: monospace;
+}
+@media (max-width: 600px) {
+  .anyventure-spell-cast-dialog .spell-details {
+    flex-direction: column;
+    gap: 8px;
+  }
 }
 
 .injuries-container {
@@ -3790,6 +3977,383 @@
   display: none !important;
   animation: none !important;
   background-image: none !important;
+}
+
+.anyventure.item .item-basic-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px;
+}
+.anyventure.item .basic-info-section,
+.anyventure.item .weapon-basic-section,
+.anyventure.item .consumable-basic-section,
+.anyventure.item .item-flags-section {
+  background: rgba(26, 21, 37, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 6px;
+  padding: 8px;
+}
+.anyventure.item .basic-info-section h3,
+.anyventure.item .weapon-basic-section h3,
+.anyventure.item .consumable-basic-section h3,
+.anyventure.item .item-flags-section h3 {
+  margin: 0 0 8px 0;
+  color: #ffd700;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+}
+.anyventure.item .form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+.anyventure.item .form-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.anyventure.item .form-grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.anyventure.item .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.anyventure.item .form-group label {
+  color: #cdaa3d;
+  font-weight: bold;
+  font-size: 11px;
+}
+.anyventure.item .form-group input, .anyventure.item .form-group select, .anyventure.item .form-group textarea {
+  background: rgba(26, 21, 37, 0.8);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  color: #e8e3f0;
+  padding: 2px 4px;
+  font-size: 12px;
+}
+.anyventure.item .form-group input:focus, .anyventure.item .form-group select:focus, .anyventure.item .form-group textarea:focus {
+  outline: none;
+  border-color: #cdaa3d;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+}
+.anyventure.item .form-group small {
+  color: #c5bdd1;
+  font-size: 10px;
+  font-style: italic;
+}
+.anyventure.item .checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 4px;
+  margin-top: 4px;
+}
+.anyventure.item .checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: rgba(45, 36, 56, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.anyventure.item .checkbox-item:hover {
+  background: rgba(45, 36, 56, 0.5);
+}
+.anyventure.item .checkbox-item input[type=checkbox] {
+  margin: 0;
+}
+.anyventure.item .checkbox-item span {
+  color: #e8e3f0;
+  font-size: 11px;
+}
+.anyventure.item .equipment-properties {
+  padding: 8px;
+}
+.anyventure.item .equipment-properties .equipment-section, .anyventure.item .equipment-properties .shield-section {
+  background: rgba(26, 21, 37, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 12px;
+}
+.anyventure.item .equipment-properties .equipment-section h3, .anyventure.item .equipment-properties .shield-section h3 {
+  margin: 0 0 8px 0;
+  color: #ffd700;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+}
+.anyventure.item .weapon-properties {
+  padding: 8px;
+}
+.anyventure.item .weapon-properties .attack-section, .anyventure.item .weapon-properties .secondary-attack-section {
+  background: rgba(26, 21, 37, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 12px;
+}
+.anyventure.item .weapon-properties .attack-section h3, .anyventure.item .weapon-properties .secondary-attack-section h3 {
+  margin: 0 0 8px 0;
+  color: #ffd700;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+}
+.anyventure.item .weapon-properties .attack-section h4, .anyventure.item .weapon-properties .secondary-attack-section h4 {
+  margin: 8px 0 4px 0;
+  color: #cdaa3d;
+  font-size: 14px;
+}
+.anyventure.item .weapon-properties .weapon-attack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+.anyventure.item .weapon-properties .secondary-damage-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(155, 137, 179, 0.3);
+}
+.anyventure.item .bonuses-content {
+  padding: 8px;
+}
+.anyventure.item .bonuses-content .resource-bonuses-section,
+.anyventure.item .bonuses-content .attribute-bonuses-section,
+.anyventure.item .bonuses-content .skills-bonuses-section {
+  background: rgba(26, 21, 37, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 12px;
+}
+.anyventure.item .bonuses-content .resource-bonuses-section h3,
+.anyventure.item .bonuses-content .attribute-bonuses-section h3,
+.anyventure.item .bonuses-content .skills-bonuses-section h3 {
+  margin: 0 0 8px 0;
+  color: #ffd700;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+}
+.anyventure.item .bonuses-content .resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+.anyventure.item .bonuses-content .resource-group {
+  background: rgba(45, 36, 56, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  padding: 8px;
+}
+.anyventure.item .bonuses-content .resource-group h4 {
+  margin: 0 0 4px 0;
+  color: #cdaa3d;
+  font-size: 14px;
+  text-align: center;
+}
+.anyventure.item .bonuses-content .attribute-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+@media (max-width: 800px) {
+  .anyventure.item .bonuses-content .attribute-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .anyventure.item .bonuses-content .attribute-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.anyventure.item .bonuses-content .skills-category {
+  margin-bottom: 16px;
+}
+.anyventure.item .bonuses-content .skills-category h4 {
+  margin: 0 0 8px 0;
+  color: #cdaa3d;
+  font-size: 14px;
+  padding: 4px;
+  background: rgba(45, 36, 56, 0.4);
+  border-radius: 4px;
+  text-align: center;
+}
+.anyventure.item .bonuses-content .skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 4px;
+  margin-top: 4px;
+}
+.anyventure.item .mitigation-content {
+  padding: 8px;
+}
+.anyventure.item .mitigation-content .mitigation-section,
+.anyventure.item .mitigation-content .detection-section,
+.anyventure.item .mitigation-content .immunities-section {
+  background: rgba(26, 21, 37, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 12px;
+}
+.anyventure.item .mitigation-content .mitigation-section h3,
+.anyventure.item .mitigation-content .detection-section h3,
+.anyventure.item .mitigation-content .immunities-section h3 {
+  margin: 0 0 8px 0;
+  color: #ffd700;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+}
+.anyventure.item .mitigation-content .mitigation-grid, .anyventure.item .mitigation-content .detection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.anyventure.item .mitigation-content .immunities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 4px;
+  margin-top: 8px;
+}
+.anyventure.item .special-content {
+  padding: 8px;
+}
+.anyventure.item .special-content .special-properties-section,
+.anyventure.item .special-content .item-effects-section {
+  background: rgba(26, 21, 37, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 12px;
+}
+.anyventure.item .special-content .special-properties-section h3,
+.anyventure.item .special-content .item-effects-section h3 {
+  margin: 0 0 8px 0;
+  color: #ffd700;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+}
+.anyventure.item .special-content .effects-container .effect-item {
+  background: rgba(45, 36, 56, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+.anyventure.item .special-content .effects-container .effect-item .effect-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.anyventure.item .special-content .effects-container .effect-item .effect-header input {
+  flex: 1;
+}
+.anyventure.item .special-content .effects-container .effect-item .effect-header .effect-delete {
+  background: rgba(220, 53, 69, 0.2);
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  border-radius: 4px;
+  padding: 2px 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.anyventure.item .special-content .effects-container .effect-item .effect-header .effect-delete:hover {
+  background: rgba(220, 53, 69, 0.4);
+}
+.anyventure.item .special-content .effects-container .effect-item .effect-fields .form-group {
+  margin-bottom: 4px;
+}
+.anyventure.item .special-content .effects-container .add-effect {
+  background: rgba(184, 134, 11, 0.2);
+  border: 1px solid #b8860b;
+  color: #ffd700;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-weight: bold;
+  width: 100%;
+}
+.anyventure.item .special-content .effects-container .add-effect:hover {
+  background: rgba(184, 134, 11, 0.4);
+}
+.anyventure.item .sheet-tabs {
+  border-bottom: 2px solid rgba(155, 137, 179, 0.3);
+  background: rgba(26, 21, 37, 0.5);
+}
+.anyventure.item .sheet-tabs .item {
+  background: rgba(45, 36, 56, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-bottom: none;
+  color: #c5bdd1;
+  padding: 4px 8px;
+  border-radius: 4px 4px 0 0;
+  margin-right: 2px;
+}
+.anyventure.item .sheet-tabs .item:hover {
+  background: rgba(45, 36, 56, 0.5);
+  color: #e8e3f0;
+}
+.anyventure.item .sheet-tabs .item.active {
+  background: rgba(26, 21, 37, 0.8);
+  color: #ffd700;
+  border-bottom: 2px solid #ffd700;
+}
+.anyventure.item .sheet-body {
+  background: rgba(26, 21, 37, 0.2);
+  min-height: 400px;
+}
+.anyventure.item .sheet-body .tab {
+  display: none;
+}
+.anyventure.item .sheet-body .tab.active {
+  display: block;
+}
+@media (max-width: 600px) {
+  .anyventure.item .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .anyventure.item .form-grid-2col, .anyventure.item .form-grid-3col {
+    grid-template-columns: 1fr;
+  }
+  .anyventure.item .weapon-attack-grid {
+    grid-template-columns: 1fr;
+  }
+  .anyventure.item .attribute-grid {
+    grid-template-columns: 1fr;
+  }
+  .anyventure.item .skills-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.anyventure.item .itemtype-selector {
+  font-weight: bold;
+}
+.anyventure.item .itemtype-selector optgroup {
+  color: #cdaa3d;
+  font-weight: bold;
+  font-style: normal;
+}
+.anyventure.item .itemtype-selector option {
+  color: #e8e3f0;
+  background: #1a1525;
+  font-weight: normal;
 }
 
 /*# sourceMappingURL=anyventure.css.map */

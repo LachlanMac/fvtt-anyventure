@@ -34,6 +34,8 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
       : '';
 
     super({
+      classes: ["anyventure", "anyventure-attack-roll-window"],
+      position: { width: 512 },
       window: {
         title: options.title || "Attack Roll",
         contentClasses: ["anyventure-attack-roll-dialog"]
@@ -254,22 +256,79 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
         const secondaryType = this.attackData.secondaryDamageType?.text || this.attackData.secondaryDamageType || 'physical';
         const secondaryTypeLower = secondaryType.toLowerCase();
         const secondaryClass = `damage-type-${secondaryTypeLower}`;
-        flavorText += `<br><span class="damage-type ${secondaryClass}">Secondary: [${this.attackData.secondaryDamage}/${this.attackData.secondaryDamageExtra}] ${secondaryType}</span>`;
+        flavorText += `<span class="damage-type ${secondaryClass}">[${this.attackData.secondaryDamage}/${this.attackData.secondaryDamageExtra}] ${secondaryType}</span>`;
       }
       flavorText += `</div>`;
     }
 
     flavorText += `</div>`;
 
-    // Handle defense check comparison using highest die result
+    // Handle defense check comparison using proper dice highlighting
     let hitResult = "";
     if (defenseCheck !== null) {
-      const highestDie = keptResultsSorted.length > 0 ? keptResultsSorted[0] : 0;
-      if (highestDie > defenseCheck) {
-        hitResult = `<br><br><strong style="color: #4ade80;">HIT!</strong> Highest Die: ${highestDie} vs Defense: ${defenseCheck}`;
-      } else {
-        hitResult = `<br><br><strong style="color: #f87171;">MISS!</strong> Highest Die: ${highestDie} vs Defense: ${defenseCheck}`;
+      // Sort all dice results from highest to lowest for display
+      const allResultsSorted = keptResults.slice().sort((a, b) => b - a);
+
+      // Determine crits based on die type
+      const getCritThreshold = (diceType) => {
+        switch(diceType) {
+          case 'd12': return 12;
+          case 'd16': return 15;
+          case 'd20': return 18;
+          case 'd30': return 25;
+          default: return null;
+        }
+      };
+
+      const critThreshold = getCritThreshold(this.diceType);
+
+      // Create colored dice display
+      const coloredDice = allResultsSorted.map(result => {
+        let color = '#f87171'; // red for failures
+        let style = '';
+
+        if (result > defenseCheck) {
+          color = '#4ade80'; // green for successes
+        }
+
+        if (critThreshold && result >= critThreshold) {
+          color = '#87ceeb'; // light blue for crits
+          style = 'font-weight: bold;';
+        }
+
+        return `<span style="color: ${color}; ${style}">${result}</span>`;
+      }).join(', ');
+
+      // Calculate damage if we have damage data
+      let damageOutput = '';
+      if (this.attackData.damage !== undefined && this.attackData.damageExtra !== undefined) {
+        const mainDamage = Number(this.attackData.damage) || 0;
+        const extraDamage = Number(this.attackData.damageExtra) || 0;
+
+        // Count hits and crits
+        const hits = allResultsSorted.filter(result => result > defenseCheck);
+        const crits = allResultsSorted.filter(result => critThreshold && result >= critThreshold);
+
+        if (hits.length > 0) {
+          // First hit does main damage, others do extra damage
+          let totalDamage = mainDamage;
+          if (hits.length > 1) {
+            totalDamage += (hits.length - 1) * extraDamage;
+          }
+
+          // Add extra damage for crits
+          totalDamage += crits.length * extraDamage;
+
+          // Get damage type and CSS class
+          const damageType = this.attackData.damageType?.text || this.attackData.damageType || 'physical';
+          const damageTypeLower = damageType.toLowerCase();
+          const damageClass = `damage-type-${damageTypeLower}`;
+
+          damageOutput = `<br><span class="damage-type ${damageClass}">${totalDamage} ${damageType}</span>`;
+        }
       }
+
+      hitResult = `<div style="text-align: center; margin-top: 8px;"><strong>Contested Check:</strong> ${defenseCheck}<br>Results: [${coloredDice}]${damageOutput}</div>`;
     }
 
     // Send to chat

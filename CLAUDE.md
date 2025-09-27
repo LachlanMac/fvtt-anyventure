@@ -305,7 +305,7 @@ Possible other conditions (poisoned, diseased, panic?,
 
 Creature tiers
 Minion
-Thrall
+Grunt
 Foe
 Champion
 Elite

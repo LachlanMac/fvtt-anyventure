@@ -50,7 +50,6 @@ export class AnyventureActor extends Actor {
     const actorData = this;
 
     // Set the initiative formula for this actor (only if we have the method)
-    console.log(`[Initiative] prepareDerivedData called for ${this.name}`);
     if (this.getInitiativeFormula) {
       const formula = this.getInitiativeFormula();
 
@@ -65,13 +64,11 @@ export class AnyventureActor extends Actor {
       this.data = this.data || {};
       this.data.initiative = formula;
 
-      console.log('[Initiative] Set formula to:', formula, 'in multiple locations');
     } else {
       // Fallback initiative formula
       this.system.initiative = {
         formula: '1d20'
       };
-      console.warn('[Initiative] getInitiativeFormula method not found, using default d20');
     }
     const systemData = actorData.system;
     const flags = actorData.flags.anyventure || {};
@@ -98,6 +95,9 @@ export class AnyventureActor extends Actor {
 
     // Restore working values from the persisted base snapshot (if present)
     this._restoreFromBase(systemData);
+
+    // Ensure skills expose standardized tier data
+    this._normalizeSkillTiers(systemData);
 
     // Calculate skill talents based on attributes
     this._calculateSkillTalents(systemData);
@@ -322,6 +322,14 @@ export class AnyventureActor extends Actor {
         systemData._base = foundry.utils?.duplicate ? foundry.utils.duplicate(systemData) : JSON.parse(JSON.stringify(systemData));
       }
 
+      // Ensure mana resource exists (for legacy characters that don't have it)
+      if (!systemData.resources.mana || typeof systemData.resources.mana !== 'object' || systemData.resources.mana.max === undefined) {
+        systemData.resources.mana = { value: 0, max: 0, temp: 0 };
+      }
+      if (!systemData._base.resources.mana || typeof systemData._base.resources.mana !== 'object' || systemData._base.resources.mana.max === undefined) {
+        systemData._base.resources.mana = { value: 0, max: 0, temp: 0 };
+      }
+
 
       // Apply equipment bonuses to character stats (idempotent overlay from base)
       // Resources
@@ -414,12 +422,6 @@ export class AnyventureActor extends Actor {
       systemData._equipmentBonuses = equipmentBonuses;
       systemData.encumbrance_penalty = encumbrancePenalty;
 
-      systemData.magic.divine.value = 2
-      systemData.magic.divine.talent = 4
-
-      console.log(systemData.magic.divine.value);
-
-
     } catch (err) {
       logWarning('Equipment parsing encountered an error:', err);
     }
@@ -495,6 +497,9 @@ export class AnyventureActor extends Actor {
     // Restore working values from the persisted base snapshot (if present)
     this._restoreFromBase(systemData);
 
+    // Ensure skills expose standardized tier data
+    this._normalizeSkillTiers(systemData);
+
     // Calculate skill talents based on attributes
     this._calculateSkillTalents(systemData);
     
@@ -523,6 +528,7 @@ export class AnyventureActor extends Actor {
    * Following your old system pattern
    */
   _calculateResources(systemData) {
+    console.log('[Mana] _calculateResources - systemData.resources:', systemData.resources);
     // Ensure current values don't exceed max; do not increase current
     if (systemData.resources?.health) {
       const cur = systemData.resources.health.value;
@@ -555,6 +561,14 @@ export class AnyventureActor extends Actor {
         systemData.resources.energy.value = max;
       }
     }
+
+    if (systemData.resources?.mana) {
+      const cur = systemData.resources.mana.value;
+      const max = systemData.resources.mana.max;
+      if (typeof cur === 'number' && typeof max === 'number' && cur > max) {
+        systemData.resources.mana.value = max;
+      }
+    }
   }
 
 
@@ -579,11 +593,38 @@ export class AnyventureActor extends Actor {
   }
 
   /**
+   * Normalize skill tier data to use the unified `tier` property.
+   * @param {Object} systemData
+   * @private
+   */
+  _normalizeSkillTiers(systemData) {
+    if (!systemData || typeof systemData !== 'object') return;
+
+    const normalizeGroup = (group) => {
+      if (!group || typeof group !== 'object') return;
+      for (const skill of Object.values(group)) {
+        if (!skill || typeof skill !== 'object') continue;
+        if (skill.tier === undefined && Object.prototype.hasOwnProperty.call(skill, 'diceTierModifier')) {
+          skill.tier = Number(skill.diceTierModifier) || 0;
+          delete skill.diceTierModifier;
+        }
+        if (skill.tier === undefined) skill.tier = 0;
+      }
+    };
+
+    normalizeGroup(systemData.basic);
+    normalizeGroup(systemData.weapon);
+    normalizeGroup(systemData.magic);
+    normalizeGroup(systemData.craft);
+    normalizeGroup(systemData.crafting);
+  }
+
+  /**
    * Restore working system fields from the persisted base snapshot.
    * This avoids cumulative drift by starting each derived pass from a known baseline.
    * @param {Object} systemData
    * @private
-   */
+  */
   _restoreFromBase(systemData) {
     // Skip restore during baseline rebuild (Recalculate) so zeros and recalculated values hold
     if (this._suspendRestore) return;
@@ -591,6 +632,9 @@ export class AnyventureActor extends Actor {
     if (!base) return;
 
     const clone = (v) => (foundry?.utils?.duplicate ? foundry.utils.duplicate(v) : JSON.parse(JSON.stringify(v)));
+
+    // Normalize legacy tier data on the base snapshot before cloning
+    this._normalizeSkillTiers(base);
 
     if (base.attributes) systemData.attributes = clone(base.attributes);
     if (base.basic) systemData.basic = clone(base.basic);
@@ -603,16 +647,20 @@ export class AnyventureActor extends Actor {
         health: systemData.resources?.health?.value,
         resolve: systemData.resources?.resolve?.value,
         morale: systemData.resources?.morale?.value,
-        energy: systemData.resources?.energy?.value
+        energy: systemData.resources?.energy?.value,
+        mana: systemData.resources?.mana?.value
       };
       const res = clone(base.resources);
-      ['health','resolve','morale','energy'].forEach((k) => {
+      ['health','resolve','morale','energy','mana'].forEach((k) => {
         if (!res[k]) res[k] = {};
         if (current[k] !== undefined) res[k].value = current[k];
       });
       systemData.resources = res;
     }
     if (base.movement) systemData.movement = clone(base.movement);
+
+    // Ensure the working copy also has normalized tier data
+    this._normalizeSkillTiers(systemData);
   }
 
   /**
@@ -696,7 +744,7 @@ export class AnyventureActor extends Actor {
     ];
 
     const skillLevel = Math.min(Math.max(skill.value || 0, 0), 6);
-    const tierModifier = skill.diceTierModifier || 0;
+    const tierModifier = Number(skill.tier) || 0;
     const upgradeLevel = Math.min(Math.max(tierModifier + 1, 0), 2); // Convert -1,0,1 to 0,1,2
     const diceType = diceTable[skillLevel][upgradeLevel];
     const baseDice = skill.talent || 1;
@@ -726,15 +774,8 @@ export class AnyventureActor extends Actor {
     const coordination = this.system.basic?.coordination;
     const finesse = this.system.attributes?.finesse;
 
-    console.log(`[Initiative] Getting formula for ${this.name}`);
-    console.log(`[Initiative] Coordination:`, coordination);
-    console.log(`[Initiative] Finesse:`, finesse);
 
     if (!coordination || !finesse) {
-      console.warn('[Initiative] Missing coordination or finesse data, using default d20');
-      console.warn('[Initiative] Coordination exists:', !!coordination, 'Finesse exists:', !!finesse);
-      if (!coordination) console.warn('[Initiative] Coordination is missing/null/undefined');
-      if (!finesse) console.warn('[Initiative] Finesse is missing/null/undefined');
       return '1d20';
     }
 
@@ -752,7 +793,6 @@ export class AnyventureActor extends Actor {
     const skillLevel = Math.min(Math.max(coordination.value || 0, 0), 6);
     const diceType = diceTable[skillLevel] || 'd4';
     const talent = Math.max(finesse.value || 1, 1);
-    console.log(`[Initiative] Using finesse.value: ${finesse.value} as talent: ${talent}`);
 
     // Build the roll formula
     let formula;
@@ -762,7 +802,6 @@ export class AnyventureActor extends Actor {
       formula = `1${diceType}`;
     }
 
-    console.log(`[Initiative] Formula: ${formula} (${talent} dice of ${diceType}${talent > 1 ? ', keep highest' : ''})`);
     return formula;
   }
 
@@ -771,7 +810,6 @@ export class AnyventureActor extends Actor {
    * @returns {string} The initiative formula
    */
   get initiativeFormula() {
-    console.log('[Initiative] initiativeFormula getter called');
     return this.getInitiativeFormula();
   }
 
@@ -780,7 +818,6 @@ export class AnyventureActor extends Actor {
    * @returns {string} The initiative formula
    */
   getInitiativeRoll() {
-    console.log('[Initiative] getInitiativeRoll called');
     return this.getInitiativeFormula();
   }
 
@@ -789,8 +826,6 @@ export class AnyventureActor extends Actor {
    * @override
    */
   async rollInitiative(options = {}) {
-    console.log('[Initiative] Actor.rollInitiative called for', this.name);
-    console.log('[Initiative] This should show if our override is working');
 
     // Get coordination skill and finesse attribute
     // Coordination is under basic, not skills
@@ -831,7 +866,7 @@ export class AnyventureActor extends Actor {
     ];
 
     const skillLevel = Math.min(Math.max(coordination.value || 0, 0), 6);
-    const tierModifier = coordination.diceTierModifier || 0;
+    const tierModifier = Number(coordination.tier) || 0;
 
     let diceType;
     if (tierModifier !== 0) {
@@ -843,7 +878,6 @@ export class AnyventureActor extends Actor {
 
     // Finesse value determines number of dice (keep highest)
     const talent = Math.max(finesse.value || 1, 1);
-    console.log(`[Initiative] Using finesse.value: ${finesse.value} as talent: ${talent}`);
 
     // Build the roll formula (roll multiple dice, keep highest)
     let formula;
@@ -859,6 +893,35 @@ export class AnyventureActor extends Actor {
       // Create and evaluate the roll
       const roll = new Roll(formula);
       await roll.evaluate({async: true});
+
+      // Harvest dice results for styled chat output
+      const dieTerm = roll.dice?.[0] || roll.terms.find(t => Array.isArray(t?.results));
+      const detailedResults = Array.isArray(dieTerm?.results)
+        ? dieTerm.results.map(r => ({ result: r.result, discarded: Boolean(r.discarded) }))
+        : [];
+
+      const keptResults = detailedResults.filter(r => !r.discarded).map(r => r.result);
+      const discardedResults = detailedResults.filter(r => r.discarded).map(r => r.result);
+      const keptResultsSorted = [...keptResults].sort((a, b) => b - a);
+      const highestDie = keptResultsSorted.length > 0 ? keptResultsSorted[0] : roll.total;
+
+      const diceResultsDisplay = detailedResults.length > 0
+        ? detailedResults.map(r => {
+            const style = r.discarded ? ' style="color:#f87171;"' : '';
+            return `<span${style}>${r.result}</span>`;
+          }).join(', ')
+        : roll.result;
+
+      const formulaNote = talent > 1 ? ' (keep highest)' : '';
+      const tierNote = tierModifier !== 0 ? ` | Tier ${tierModifier > 0 ? '+' : ''}${tierModifier}` : '';
+      const metaInfo = `Coordination ${skillLevel}${tierNote} | Finesse Talent ${talent}`;
+
+      // Create flavor text matching skill check format
+      let flavorText = `<div class="anyventure-skill-card">`;
+      flavorText += `<div class="skill-name"><strong>Coordination Check</strong></div>`;
+      flavorText += `<div class="dice-results"><strong>Results:</strong> [${diceResultsDisplay}]</div>`;
+      flavorText += `<div class="formula">Formula: ${formula}${formulaNote}</div>`;
+      flavorText += `</div>`;
 
       // Get the combatant for this actor
       const combat = game.combat;
@@ -876,7 +939,8 @@ export class AnyventureActor extends Actor {
       // Display the roll to chat
       await roll.toMessage({
         speaker: ChatMessage.getSpeaker({actor: this}),
-        flavor: `${this.name} rolls initiative (Coordination: ${skillLevel}, Finesse Talent: ${talent})!`
+        flavor: flavorText,
+        rollMode: game.settings.get('core', 'rollMode')
       });
 
       return roll;

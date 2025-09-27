@@ -6,24 +6,34 @@
     {{#if attackActions}}
     {{!-- NPC Attack Actions --}}
     {{#each attackActions as |ability|}}
-    <div class="anyventure-ability-card attack-action" data-item-id="{{ability._id}}" data-ability-type="attack" data-energy-cost="{{ability.system.energy}}" title="Click to use this attack">
+    <div class="ability-item ability-clickable attack-card" data-item-id="{{ability._id}}" data-ability-type="attack" data-energy-cost="{{ability.system.energy}}" title="Click to use this attack">
       <div class="ability-icon">
         <img src="{{ability.img}}" alt="{{ability.name}}" />
       </div>
       <div class="ability-content">
-        <div class="ability-name attack">{{removeActionPrefix ability.name}}</div>
-        <div class="energy-cost">
-          Energy:
-          {{#if (eq ability.system.energy 0)}}
-            None
-          {{else}}
-            {{#times ability.system.energy}}
-              <i class="fas fa-star filled"></i>
-            {{/times}}
-          {{/if}}
+        <div class="ability-header">
+          <h4 class="ability-name attack">{{removeActionPrefix ability.name}}</h4>
+          <div class="ability-energy">
+            Energy:
+            {{#if (eq ability.system.energy 0)}}
+              None
+            {{else}}
+              {{#times ability.system.energy}}
+                <i class="fas fa-star filled"></i>
+              {{/times}}
+            {{/if}}
+          </div>
+          <div class="ability-tags">
+            {{#if ability.system.daily}}
+              <span class="daily-badge">Daily</span>
+            {{/if}}
+            {{#if ability.system.magic}}
+              <span class="magic-badge">Magic</span>
+            {{/if}}
+          </div>
         </div>
         {{#if ability.system.description}}
-        <div class="ability-description">{{ability.system.description}}</div>
+        <p class="ability-description">{{ability.system.description}}</p>
         {{/if}}
       </div>
       <div class="ability-controls">

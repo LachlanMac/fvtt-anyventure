@@ -304,6 +304,39 @@
     border-bottom: 1px solid $border-gold;
     text-align: center;
 
+    .npc-type-select {
+      margin-top: $spacing-sm;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-xs;
+      text-align: left;
+
+      label {
+        font-size: $font-size-small;
+        font-weight: 600;
+        color: $gold-medium;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      select {
+        width: 100%;
+        background: rgba($purple-darkest, 0.8);
+        border: 1px solid $border-gold;
+        border-radius: $border-radius-sm;
+        color: $text-light;
+        padding: $spacing-xs $spacing-sm;
+        transition: $transition-fast;
+
+        &:hover,
+        &:focus {
+          border-color: $gold-bright;
+          background: rgba($purple-darkest, 0.95);
+          box-shadow: 0 0 6px rgba($gold-bright, 0.4);
+        }
+      }
+    }
+
     .character-portrait-row {
       display: flex;
       align-items: center;

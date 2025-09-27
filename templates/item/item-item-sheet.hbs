@@ -5,9 +5,16 @@
 
   {{!-- Sheet Tab Navigation --}}
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="basic">Basic</a>
-    <a class="item" data-tab="properties">Properties</a>
-    <a class="item" data-tab="effects">Effects</a>
+    <a class="item active" data-tab="basic">Basic</a>
+    {{#if (or (eq system.itemType "body") (eq system.itemType "headwear") (eq system.itemType "gloves") (eq system.itemType "boots") (eq system.itemType "accessory") (eq system.itemType "cloak"))}}
+      <a class="item" data-tab="equipment">Equipment</a>
+    {{/if}}
+    {{#if (eq system.itemType "weapon")}}
+      <a class="item" data-tab="weapon">Weapon</a>
+    {{/if}}
+    <a class="item" data-tab="bonuses">Bonuses</a>
+    <a class="item" data-tab="mitigation">Mitigation</a>
+    <a class="item" data-tab="special">Special</a>
     <a class="item" data-tab="description">Description</a>
   </nav>
 
@@ -15,145 +22,728 @@
   <section class="sheet-body">
 
     {{!-- Basic Tab --}}
-    <div class="tab" data-group="primary" data-tab="basic">
-      <div class="item-basic-info">
+    <div class="tab active" data-group="primary" data-tab="basic">
+      <div class="item-basic-grid">
 
-        <div class="form-group">
-          <label>Item Type</label>
-          <select name="system.itemType">
-            <option value="tool" {{#if (eq system.itemType "tool")}}selected{{/if}}>Tool</option>
-            <option value="consumable" {{#if (eq system.itemType "consumable")}}selected{{/if}}>Consumable</option>
-            <option value="crafting" {{#if (eq system.itemType "crafting")}}selected{{/if}}>Crafting Material</option>
-            <option value="treasure" {{#if (eq system.itemType "treasure")}}selected{{/if}}>Treasure</option>
-            <option value="misc" {{#if (eq system.itemType "misc")}}selected{{/if}}>Miscellaneous</option>
-          </select>
+        {{!-- Basic Information Section --}}
+        <div class="basic-info-section">
+          <h3>Basic Information</h3>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Item Type</label>
+              <select name="system.itemType" class="itemtype-selector">
+                <optgroup label="Equipment">
+                  <option value="body" {{#if (eq system.itemType "body")}}selected{{/if}}>Body Armor</option>
+                  <option value="headwear" {{#if (eq system.itemType "headwear")}}selected{{/if}}>Headwear</option>
+                  <option value="gloves" {{#if (eq system.itemType "gloves")}}selected{{/if}}>Gloves</option>
+                  <option value="boots" {{#if (eq system.itemType "boots")}}selected{{/if}}>Boots</option>
+                  <option value="accessory" {{#if (eq system.itemType "accessory")}}selected{{/if}}>Accessory</option>
+                  <option value="cloak" {{#if (eq system.itemType "cloak")}}selected{{/if}}>Cloak</option>
+                </optgroup>
+                <optgroup label="Weapons">
+                  <option value="weapon" {{#if (eq system.itemType "weapon")}}selected{{/if}}>Weapon</option>
+                </optgroup>
+                <optgroup label="General Items">
+                  <option value="tool" {{#if (eq system.itemType "tool")}}selected{{/if}}>Tool</option>
+                  <option value="consumable" {{#if (eq system.itemType "consumable")}}selected{{/if}}>Consumable</option>
+                  <option value="crafting" {{#if (eq system.itemType "crafting")}}selected{{/if}}>Crafting Material</option>
+                  <option value="treasure" {{#if (eq system.itemType "treasure")}}selected{{/if}}>Treasure</option>
+                  <option value="misc" {{#if (eq system.itemType "misc")}}selected{{/if}}>Miscellaneous</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Rarity</label>
+              <select name="system.rarity">
+                <option value="common" {{#if (eq system.rarity "common")}}selected{{/if}}>Common</option>
+                <option value="uncommon" {{#if (eq system.rarity "uncommon")}}selected{{/if}}>Uncommon</option>
+                <option value="rare" {{#if (eq system.rarity "rare")}}selected{{/if}}>Rare</option>
+                <option value="very_rare" {{#if (eq system.rarity "very_rare")}}selected{{/if}}>Very Rare</option>
+                <option value="legendary" {{#if (eq system.rarity "legendary")}}selected{{/if}}>Legendary</option>
+                <option value="artifact" {{#if (eq system.rarity "artifact")}}selected{{/if}}>Artifact</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Weight (lbs)</label>
+              <input type="number" name="system.weight" value="{{system.weight}}" step="0.1" placeholder="0"/>
+            </div>
+
+            <div class="form-group">
+              <label>Value (coins)</label>
+              <input type="number" name="system.value" value="{{system.value}}" placeholder="0"/>
+            </div>
+
+            <div class="form-group">
+              <label>Stack Limit</label>
+              <input type="number" name="system.stack_limit" value="{{system.stack_limit}}" placeholder="0" title="0 = no limit"/>
+            </div>
+
+            <div class="form-group">
+              <label>Source</label>
+              <input type="text" name="system.source" value="{{system.source}}" placeholder="Source book or origin"/>
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label>Weight</label>
-          <input type="number" name="system.weight" value="{{system.weight}}" step="0.1" placeholder="0"/>
-        </div>
+        {{!-- Type-Specific Basic Properties --}}
+        {{#if (eq system.itemType "weapon")}}
+        <div class="weapon-basic-section">
+          <h3>Weapon Properties</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Weapon Category</label>
+              <select name="system.weapon_category">
+                <option value="brawling" {{#if (eq system.weapon_category "brawling")}}selected{{/if}}>Brawling</option>
+                <option value="throwing" {{#if (eq system.weapon_category "throwing")}}selected{{/if}}>Throwing</option>
+                <option value="simpleMeleeWeapons" {{#if (eq system.weapon_category "simpleMeleeWeapons")}}selected{{/if}}>Simple Melee</option>
+                <option value="simpleRangedWeapons" {{#if (eq system.weapon_category "simpleRangedWeapons")}}selected{{/if}}>Simple Ranged</option>
+                <option value="complexMeleeWeapons" {{#if (eq system.weapon_category "complexMeleeWeapons")}}selected{{/if}}>Complex Melee</option>
+                <option value="complexRangedWeapons" {{#if (eq system.weapon_category "complexRangedWeapons")}}selected{{/if}}>Complex Ranged</option>
+              </select>
+            </div>
 
-        <div class="form-group">
-          <label>Value (coins)</label>
-          <input type="number" name="system.value" value="{{system.value}}" placeholder="0"/>
-        </div>
+            <div class="form-group">
+              <label>Hands Required</label>
+              <select name="system.hands">
+                <option value="1" {{#if (eq system.hands 1)}}selected{{/if}}>One-Handed</option>
+                <option value="2" {{#if (eq system.hands 2)}}selected{{/if}}>Two-Handed</option>
+              </select>
+            </div>
 
-        <div class="form-group">
-          <label>Rarity</label>
-          <select name="system.rarity">
-            <option value="common" {{#if (eq system.rarity "common")}}selected{{/if}}>Common</option>
-            <option value="uncommon" {{#if (eq system.rarity "uncommon")}}selected{{/if}}>Uncommon</option>
-            <option value="rare" {{#if (eq system.rarity "rare")}}selected{{/if}}>Rare</option>
-            <option value="legendary" {{#if (eq system.rarity "legendary")}}selected{{/if}}>Legendary</option>
-          </select>
-        </div>
-
-        {{#if (eq system.itemType "consumable")}}
-        <div class="form-group">
-          <label>Consumable Category</label>
-          <select name="system.consumable_category">
-            <option value="potion" {{#if (eq system.consumable_category "potion")}}selected{{/if}}>Potion</option>
-            <option value="food" {{#if (eq system.consumable_category "food")}}selected{{/if}}>Food</option>
-            <option value="poison" {{#if (eq system.consumable_category "poison")}}selected{{/if}}>Poison</option>
-            <option value="scroll" {{#if (eq system.consumable_category "scroll")}}selected{{/if}}>Scroll</option>
-            <option value="bomb" {{#if (eq system.consumable_category "bomb")}}selected{{/if}}>Bomb</option>
-            <option value="other" {{#if (eq system.consumable_category "other")}}selected{{/if}}>Other</option>
-          </select>
+            <div class="form-group checkbox-group">
+              <label>
+                <input type="checkbox" name="system.holdable" {{#if system.holdable}}checked{{/if}}/>
+                Holdable
+              </label>
+            </div>
+          </div>
         </div>
         {{/if}}
 
-        <div class="form-group">
-          <label>Source</label>
-          <input type="text" name="system.source" value="{{system.source}}" placeholder="Source book or origin"/>
-        </div>
-
-      </div>
-    </div>
-
-    {{!-- Properties Tab --}}
-    <div class="tab" data-group="primary" data-tab="properties">
-      <div class="item-properties">
-
-        {{!-- Resource Bonuses --}}
-        {{> "systems/anyventure/templates/partials/items/resource-bonuses.hbs"}}
-
-        {{!-- Skill Bonuses --}}
-        {{> "systems/anyventure/templates/partials/items/skill-bonuses.hbs"}}
-
-        {{!-- Mitigation --}}
-        {{> "systems/anyventure/templates/partials/items/mitigation.hbs"}}
-
-        {{!-- Special Properties --}}
-        <div class="special-properties">
-          <h3>Special Properties</h3>
-          <div class="form-group">
-            <label>Encumbrance Penalty</label>
-            <input type="number" name="system.encumbrance_penalty" value="{{system.encumbrance_penalty}}" placeholder="0"/>
-            <small>Movement penalty when carried</small>
-          </div>
-
-          <div class="form-group">
-            <label>Properties Text</label>
-            <textarea name="system.properties" placeholder="Special properties, abilities, or notes">{{system.properties}}</textarea>
-          </div>
-
-          <div class="form-group">
-            <label>
-              <input type="checkbox" name="system.magical" {{#if system.magical}}checked{{/if}}/>
-              Magical Item
-            </label>
-          </div>
-
-          <div class="form-group">
-            <label>
-              <input type="checkbox" name="system.consumable" {{#if system.consumable}}checked{{/if}}/>
-              Single Use / Consumable
-            </label>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    {{!-- Effects Tab --}}
-    <div class="tab" data-group="primary" data-tab="effects">
-      <div class="item-effects">
-        <h3>Item Effects</h3>
-        <div class="effects-container">
-          {{#each system.effects as |effect index|}}
-          <div class="effect-item" data-index="{{index}}">
-            <div class="effect-header">
-              <input type="text" name="system.effects.{{index}}.name" value="{{effect.name}}" placeholder="Effect Name"/>
-              <button type="button" class="effect-delete" title="Delete Effect">×</button>
+        {{#if (eq system.itemType "consumable")}}
+        <div class="consumable-basic-section">
+          <h3>Consumable Properties</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Consumable Category</label>
+              <select name="system.consumable_category">
+                <option value="potion" {{#if (eq system.consumable_category "potion")}}selected{{/if}}>Potion</option>
+                <option value="food" {{#if (eq system.consumable_category "food")}}selected{{/if}}>Food</option>
+                <option value="poison" {{#if (eq system.consumable_category "poison")}}selected{{/if}}>Poison</option>
+                <option value="scroll" {{#if (eq system.consumable_category "scroll")}}selected{{/if}}>Scroll</option>
+                <option value="bomb" {{#if (eq system.consumable_category "bomb")}}selected{{/if}}>Bomb</option>
+                <option value="ammunition" {{#if (eq system.consumable_category "ammunition")}}selected{{/if}}>Ammunition</option>
+                <option value="other" {{#if (eq system.consumable_category "other")}}selected{{/if}}>Other</option>
+              </select>
             </div>
-            <div class="effect-fields">
+          </div>
+        </div>
+        {{/if}}
+
+        {{!-- General Item Flags --}}
+        <div class="item-flags-section">
+          <h3>Item Properties</h3>
+          <div class="checkbox-grid">
+            <label class="checkbox-item">
+              <input type="checkbox" name="system.magical" {{#if system.magical}}checked{{/if}}/>
+              <span>Magical Item</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="system.consumable" {{#if system.consumable}}checked{{/if}}/>
+              <span>Single Use</span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {{!-- Equipment Tab (for armor/equipment types) --}}
+    {{#if (or (eq system.itemType "body") (eq system.itemType "headwear") (eq system.itemType "gloves") (eq system.itemType "boots") (eq system.itemType "accessory") (eq system.itemType "cloak"))}}
+    <div class="tab" data-group="primary" data-tab="equipment">
+      <div class="equipment-properties">
+
+        <div class="equipment-section">
+          <h3>Equipment Properties</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Encumbrance Penalty</label>
+              <input type="number" name="system.encumbrance_penalty" value="{{system.encumbrance_penalty}}" placeholder="0"/>
+              <small>Movement penalty when worn</small>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Shield Properties (if applicable) --}}
+        {{#if (or (eq system.itemType "accessory") (eq system.itemType "body"))}}
+        <div class="shield-section">
+          <h3>Shield Properties</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Shield Category</label>
+              <select name="system.shield_category">
+                <option value="" {{#unless system.shield_category}}selected{{/unless}}>Not a Shield</option>
+                <option value="light" {{#if (eq system.shield_category "light")}}selected{{/if}}>Light Shield</option>
+                <option value="heavy" {{#if (eq system.shield_category "heavy")}}selected{{/if}}>Heavy Shield</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        {{/if}}
+
+      </div>
+    </div>
+    {{/if}}
+
+    {{!-- Weapon Tab (for weapon items) --}}
+    {{#if (eq system.itemType "weapon")}}
+    <div class="tab" data-group="primary" data-tab="weapon">
+      <div class="weapon-properties">
+
+        {{!-- Primary Attack --}}
+        <div class="attack-section">
+          <h3>Primary Attack</h3>
+          <div class="weapon-attack-grid">
+            <div class="form-group">
+              <label>Damage</label>
+              <input type="number" name="system.primary.damage" value="{{system.primary.damage}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Extra Damage</label>
+              <input type="number" name="system.primary.damage_extra" value="{{system.primary.damage_extra}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Damage Type</label>
+              <select name="system.primary.damage_type">
+                <option value="physical" {{#if (eq system.primary.damage_type "physical")}}selected{{/if}}>Physical</option>
+                <option value="heat" {{#if (eq system.primary.damage_type "heat")}}selected{{/if}}>Heat</option>
+                <option value="cold" {{#if (eq system.primary.damage_type "cold")}}selected{{/if}}>Cold</option>
+                <option value="lightning" {{#if (eq system.primary.damage_type "lightning")}}selected{{/if}}>Lightning</option>
+                <option value="dark" {{#if (eq system.primary.damage_type "dark")}}selected{{/if}}>Dark</option>
+                <option value="divine" {{#if (eq system.primary.damage_type "divine")}}selected{{/if}}>Divine</option>
+                <option value="arcane" {{#if (eq system.primary.damage_type "arcane")}}selected{{/if}}>Arcane</option>
+                <option value="psychic" {{#if (eq system.primary.damage_type "psychic")}}selected{{/if}}>Psychic</option>
+                <option value="toxic" {{#if (eq system.primary.damage_type "toxic")}}selected{{/if}}>Toxic</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Attack Category</label>
+              <select name="system.primary.category">
+                <option value="slash" {{#if (eq system.primary.category "slash")}}selected{{/if}}>Slash</option>
+                <option value="thrust" {{#if (eq system.primary.category "thrust")}}selected{{/if}}>Thrust</option>
+                <option value="blunt" {{#if (eq system.primary.category "blunt")}}selected{{/if}}>Blunt</option>
+                <option value="ranged" {{#if (eq system.primary.category "ranged")}}selected{{/if}}>Ranged</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Min Range</label>
+              <input type="number" name="system.primary.min_range" value="{{system.primary.min_range}}" placeholder="1"/>
+            </div>
+            <div class="form-group">
+              <label>Max Range</label>
+              <input type="number" name="system.primary.max_range" value="{{system.primary.max_range}}" placeholder="1"/>
+            </div>
+          </div>
+
+          {{!-- Secondary Damage --}}
+          <div class="secondary-damage-section">
+            <h4>Secondary Damage</h4>
+            <div class="weapon-attack-grid">
               <div class="form-group">
-                <label>Type</label>
-                <select name="system.effects.{{index}}.type">
-                  <option value="passive" {{#if (eq effect.type "passive")}}selected{{/if}}>Passive</option>
-                  <option value="active" {{#if (eq effect.type "active")}}selected{{/if}}>Active</option>
-                  <option value="triggered" {{#if (eq effect.type "triggered")}}selected{{/if}}>Triggered</option>
-                  <option value="consumable" {{#if (eq effect.type "consumable")}}selected{{/if}}>Consumable</option>
+                <label>Secondary Damage</label>
+                <input type="number" name="system.primary.secondary_damage" value="{{system.primary.secondary_damage}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Secondary Extra</label>
+                <input type="number" name="system.primary.secondary_damage_extra" value="{{system.primary.secondary_damage_extra}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Secondary Type</label>
+                <select name="system.primary.secondary_damage_type">
+                  <option value="" {{#unless system.primary.secondary_damage_type}}selected{{/unless}}>None</option>
+                  <option value="physical" {{#if (eq system.primary.secondary_damage_type "physical")}}selected{{/if}}>Physical</option>
+                  <option value="heat" {{#if (eq system.primary.secondary_damage_type "heat")}}selected{{/if}}>Heat</option>
+                  <option value="cold" {{#if (eq system.primary.secondary_damage_type "cold")}}selected{{/if}}>Cold</option>
+                  <option value="lightning" {{#if (eq system.primary.secondary_damage_type "lightning")}}selected{{/if}}>Lightning</option>
+                  <option value="dark" {{#if (eq system.primary.secondary_damage_type "dark")}}selected{{/if}}>Dark</option>
+                  <option value="divine" {{#if (eq system.primary.secondary_damage_type "divine")}}selected{{/if}}>Divine</option>
+                  <option value="arcane" {{#if (eq system.primary.secondary_damage_type "arcane")}}selected{{/if}}>Arcane</option>
+                  <option value="psychic" {{#if (eq system.primary.secondary_damage_type "psychic")}}selected{{/if}}>Psychic</option>
+                  <option value="toxic" {{#if (eq system.primary.secondary_damage_type "toxic")}}selected{{/if}}>Toxic</option>
                 </select>
               </div>
-              <div class="form-group">
-                <label>Duration</label>
-                <input type="text" name="system.effects.{{index}}.duration" value="{{effect.duration}}" placeholder="Duration (e.g., 1 hour, permanent)"/>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Secondary Attack (if two-handed or special weapons) --}}
+        <div class="secondary-attack-section">
+          <h3>Secondary Attack (Optional)</h3>
+          <div class="weapon-attack-grid">
+            <div class="form-group">
+              <label>Damage</label>
+              <input type="number" name="system.secondary.damage" value="{{system.secondary.damage}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Extra Damage</label>
+              <input type="number" name="system.secondary.damage_extra" value="{{system.secondary.damage_extra}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Damage Type</label>
+              <select name="system.secondary.damage_type">
+                <option value="physical" {{#if (eq system.secondary.damage_type "physical")}}selected{{/if}}>Physical</option>
+                <option value="heat" {{#if (eq system.secondary.damage_type "heat")}}selected{{/if}}>Heat</option>
+                <option value="cold" {{#if (eq system.secondary.damage_type "cold")}}selected{{/if}}>Cold</option>
+                <option value="lightning" {{#if (eq system.secondary.damage_type "lightning")}}selected{{/if}}>Lightning</option>
+                <option value="dark" {{#if (eq system.secondary.damage_type "dark")}}selected{{/if}}>Dark</option>
+                <option value="divine" {{#if (eq system.secondary.damage_type "divine")}}selected{{/if}}>Divine</option>
+                <option value="arcane" {{#if (eq system.secondary.damage_type "arcane")}}selected{{/if}}>Arcane</option>
+                <option value="psychic" {{#if (eq system.secondary.damage_type "psychic")}}selected{{/if}}>Psychic</option>
+                <option value="toxic" {{#if (eq system.secondary.damage_type "toxic")}}selected{{/if}}>Toxic</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Min Range</label>
+              <input type="number" name="system.secondary.min_range" value="{{system.secondary.min_range}}" placeholder="1"/>
+            </div>
+            <div class="form-group">
+              <label>Max Range</label>
+              <input type="number" name="system.secondary.max_range" value="{{system.secondary.max_range}}" placeholder="1"/>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    {{/if}}
+
+    {{!-- Bonuses Tab --}}
+    <div class="tab" data-group="primary" data-tab="bonuses">
+      <div class="bonuses-content">
+
+        {{!-- Resource Bonuses --}}
+        <div class="resource-bonuses-section">
+          <h3>Resource Bonuses</h3>
+          <div class="resource-grid">
+            <div class="resource-group">
+              <h4>Health</h4>
+              <div class="form-grid-2col">
+                <div class="form-group">
+                  <label>Max Bonus</label>
+                  <input type="number" name="system.health.max" value="{{system.health.max}}" placeholder="0"/>
+                </div>
+                <div class="form-group">
+                  <label>Recovery Bonus</label>
+                  <input type="number" name="system.health.recovery" value="{{system.health.recovery}}" placeholder="0"/>
+                </div>
               </div>
-              <div class="form-group">
-                <label>Description</label>
-                <textarea name="system.effects.{{index}}.description" placeholder="Effect description">{{effect.description}}</textarea>
+            </div>
+
+            <div class="resource-group">
+              <h4>Energy</h4>
+              <div class="form-grid-2col">
+                <div class="form-group">
+                  <label>Max Bonus</label>
+                  <input type="number" name="system.energy.max" value="{{system.energy.max}}" placeholder="0"/>
+                </div>
+                <div class="form-group">
+                  <label>Recovery Bonus</label>
+                  <input type="number" name="system.energy.recovery" value="{{system.energy.recovery}}" placeholder="0"/>
+                </div>
               </div>
+            </div>
+
+            <div class="resource-group">
+              <h4>Resolve</h4>
+              <div class="form-grid-2col">
+                <div class="form-group">
+                  <label>Max Bonus</label>
+                  <input type="number" name="system.resolve.max" value="{{system.resolve.max}}" placeholder="0"/>
+                </div>
+                <div class="form-group">
+                  <label>Recovery Bonus</label>
+                  <input type="number" name="system.resolve.recovery" value="{{system.resolve.recovery}}" placeholder="0"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="resource-group">
+              <h4>Movement</h4>
               <div class="form-group">
-                <label>Mechanical Data</label>
-                <input type="text" name="system.effects.{{index}}.data" value="{{effect.data}}" placeholder="Mechanical data string"/>
+                <label>Movement Bonus</label>
+                <input type="number" name="system.movement" value="{{system.movement}}" placeholder="0"/>
               </div>
             </div>
           </div>
-          {{/each}}
-          <button type="button" class="add-effect" data-action="add-item-effect">Add New Effect</button>
         </div>
+
+        {{!-- Attribute Bonuses --}}
+        <div class="attribute-bonuses-section">
+          <h3>Attribute Bonuses</h3>
+          <div class="attribute-grid">
+            <div class="form-group">
+              <label>Physique</label>
+              <input type="number" name="system.attributes.physique" value="{{system.attributes.physique}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Finesse</label>
+              <input type="number" name="system.attributes.finesse" value="{{system.attributes.finesse}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Mind</label>
+              <input type="number" name="system.attributes.mind" value="{{system.attributes.mind}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Knowledge</label>
+              <input type="number" name="system.attributes.knowledge" value="{{system.attributes.knowledge}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Social</label>
+              <input type="number" name="system.attributes.social" value="{{system.attributes.social}}" placeholder="0"/>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Skills Bonuses Grid --}}
+        <div class="skills-bonuses-section">
+          <h3>Skill Bonuses</h3>
+
+          <div class="skills-category">
+            <h4>Basic Skills</h4>
+            <div class="skills-grid">
+              <div class="form-group">
+                <label>Fitness</label>
+                <input type="number" name="system.basic.fitness" value="{{system.basic.fitness}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Deflection</label>
+                <input type="number" name="system.basic.deflection" value="{{system.basic.deflection}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Might</label>
+                <input type="number" name="system.basic.might" value="{{system.basic.might}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Endurance</label>
+                <input type="number" name="system.basic.endurance" value="{{system.basic.endurance}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Evasion</label>
+                <input type="number" name="system.basic.evasion" value="{{system.basic.evasion}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Stealth</label>
+                <input type="number" name="system.basic.stealth" value="{{system.basic.stealth}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Coordination</label>
+                <input type="number" name="system.basic.coordination" value="{{system.basic.coordination}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Thievery</label>
+                <input type="number" name="system.basic.thievery" value="{{system.basic.thievery}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Resilience</label>
+                <input type="number" name="system.basic.resilience" value="{{system.basic.resilience}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Concentration</label>
+                <input type="number" name="system.basic.concentration" value="{{system.basic.concentration}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Senses</label>
+                <input type="number" name="system.basic.senses" value="{{system.basic.senses}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Logic</label>
+                <input type="number" name="system.basic.logic" value="{{system.basic.logic}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Wildcraft</label>
+                <input type="number" name="system.basic.wildcraft" value="{{system.basic.wildcraft}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Academics</label>
+                <input type="number" name="system.basic.academics" value="{{system.basic.academics}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Magic</label>
+                <input type="number" name="system.basic.magic" value="{{system.basic.magic}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Medicine</label>
+                <input type="number" name="system.basic.medicine" value="{{system.basic.medicine}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Expression</label>
+                <input type="number" name="system.basic.expression" value="{{system.basic.expression}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Presence</label>
+                <input type="number" name="system.basic.presence" value="{{system.basic.presence}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Insight</label>
+                <input type="number" name="system.basic.insight" value="{{system.basic.insight}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Persuasion</label>
+                <input type="number" name="system.basic.persuasion" value="{{system.basic.persuasion}}" placeholder="0"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="skills-category">
+            <h4>Weapon Skills</h4>
+            <div class="skills-grid">
+              <div class="form-group">
+                <label>Brawling</label>
+                <input type="number" name="system.weapon.brawling" value="{{system.weapon.brawling}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Throwing</label>
+                <input type="number" name="system.weapon.throwing" value="{{system.weapon.throwing}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Simple Melee</label>
+                <input type="number" name="system.weapon.simpleMeleeWeapons" value="{{system.weapon.simpleMeleeWeapons}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Simple Ranged</label>
+                <input type="number" name="system.weapon.simpleRangedWeapons" value="{{system.weapon.simpleRangedWeapons}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Complex Melee</label>
+                <input type="number" name="system.weapon.complexMeleeWeapons" value="{{system.weapon.complexMeleeWeapons}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Complex Ranged</label>
+                <input type="number" name="system.weapon.complexRangedWeapons" value="{{system.weapon.complexRangedWeapons}}" placeholder="0"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="skills-category">
+            <h4>Magic Schools</h4>
+            <div class="skills-grid">
+              <div class="form-group">
+                <label>Black Magic</label>
+                <input type="number" name="system.magic.black" value="{{system.magic.black}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Primal Magic</label>
+                <input type="number" name="system.magic.primal" value="{{system.magic.primal}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Metamagic</label>
+                <input type="number" name="system.magic.metamagic" value="{{system.magic.metamagic}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Divine Magic</label>
+                <input type="number" name="system.magic.divine" value="{{system.magic.divine}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Mysticism</label>
+                <input type="number" name="system.magic.mysticism" value="{{system.magic.mysticism}}" placeholder="0"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="skills-category">
+            <h4>Crafting Skills</h4>
+            <div class="skills-grid">
+              <div class="form-group">
+                <label>Engineering</label>
+                <input type="number" name="system.craft.engineering" value="{{system.craft.engineering}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Fabrication</label>
+                <input type="number" name="system.craft.fabrication" value="{{system.craft.fabrication}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Alchemy</label>
+                <input type="number" name="system.craft.alchemy" value="{{system.craft.alchemy}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Cooking</label>
+                <input type="number" name="system.craft.cooking" value="{{system.craft.cooking}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Glyphcraft</label>
+                <input type="number" name="system.craft.glyphcraft" value="{{system.craft.glyphcraft}}" placeholder="0"/>
+              </div>
+              <div class="form-group">
+                <label>Bioshaping</label>
+                <input type="number" name="system.craft.bioshaping" value="{{system.craft.bioshaping}}" placeholder="0"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {{!-- Mitigation Tab --}}
+    <div class="tab" data-group="primary" data-tab="mitigation">
+      <div class="mitigation-content">
+
+        <div class="mitigation-section">
+          <h3>Damage Mitigation</h3>
+          <div class="mitigation-grid">
+            <div class="form-group">
+              <label>Physical</label>
+              <input type="number" name="system.mitigation.physical" value="{{system.mitigation.physical}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Heat</label>
+              <input type="number" name="system.mitigation.heat" value="{{system.mitigation.heat}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Cold</label>
+              <input type="number" name="system.mitigation.cold" value="{{system.mitigation.cold}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Lightning</label>
+              <input type="number" name="system.mitigation.lightning" value="{{system.mitigation.lightning}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Dark</label>
+              <input type="number" name="system.mitigation.dark" value="{{system.mitigation.dark}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Divine</label>
+              <input type="number" name="system.mitigation.divine" value="{{system.mitigation.divine}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Arcane</label>
+              <input type="number" name="system.mitigation.arcane" value="{{system.mitigation.arcane}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Psychic</label>
+              <input type="number" name="system.mitigation.psychic" value="{{system.mitigation.psychic}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Toxic</label>
+              <input type="number" name="system.mitigation.toxic" value="{{system.mitigation.toxic}}" placeholder="0"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="detection-section">
+          <h3>Detection & Awareness</h3>
+          <div class="detection-grid">
+            <div class="form-group">
+              <label>Tremorsense</label>
+              <input type="number" name="system.detections.tremorsense" value="{{system.detections.tremorsense}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Darkvision</label>
+              <input type="number" name="system.detections.darkvision" value="{{system.detections.darkvision}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Blindsight</label>
+              <input type="number" name="system.detections.blindsight" value="{{system.detections.blindsight}}" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Truesight</label>
+              <input type="number" name="system.detections.truesight" value="{{system.detections.truesight}}" placeholder="0"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="immunities-section">
+          <h3>Immunities & Resistances</h3>
+          <div class="immunities-grid">
+            <label class="checkbox-item">
+              <input type="checkbox" name="system.immunities.blind" {{#if system.immunities.blind}}checked{{/if}}/>
+              <span>Blind</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="system.immunities.charmed" {{#if system.immunities.charmed}}checked{{/if}}/>
+              <span>Charmed</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="system.immunities.deafened" {{#if system.immunities.deafened}}checked{{/if}}/>
+              <span>Deafened</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="system.immunities.frightened" {{#if system.immunities.frightened}}checked{{/if}}/>
+              <span>Frightened</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="system.immunities.paralyzed" {{#if system.immunities.paralyzed}}checked{{/if}}/>
+              <span>Paralyzed</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="system.immunities.poisoned" {{#if system.immunities.poisoned}}checked{{/if}}/>
+              <span>Poisoned</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="system.immunities.stunned" {{#if system.immunities.stunned}}checked{{/if}}/>
+              <span>Stunned</span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {{!-- Special Tab --}}
+    <div class="tab" data-group="primary" data-tab="special">
+      <div class="special-content">
+
+        <div class="special-properties-section">
+          <h3>Special Properties</h3>
+          <div class="form-group">
+            <label>Properties Text</label>
+            <textarea name="system.properties" placeholder="Special properties, abilities, or notes" rows="4">{{system.properties}}</textarea>
+          </div>
+        </div>
+
+        <div class="item-effects-section">
+          <h3>Item Effects</h3>
+          <div class="effects-container">
+            {{#each system.effects as |effect index|}}
+            <div class="effect-item" data-index="{{index}}">
+              <div class="effect-header">
+                <input type="text" name="system.effects.{{index}}.name" value="{{effect.name}}" placeholder="Effect Name"/>
+                <button type="button" class="effect-delete" title="Delete Effect">×</button>
+              </div>
+              <div class="effect-fields">
+                <div class="form-grid-3col">
+                  <div class="form-group">
+                    <label>Type</label>
+                    <select name="system.effects.{{index}}.type">
+                      <option value="passive" {{#if (eq effect.type "passive")}}selected{{/if}}>Passive</option>
+                      <option value="active" {{#if (eq effect.type "active")}}selected{{/if}}>Active</option>
+                      <option value="triggered" {{#if (eq effect.type "triggered")}}selected{{/if}}>Triggered</option>
+                      <option value="consumable" {{#if (eq effect.type "consumable")}}selected{{/if}}>Consumable</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Duration</label>
+                    <input type="text" name="system.effects.{{index}}.duration" value="{{effect.duration}}" placeholder="Duration"/>
+                  </div>
+                  <div class="form-group">
+                    <label>Data String</label>
+                    <input type="text" name="system.effects.{{index}}.data" value="{{effect.data}}" placeholder="Mechanical data"/>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Description</label>
+                  <textarea name="system.effects.{{index}}.description" placeholder="Effect description" rows="2">{{effect.description}}</textarea>
+                </div>
+              </div>
+            </div>
+            {{/each}}
+            <button type="button" class="add-effect" data-action="add-item-effect">Add New Effect</button>
+          </div>
+        </div>
+
       </div>
     </div>
 

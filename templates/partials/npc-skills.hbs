@@ -12,10 +12,10 @@
           {{#each skillCategories.basic as |skill key|}}
             {{#if (eq skill.attribute "physique")}}
             <div class="skill-row">
-              <span class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
+              <span class="skill-name {{#if (gte skill.value 0)}}rollable skill-roll{{/if}}" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
               <div class="skill-value-group">
                 <input type="number" class="skill-value" name="system.basic.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-                <span class="skill-die {{skillUpgradeClass skill.diceTierModifier}}">{{skill.talent}}{{skillDieWithUpgrade skill.value skill.diceTierModifier}}</span>
+                <span class="skill-die {{skillUpgradeClass skill.tier}}">{{#if (gte skill.value 0)}}{{skill.talent}}{{skillDieWithUpgrade skill.value skill.tier}}{{/if}}</span>
               </div>
             </div>
             {{/if}}
@@ -33,10 +33,10 @@
           {{#each skillCategories.basic as |skill key|}}
             {{#if (eq skill.attribute "finesse")}}
             <div class="skill-row">
-              <span class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
+              <span class="skill-name {{#if (gte skill.value 0)}}rollable skill-roll{{/if}}" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
               <div class="skill-value-group">
                 <input type="number" class="skill-value" name="system.basic.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-                <span class="skill-die {{skillUpgradeClass skill.diceTierModifier}}">{{skill.talent}}{{skillDieWithUpgrade skill.value skill.diceTierModifier}}</span>
+                <span class="skill-die {{skillUpgradeClass skill.tier}}">{{#if (gte skill.value 0)}}{{skill.talent}}{{skillDieWithUpgrade skill.value skill.tier}}{{/if}}</span>
               </div>
             </div>
             {{/if}}
@@ -54,10 +54,10 @@
           {{#each skillCategories.basic as |skill key|}}
             {{#if (eq skill.attribute "mind")}}
             <div class="skill-row">
-              <span class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
+              <span class="skill-name {{#if (gte skill.value 0)}}rollable skill-roll{{/if}}" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
               <div class="skill-value-group">
                 <input type="number" class="skill-value" name="system.basic.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-                <span class="skill-die {{skillUpgradeClass skill.diceTierModifier}}">{{skill.talent}}{{skillDieWithUpgrade skill.value skill.diceTierModifier}}</span>
+                <span class="skill-die {{skillUpgradeClass skill.tier}}">{{#if (gte skill.value 0)}}{{skill.talent}}{{skillDieWithUpgrade skill.value skill.tier}}{{/if}}</span>
               </div>
             </div>
             {{/if}}
@@ -77,10 +77,10 @@
           {{#each skillCategories.basic as |skill key|}}
             {{#if (eq skill.attribute "knowledge")}}
             <div class="skill-row">
-              <span class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
+              <span class="skill-name {{#if (gte skill.value 0)}}rollable skill-roll{{/if}}" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
               <div class="skill-value-group">
                 <input type="number" class="skill-value" name="system.basic.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-                <span class="skill-die {{skillUpgradeClass skill.diceTierModifier}}">{{skill.talent}}{{skillDieWithUpgrade skill.value skill.diceTierModifier}}</span>
+                <span class="skill-die {{skillUpgradeClass skill.tier}}">{{#if (gte skill.value 0)}}{{skill.talent}}{{skillDieWithUpgrade skill.value skill.tier}}{{/if}}</span>
               </div>
             </div>
             {{/if}}
@@ -98,10 +98,10 @@
           {{#each skillCategories.basic as |skill key|}}
             {{#if (eq skill.attribute "social")}}
             <div class="skill-row">
-              <span class="skill-name rollable skill-roll" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
+              <span class="skill-name {{#if (gte skill.value 0)}}rollable skill-roll{{/if}}" data-category="basic" data-skill="{{key}}">{{localizeSkill key}}</span>
               <div class="skill-value-group">
                 <input type="number" class="skill-value" name="system.basic.{{key}}.value" value="{{skill.value}}" data-dtype="Number" min="0" max="6"/>
-                <span class="skill-die {{skillUpgradeClass skill.diceTierModifier}}">{{skill.talent}}{{skillDieWithUpgrade skill.value skill.diceTierModifier}}</span>
+                <span class="skill-die {{skillUpgradeClass skill.tier}}">{{#if (gte skill.value 0)}}{{skill.talent}}{{skillDieWithUpgrade skill.value skill.tier}}{{/if}}</span>
               </div>
             </div>
             {{/if}}

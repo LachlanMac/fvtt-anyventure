@@ -2,21 +2,39 @@
   <div class="sheet-wrapper">
     <aside class="left-sidebar">
       <div class="character-header">
-        <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+        <div class="character-portrait-row npc-portrait-row">
+          <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+        </div>
         <h1 class="charname">
           <input name="name" type="text" value="{{actor.name}}" placeholder="Creature Name"/>
         </h1>
-        <div class="npc-type-select" style="margin-top:6px;">
-          <label>Rank:</label>
-          <select name="system.creatureTier" data-dtype="String" style="width: 140px;">
+        <div class="npc-type-select">
+          <label>Rank</label>
+          <select name="system.creatureTier" data-dtype="String">
             <option value="minion" {{#if (eq system.creatureTier "minion")}}selected{{/if}}>Minion</option>
-            <option value="thrall" {{#if (eq system.creatureTier "thrall")}}selected{{/if}}>Thrall</option>
+            <option value="grunt" {{#if (eq system.creatureTier "grunt")}}selected{{/if}}>Grunt</option>
             <option value="foe" {{#if (eq system.creatureTier "foe")}}selected{{/if}}>Foe</option>
             <option value="champion" {{#if (eq system.creatureTier "champion")}}selected{{/if}}>Champion</option>
             <option value="elite" {{#if (eq system.creatureTier "elite")}}selected{{/if}}>Elite</option>
             <option value="legend" {{#if (eq system.creatureTier "legend")}}selected{{/if}}>Legend</option>
             <option value="mythic" {{#if (eq system.creatureTier "mythic")}}selected{{/if}}>Mythic</option>
             <option value="standard" {{#if (eq system.creatureTier "standard")}}selected{{/if}}>Standard</option>
+          </select>
+        </div>
+        <div class="npc-type-select">
+          <label>Type</label>
+          <select name="system.physicalTraits.creatureType" data-dtype="String">
+            <option value="">Unspecified</option>
+            <option value="beast" {{#if (eq system.physicalTraits.creatureType "beast")}}selected{{/if}}>Beast</option>
+            <option value="divine" {{#if (eq system.physicalTraits.creatureType "divine")}}selected{{/if}}>Divine</option>
+            <option value="humanoid" {{#if (eq system.physicalTraits.creatureType "humanoid")}}selected{{/if}}>Humanoid</option>
+            <option value="dark" {{#if (eq system.physicalTraits.creatureType "dark")}}selected{{/if}}>Dark</option>
+            <option value="undead" {{#if (eq system.physicalTraits.creatureType "undead")}}selected{{/if}}>Undead</option>
+            <option value="elemental" {{#if (eq system.physicalTraits.creatureType "elemental")}}selected{{/if}}>Elemental</option>
+            <option value="fey" {{#if (eq system.physicalTraits.creatureType "fey")}}selected{{/if}}>Fey</option>
+            <option value="plantoid" {{#if (eq system.physicalTraits.creatureType "plantoid")}}selected{{/if}}>Plantoid</option>
+            <option value="construct" {{#if (eq system.physicalTraits.creatureType "construct")}}selected{{/if}}>Construct</option>
+            <option value="monster" {{#if (eq system.physicalTraits.creatureType "monster")}}selected{{/if}}>Monster</option>
           </select>
         </div>
       </div>
@@ -45,22 +63,34 @@
           <div class="resource-bar health">
             <label>Health</label>
             <div class="resource-controls">
+              <button type="button" class="resource-btn minus" data-resource="health" data-action="decrease">
+                <i class="fas fa-minus"></i>
+              </button>
               <div class="resource-values">
                 <input type="number" name="system.resources.health.value" value="{{system.resources.health.value}}"/>
                 <span class="separator">/</span>
                 <input type="number" name="system.resources.health.max" value="{{system.resources.health.max}}"/>
               </div>
+              <button type="button" class="resource-btn plus" data-resource="health" data-action="increase">
+                <i class="fas fa-plus"></i>
+              </button>
             </div>
             <div class="resource-fill" style="width: {{percentage system.resources.health.value system.resources.health.max}}%"></div>
           </div>
           <div class="resource-bar resolve">
             <label>Resolve</label>
             <div class="resource-controls">
+              <button type="button" class="resource-btn minus" data-resource="resolve" data-action="decrease">
+                <i class="fas fa-minus"></i>
+              </button>
               <div class="resource-values">
                 <input type="number" name="system.resources.resolve.value" value="{{system.resources.resolve.value}}"/>
                 <span class="separator">/</span>
                 <input type="number" name="system.resources.resolve.max" value="{{system.resources.resolve.max}}"/>
               </div>
+              <button type="button" class="resource-btn plus" data-resource="resolve" data-action="increase">
+                <i class="fas fa-plus"></i>
+              </button>
             </div>
             <div class="resource-fill" style="width: {{percentage system.resources.resolve.value system.resources.resolve.max}}%"></div>
           </div>
@@ -68,11 +98,17 @@
           <div class="resource-bar energy">
             <label>Energy</label>
             <div class="resource-controls">
+              <button type="button" class="resource-btn minus" data-resource="energy" data-action="decrease">
+                <i class="fas fa-minus"></i>
+              </button>
               <div class="resource-values">
                 <input type="number" name="system.resources.energy.value" value="{{system.resources.energy.value}}"/>
                 <span class="separator">/</span>
                 <input type="number" name="system.resources.energy.max" value="{{system.resources.energy.max}}"/>
               </div>
+              <button type="button" class="resource-btn plus" data-resource="energy" data-action="increase">
+                <i class="fas fa-plus"></i>
+              </button>
             </div>
             <div class="resource-fill" style="width: {{percentage system.resources.energy.value system.resources.energy.max}}%"></div>
           </div>
@@ -81,11 +117,17 @@
           <div class="resource-bar energy">
             <label>Energy</label>
             <div class="resource-controls">
+              <button type="button" class="resource-btn minus" data-resource="energy" data-action="decrease">
+                <i class="fas fa-minus"></i>
+              </button>
               <div class="resource-values">
                 <input type="number" name="system.resources.energy.value" value="{{system.resources.energy.value}}"/>
                 <span class="separator">/</span>
                 <input type="number" name="system.resources.energy.max" value="{{system.resources.energy.max}}"/>
               </div>
+              <button type="button" class="resource-btn plus" data-resource="energy" data-action="increase">
+                <i class="fas fa-plus"></i>
+              </button>
             </div>
             <div class="resource-fill" style="width: {{percentage system.resources.energy.value system.resources.energy.max}}%"></div>
           </div>
@@ -94,11 +136,17 @@
           <div class="resource-bar energy">
             <label>Energy</label>
             <div class="resource-controls">
+              <button type="button" class="resource-btn minus" data-resource="energy" data-action="decrease">
+                <i class="fas fa-minus"></i>
+              </button>
               <div class="resource-values">
                 <input type="number" name="system.resources.energy.value" value="{{system.resources.energy.value}}"/>
                 <span class="separator">/</span>
                 <input type="number" name="system.resources.energy.max" value="{{system.resources.energy.max}}"/>
               </div>
+              <button type="button" class="resource-btn plus" data-resource="energy" data-action="increase">
+                <i class="fas fa-plus"></i>
+              </button>
             </div>
             <div class="resource-fill" style="width: {{percentage system.resources.energy.value system.resources.energy.max}}%"></div>
           </div>
@@ -107,11 +155,17 @@
           <div class="resource-bar energy">
             <label>Energy</label>
             <div class="resource-controls">
+              <button type="button" class="resource-btn minus" data-resource="energy" data-action="decrease">
+                <i class="fas fa-minus"></i>
+              </button>
               <div class="resource-values">
                 <input type="number" name="system.resources.energy.value" value="{{system.resources.energy.value}}"/>
                 <span class="separator">/</span>
                 <input type="number" name="system.resources.energy.max" value="{{system.resources.energy.max}}"/>
               </div>
+              <button type="button" class="resource-btn plus" data-resource="energy" data-action="increase">
+                <i class="fas fa-plus"></i>
+              </button>
             </div>
             <div class="resource-fill" style="width: {{percentage system.resources.energy.value system.resources.energy.max}}%"></div>
           </div>

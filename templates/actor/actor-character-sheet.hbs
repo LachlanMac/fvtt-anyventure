@@ -105,6 +105,25 @@
             </div>
             <div class="resource-fill" style="width: {{percentage system.resources.energy.value system.resources.energy.max}}%"></div>
           </div>
+          {{#if (gt system.resources.mana.max 0)}}
+          <div class="resource-bar mana">
+            <label>Mana</label>
+            <div class="resource-controls">
+              <button type="button" class="resource-btn minus" data-resource="mana" data-action="decrease">
+                <i class="fas fa-minus"></i>
+              </button>
+              <div class="resource-values">
+                <input type="number" name="system.resources.mana.value" value="{{system.resources.mana.value}}"/>
+                <span class="separator">/</span>
+                <input type="number" name="system.resources.mana.max" value="{{system.resources.mana.max}}"/>
+              </div>
+              <button type="button" class="resource-btn plus" data-resource="mana" data-action="increase">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="resource-fill" style="width: {{percentage system.resources.mana.value system.resources.mana.max}}%"></div>
+          </div>
+          {{/if}}
         </div>
       </div>
 

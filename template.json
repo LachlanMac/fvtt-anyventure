@@ -50,6 +50,11 @@
             "value": 5,
             "max": 5,
             "temp": 0
+          },
+          "mana": {
+            "value": 0,
+            "max": 0,
+            "temp": 0
           }
         },
         "movement": {

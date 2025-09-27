@@ -39,35 +39,82 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
       },
       content: `
         <form>
-          <div class="roll-info">
+          <div class="spell-header">
             <h3>${options.spellName || 'Spell'}</h3>
             <div class="energy-warning" style="display:none;"></div>
-            <p><strong>Base Roll:</strong> ${options.baseDice}${options.diceType}kh1</p>
+            ${options.school ? `<div class="spell-school"><strong>School:</strong> ${options.school}${options.subschool ? ` (${options.subschool})` : ''}</div>` : ''}
           </div>
 
-          <div class="spell-summary">
-            <div class="summary-row"><strong>Energy:</strong> ${renderEnergy(options.energy)}</div>
-            ${options.concentration ? `<div class="summary-row"><strong>Concentration:</strong> Yes</div>` : ''}
-            ${options.ritualDuration ? `<div class="summary-row"><strong>Ritual:</strong> ${options.ritualDuration}</div>` : ''}
-            ${options.duration ? `<div class="summary-row"><strong>Duration:</strong> ${options.duration}</div>` : ''}
-            ${renderDamage(options.damage, options.damageType)}
+          <div class="spell-details">
+            <div class="details-column">
+              <div class="detail-group">
+                <h4>Casting</h4>
+                <div class="detail-row"><strong>Energy:</strong> ${renderEnergy(options.energy)}</div>
+                <div class="detail-row"><strong>Check to Cast:</strong> ${options.checkToCast || 'None'}</div>
+                ${options.concentration ? `<div class="detail-row"><strong>Concentration:</strong> Yes</div>` : ''}
+                ${options.reaction ? `<div class="detail-row"><strong>Reaction:</strong> ${options.reaction}</div>` : ''}
+              </div>
+
+              ${(options.range || options.duration || options.ritualDuration) ? `
+              <div class="detail-group">
+                <h4>Range & Duration</h4>
+                ${options.range ? `<div class="detail-row"><strong>Range:</strong> ${options.range}</div>` : ''}
+                ${options.duration ? `<div class="detail-row"><strong>Duration:</strong> ${options.duration}</div>` : ''}
+                ${options.ritualDuration ? `<div class="detail-row"><strong>Ritual Duration:</strong> ${options.ritualDuration}</div>` : ''}
+              </div>
+              ` : ''}
+            </div>
+
+            <div class="details-column">
+              ${(options.damage && options.damageType) ? `
+              <div class="detail-group">
+                <h4>Damage</h4>
+                ${renderDamage(options.damage, options.damageType)}
+              </div>
+              ` : ''}
+
+              ${(options.components && Array.isArray(options.components) && options.components.length > 0) ? `
+              <div class="detail-group">
+                <h4>Components</h4>
+                <div class="detail-row">${options.components.filter(Boolean).join(', ')}</div>
+              </div>
+              ` : ''}
+            </div>
           </div>
 
-          ${options.description ? `<div class="spell-description">${options.description}</div>` : ''}
-          ${options.charge ? `<div class="spell-charge"><strong>Charge Effect:</strong><br>${options.charge}</div>` : ''}
-
-          <div class="form-group">
-            <label for="bonus-dice">Bonus Dice:</label>
-            <input type="number" id="bonus-dice" name="bonusDice" value="0" min="0" max="10" />
+          ${options.description ? `
+          <div class="spell-text-section">
+            <h4>Description</h4>
+            <div class="spell-description">${options.description}</div>
           </div>
+          ` : ''}
 
-          <div class="form-group">
-            <label for="penalty-dice">Penalty Dice:</label>
-            <input type="number" id="penalty-dice" name="penaltyDice" value="0" min="0" max="10" />
+          ${options.charge ? `
+          <div class="spell-text-section">
+            <h4>Charge Effect</h4>
+            <div class="spell-charge">${options.charge}</div>
           </div>
+          ` : ''}
 
-          <div class="roll-preview">
-            <p><strong>Final Roll:</strong> <span id="final-formula">${options.baseDice}${options.diceType}kh1</span></p>
+          <div class="casting-options">
+            <h4>Casting Options</h4>
+            <div class="roll-info">
+              <p><strong>Base Roll:</strong> ${options.baseDice}${options.diceType}kh1</p>
+            </div>
+
+            <div class="form-group">
+              <label for="bonus-dice">Bonus Dice:</label>
+              <input type="number" id="bonus-dice" name="bonusDice" value="0" min="0" max="10" />
+            </div>
+
+            <div class="form-group">
+              <label for="penalty-dice">Penalty Dice:</label>
+              <input type="number" id="penalty-dice" name="penaltyDice" value="0" min="0" max="10" />
+            </div>
+
+            <div class="roll-preview">
+              <p><strong>Final Roll:</strong> <span id="final-formula">${options.baseDice}${options.diceType}kh1</span></p>
+            </div>
           </div>
         </form>
       `,
@@ -104,11 +151,13 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
     bonusInput.addEventListener('input', updateFormula);
     penaltyInput.addEventListener('input', updateFormula);
 
-    // Show channel warning if cannot channel
-    if (!this.canChannel) {
+    // Show channel warning if cannot channel (only if check is very high relative to max possible roll)
+    const maxPossibleRoll = this.diceType.substring(1); // Remove 'd' prefix
+    const reasonableSuccess = this.checkToCast <= Math.floor(maxPossibleRoll * 0.6); // 60% of max die value
+    if (this.checkToCast > 0 && !reasonableSuccess) {
       const warnEl = this.element.querySelector('.energy-warning');
       if (warnEl) {
-        warnEl.textContent = `Can’t Channel: insufficient talent or value for required check (${this.checkToCast}).`;
+        warnEl.textContent = `Difficult Channel: check of ${this.checkToCast} required with max die value of ${maxPossibleRoll}.`;
         warnEl.style.display = 'block';
         warnEl.setAttribute('role', 'alert');
         warnEl.setAttribute('aria-live', 'polite');
@@ -224,11 +273,13 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
       flavorText += `<div class="damage-info"><span class="damage-type ${f.cssClass}">${dmg} ${f.text}</span></div>`;
     }
 
-    // Description and Charge effect
+    // Description
     if (this.spell?.system?.description) {
       flavorText += `<div class="ability-description">${this.spell.system.description}</div>`;
     }
-    if (mode === 'charge' && this.spell?.system?.charge) {
+
+    // Charge effect (always show if it exists)
+    if (this.spell?.system?.charge) {
       flavorText += `<div class="ability-description"><strong>Charge Effect:</strong><br>${this.spell.system.charge}</div>`;
     }
 

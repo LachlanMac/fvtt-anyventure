@@ -38,6 +38,28 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     });
   }
 
+  /**
+   * Calculate energy cost with trait adjustments
+   */
+  _calculateEnergyWithTraits(baseEnergy, weaponCategory) {
+    // Only apply to character actors, not NPCs
+    if (this.actor.type !== 'character') {
+      return baseEnergy;
+    }
+
+    let adjustedEnergy = baseEnergy;
+
+    // EFFICIENT_WEAPONRY: Reduce energy cost by 1 for complex weapons
+    if (this.actor.system.conditionals?.flags?.EFFICIENT_WEAPONRY === true) {
+      const isComplexWeapon = weaponCategory === 'complexMeleeWeapons' || weaponCategory === 'complexRangedWeapons';
+      if (isComplexWeapon) {
+        adjustedEnergy = Math.max(0, adjustedEnergy - 1);
+      }
+    }
+
+    return adjustedEnergy;
+  }
+
   /** @override */
   get template() {
     return `systems/anyventure/templates/actor/actor-${this.actor.type}-sheet.hbs`;
@@ -227,11 +249,11 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       processOptions(module.system.options, module.name, false);
     }
 
-    // Process ancestry items (all options are automatically selected)
+    // Process ancestry items (respect selected field like other item types)
     const ancestries = context.items.filter(i => i.type === 'ancestry');
     for (const ancestry of ancestries) {
       if (!ancestry.system.options) continue;
-      processOptions(ancestry.system.options, ancestry.name, true);
+      processOptions(ancestry.system.options, ancestry.name, false);
     }
 
     // Process trait items (only selected options)
@@ -281,10 +303,10 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
       // Log each action and why it's being categorized
       allActions.forEach(action => {
-        const actionType = action.system?.actionType;
-        const isAttack = actionType === 'attack';
+        const abilityType = action.system?.abilityType;
+        const isAttack = abilityType === 'attack';
         console.log(action);
-        console.log(`[Anyventure] Action: "${action.name}" | actionType: "${actionType}" | Goes to: ${isAttack ? 'ATTACKS section' : 'ACTIONS section'}`);
+        console.log(`[Anyventure] Action: "${action.name}" | actionType: "${abilityType}" | Goes to: ${isAttack ? 'ATTACKS section' : 'ACTIONS section'}`);
       });
 
       // Log reactions
@@ -295,8 +317,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     // Separate attack actions from regular actions
-    const attackActions = allActions.filter(i => i.system.actionType === 'attack');
-    const regularActions = allActions.filter(i => i.system.actionType !== 'attack');
+    const attackActions = allActions.filter(i => i.system.abilityType === 'attack');
+    const regularActions = allActions.filter(i => i.system.abilityType !== 'attack');
 
     // Sort by name for better organization
     attackActions.sort((a, b) => a.name.localeCompare(b.name));
@@ -583,7 +605,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
             secondaryDamage: Number(attackData.secondary_damage ?? 0),
             secondaryDamageExtra: Number(attackData.secondary_damage_extra ?? 0),
             secondaryDamageType: formatDamageType(attackData.secondary_damage_type || 'none'),
-            energy: Number(attackData.energy ?? 0),
+            energy: this._calculateEnergyWithTraits(Number(attackData.energy ?? 0), weaponCategory),
             minRange: Number(attackData.min_range ?? 0),
             maxRange: Number(attackData.max_range ?? 1),
             rangeText: formatRange(Number(attackData.min_range ?? 0), Number(attackData.max_range ?? 1)),
@@ -635,7 +657,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
             secondaryDamage: Number(attackData.secondary_damage ?? 0),
             secondaryDamageExtra: Number(attackData.secondary_damage_extra ?? 0),
             secondaryDamageType: formatDamageType(attackData.secondary_damage_type || 'none'),
-            energy: Number(attackData.energy ?? 0),
+            energy: this._calculateEnergyWithTraits(Number(attackData.energy ?? 0), weaponCategory),
             minRange: Number(attackData.min_range ?? 0),
             maxRange: Number(attackData.max_range ?? 1),
             rangeText: formatRange(Number(attackData.min_range ?? 0), Number(attackData.max_range ?? 1)),
@@ -856,9 +878,14 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Render the item sheet for viewing/editing prior to the editable check.
     html.find('.item-edit').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      const item = this.actor.items.get(li.data("itemId"));
-      item.sheet.render(true);
+      const li = $(ev.currentTarget).closest(".item, .inventory-row");
+      const itemId = li.data("itemId") || li.data("item-id");
+      const item = this.actor.items.get(itemId);
+      if (item) {
+        item.sheet.render(true);
+      } else {
+        ui.notifications.error(`Item not found`);
+      }
     });
 
     // Spell casting clicks (available even in readonly mode)
@@ -1312,6 +1339,15 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const skill = dataset.skill;
 
     if (category && skill) {
+      // For NPCs, prevent rolling skills with value < 0 (can't use skill)
+      if (this.actor.type === 'npc') {
+        const skillData = this.actor.system[category]?.[skill];
+        if (skillData && skillData.value < 0) {
+          ui.notifications.warn(`This creature cannot use ${skill} (skill value is ${skillData.value})`);
+          return;
+        }
+      }
+
       return this.actor.rollSkill(category, skill);
     }
   }
@@ -1531,6 +1567,13 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const abilityType = element.dataset.abilityType;
     const energyCost = parseInt(element.dataset.energyCost) || 0;
 
+    console.debug('[Anyventure|AbilityUse] Click detected', {
+      itemId,
+      abilityType,
+      energyCost,
+      dataset: { ...element.dataset }
+    });
+
     // Get the ability item
     const item = this.actor.items.get(itemId);
     if (!item) {
@@ -1545,7 +1588,34 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       return;
     }
 
-    // Show confirmation dialog
+    // If this ability has attack data, route through the attack dialog workflow
+    if (abilityType === 'attack') {
+      console.debug('[Anyventure|AbilityUse] Attack ability detected', {
+        itemId,
+        abilityType,
+        attackData: item.system?.attackData,
+        legacyAttackFields: {
+          roll: item.system?.roll,
+          damage: item.system?.damage,
+          damage_extra: item.system?.damage_extra,
+          damage_type: item.system?.damage_type
+        }
+      });
+
+      const attackDialogOptions = this._buildAbilityAttackRollOptions(item, abilityType);
+      if (attackDialogOptions) {
+        console.debug('[Anyventure|AbilityUse] Launching attack dialog', attackDialogOptions);
+        await AnyventureAttackRollDialog.show(attackDialogOptions);
+        return;
+      }
+      console.warn('[Anyventure|AbilityUse] Ability marked as attack but no valid attack options produced.', {
+        itemId,
+        abilityType,
+        parsedAttackData: item.system?.attackData
+      });
+    }
+
+    // Fallback: show confirmation dialog and post to chat as a generic ability use
     const abilityName = item.name;
     const description = item.system.description || "No description available";
 
@@ -1592,10 +1662,141 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
           </div>
         </div>
       `,
-      type: CONST.CHAT_MESSAGE_TYPES.OTHER
+      style: CONST.CHAT_MESSAGE_STYLES.OTHER
     };
 
     ChatMessage.create(chatData);
+  }
+
+  /**
+   * Prepare attack roll dialog options for an ability that includes attack data
+   * @param {Item} item - The ability item
+   * @param {string} abilityType - The ability type string from the dataset
+   * @returns {Object|null} Options for AnyventureAttackRollDialog or null if roll data is invalid
+   * @private
+   */
+  _buildAbilityAttackRollOptions(item, abilityType) {
+    let rawAttack = item.system?.attackData;
+
+    // Support legacy flat placement of attack fields before the attackData template was enforced
+    const legacyRoll = item.system?.roll;
+    if (!rawAttack && typeof legacyRoll === 'string') {
+      console.debug('[Anyventure|AbilityUse] Promoting legacy attack fields to attackData', {
+        itemId: item.id,
+        legacy: {
+          roll: item.system?.roll,
+          damage: item.system?.damage,
+          damage_extra: item.system?.damage_extra,
+          damage_type: item.system?.damage_type,
+          secondary_damage: item.system?.secondary_damage,
+          secondary_damage_extra: item.system?.secondary_damage_extra,
+          secondary_damage_type: item.system?.secondary_damage_type,
+          category: item.system?.category,
+          min_range: item.system?.min_range,
+          max_range: item.system?.max_range
+        }
+      });
+
+      rawAttack = {
+        roll: item.system?.roll ?? '1d6',
+        damage: item.system?.damage ?? '0',
+        damage_extra: item.system?.damage_extra ?? '0',
+        damage_type: item.system?.damage_type ?? 'physical',
+        secondary_damage: item.system?.secondary_damage ?? '0',
+        secondary_damage_extra: item.system?.secondary_damage_extra ?? '0',
+        secondary_damage_type: item.system?.secondary_damage_type ?? 'none',
+        category: item.system?.category ?? 'slash',
+        min_range: item.system?.min_range ?? 0,
+        max_range: item.system?.max_range ?? 1
+      };
+
+      item.update({ 'system.attackData': rawAttack }, { render: false }).catch(() => {});
+    }
+
+    if (!rawAttack || typeof rawAttack.roll !== 'string' || !rawAttack.roll.trim()) {
+      console.debug('[Anyventure|AbilityUse] No structured attack data present for ability', {
+        itemId: item.id,
+        abilityType,
+        rawAttack
+      });
+      return null;
+    }
+
+    const attackData = foundry.utils?.duplicate
+      ? foundry.utils.duplicate(rawAttack)
+      : JSON.parse(JSON.stringify(rawAttack));
+
+    const parsedRoll = this._parseAbilityAttackRoll(attackData.roll);
+    if (!parsedRoll) return null;
+
+    const energyCost = Number(item.system.energy ?? 0);
+    const minRangeRaw = Number(attackData.min_range ?? 0);
+    const maxRangeRaw = Number(attackData.max_range ?? minRangeRaw);
+    const minRange = Number.isFinite(minRangeRaw) ? minRangeRaw : 0;
+    const maxRange = Number.isFinite(maxRangeRaw) ? maxRangeRaw : minRange;
+
+    const abilityAttack = {
+      weaponName: item.name,
+      attackType: formatCategory(attackData.category || 'slash'),
+      rawCategory: attackData.category || 'slash',
+      damage: Number(attackData.damage ?? 0),
+      damageExtra: Number(attackData.damage_extra ?? 0),
+      damageType: formatDamageType(attackData.damage_type || 'physical'),
+      secondaryDamage: Number(attackData.secondary_damage ?? 0),
+      secondaryDamageExtra: Number(attackData.secondary_damage_extra ?? 0),
+      secondaryDamageType: formatDamageType(attackData.secondary_damage_type || 'none'),
+      energy: energyCost,
+      minRange,
+      maxRange,
+      rangeText: formatRange(minRange, maxRange),
+      abilityId: item.id,
+      abilityType,
+      roll: attackData.roll
+    };
+
+    return {
+      title: `${item.name} Attack`,
+      weaponName: item.name,
+      baseDice: parsedRoll.baseDice,
+      diceType: parsedRoll.diceType,
+      inherentPenalty: parsedRoll.inherentPenalty,
+      attackData: abilityAttack,
+      actor: this.actor
+    };
+  }
+
+  /**
+   * Parse an ability attack roll string into dialog parameters
+   * @param {string} rollStr - Roll string from the ability attack data
+   * @returns {Object|null} Parsed data containing baseDice, diceType, inherentPenalty
+   * @private
+   */
+  _parseAbilityAttackRoll(rollStr) {
+    if (!rollStr || typeof rollStr !== 'string') return null;
+    const trimmed = rollStr.trim();
+    if (!trimmed.length) return null;
+
+    const simpleMatch = trimmed.match(/^([0-9]+)d([0-9]+)(kh[0-9]+|kl[0-9]+)?$/i);
+    if (simpleMatch) {
+      const baseDice = Math.max(parseInt(simpleMatch[1], 10) || 1, 1);
+      const faces = Math.max(parseInt(simpleMatch[2], 10) || 6, 2);
+      return { baseDice, diceType: `d${faces}`, inherentPenalty: 0 };
+    }
+
+    try {
+      const roll = new Roll(trimmed);
+      const DieTerm = foundry?.dice?.terms?.Die;
+      const dieTerm = DieTerm ? roll.terms.find(term => term instanceof DieTerm) : null;
+      if (dieTerm) {
+        const baseDice = Math.max(Number(dieTerm.number) || 1, 1);
+        const faces = Math.max(Number(dieTerm.faces) || 6, 2);
+        return { baseDice, diceType: `d${faces}`, inherentPenalty: 0 };
+      }
+    } catch (err) {
+      console.warn(`[Anyventure] Unable to parse ability attack roll "${rollStr}"`, err);
+    }
+
+    return null;
   }
 
   /**
@@ -2584,7 +2785,19 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       checkToCast: spell.system.checkToCast || 0,
       isFizzled: spell.system.fizzled || false,
       spell: spell,
-      actor: this.actor
+      actor: this.actor,
+      // Pass all spell data for display
+      description: spell.system.description,
+      charge: spell.system.charge,
+      components: spell.system.components,
+      damage: spell.system.damage,
+      damageType: spell.system.damageType,
+      range: spell.system.range,
+      duration: spell.system.duration,
+      ritualDuration: spell.system.ritualDuration,
+      school: spell.system.school,
+      subschool: spell.system.subschool,
+      reaction: spell.system.reaction
     });
 
     dialog.render(true);
@@ -2641,6 +2854,64 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
   _getDiceTypeForLevel(level) {
     const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20'];
     return diceTypes[Math.min(Math.max(level, 0), 6)] || 'd4';
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle clicking on the edit item button
+   * @param {Event} event   The originating click event
+   * @private
+   */
+  async _onItemEdit(event) {
+    event.preventDefault();
+    const li = event.currentTarget.closest('.inventory-row');
+    const itemId = li?.dataset?.itemId;
+
+    console.log('Edit item clicked:', { li, itemId, actorItems: this.actor.items });
+
+    if (!itemId) {
+      ui.notifications.error('Could not find item ID');
+      return;
+    }
+
+    const item = this.actor.items.get(itemId);
+    console.log('Found item:', item);
+
+    if (item) {
+      item.sheet.render(true);
+    } else {
+      ui.notifications.error(`Item with ID ${itemId} not found`);
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle clicking on the delete item button
+   * @param {Event} event   The originating click event
+   * @private
+   */
+  async _onItemDelete(event) {
+    event.preventDefault();
+    const li = event.currentTarget.closest('.inventory-row');
+    const itemId = li.dataset.itemId;
+    const item = this.actor.items.get(itemId);
+
+    if (item) {
+      const confirmed = await Dialog.confirm({
+        title: `Delete ${item.name}?`,
+        content: `<p>Are you sure you want to delete <strong>${item.name}</strong>?</p><p>This action cannot be undone.</p>`,
+        yes: () => true,
+        no: () => false,
+        defaultYes: false
+      });
+
+      if (confirmed) {
+        await item.delete();
+        ui.notifications.info(`Deleted ${item.name}`);
+      }
+    }
   }
 
   /* -------------------------------------------- */

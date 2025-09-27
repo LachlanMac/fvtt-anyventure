@@ -9,7 +9,9 @@
       "Bash(mkdir:*)",
       "Bash(git checkout:*)",
       "Bash(git log:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   }

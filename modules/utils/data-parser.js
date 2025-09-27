@@ -46,7 +46,7 @@ export function createEmptyDelta() {
     },
 
     // Skill Dice Tier Modifiers (X = +1, Y = -1)
-    skillDiceTierModifiers: {
+    skillTierModifiers: {
       fitness: 0,
       deflection: 0,
       might: 0,
@@ -71,31 +71,31 @@ export function createEmptyDelta() {
 
     // Weapon Skills (WS1-WS6, WT1-WT6)
     weaponSkills: {
-      brawling: { skill: 0, talent: 0, diceTierModifier: 0 },
-      throwing: { skill: 0, talent: 0, diceTierModifier: 0 },
-      simpleMeleeWeapons: { skill: 0, talent: 0, diceTierModifier: 0 },
-      simpleRangedWeapons: { skill: 0, talent: 0, diceTierModifier: 0 },
-      complexMeleeWeapons: { skill: 0, talent: 0, diceTierModifier: 0 },
-      complexRangedWeapons: { skill: 0, talent: 0, diceTierModifier: 0 }
+      brawling: { skill: 0, talent: 0, tier: 0 },
+      throwing: { skill: 0, talent: 0, tier: 0 },
+      simpleMeleeWeapons: { skill: 0, talent: 0, tier: 0 },
+      simpleRangedWeapons: { skill: 0, talent: 0, tier: 0 },
+      complexMeleeWeapons: { skill: 0, talent: 0, tier: 0 },
+      complexRangedWeapons: { skill: 0, talent: 0, tier: 0 }
     },
 
     // Magic Skills (YS1-YS5, YT1-YT5)
     magicSkills: {
-      black: { skill: 0, talent: 0, diceTierModifier: 0 },
-      primal: { skill: 0, talent: 0, diceTierModifier: 0 },
-      metamagic: { skill: 0, talent: 0, diceTierModifier: 0 },
-      divine: { skill: 0, talent: 0, diceTierModifier: 0 },
-      mysticism: { skill: 0, talent: 0, diceTierModifier: 0 }
+      black: { skill: 0, talent: 0, tier: 0 },
+      primal: { skill: 0, talent: 0, tier: 0 },
+      metamagic: { skill: 0, talent: 0, tier: 0 },
+      divine: { skill: 0, talent: 0, tier: 0 },
+      mysticism: { skill: 0, talent: 0, tier: 0 }
     },
 
     // Crafting Skills (CS1-CS6, CT1-CT6)
     craftingSkills: {
-      engineering: { skill: 0, talent: 0, diceTierModifier: 0 },
-      fabrication: { skill: 0, talent: 0, diceTierModifier: 0 },
-      alchemy: { skill: 0, talent: 0, diceTierModifier: 0 },
-      cooking: { skill: 0, talent: 0, diceTierModifier: 0 },
-      glyphcraft: { skill: 0, talent: 0, diceTierModifier: 0 },
-      bioshaping: { skill: 0, talent: 0, diceTierModifier: 0 }
+      engineering: { skill: 0, talent: 0, tier: 0 },
+      fabrication: { skill: 0, talent: 0, tier: 0 },
+      alchemy: { skill: 0, talent: 0, tier: 0 },
+      cooking: { skill: 0, talent: 0, tier: 0 },
+      glyphcraft: { skill: 0, talent: 0, tier: 0 },
+      bioshaping: { skill: 0, talent: 0, tier: 0 }
     },
 
     // Mitigations (M1-M9, MA)
@@ -131,6 +131,21 @@ export function createEmptyDelta() {
       swim: 0,
       climb: 0,
       fly: 0
+    },
+
+    // Weapon Modifications (AA-AF from Auto codes)
+    weaponModifications: {
+      simpleRangedMinRange: 0,
+      simpleRangedMaxRange: 0,
+      complexRangedMinRange: 0,
+      complexRangedMaxRange: 0,
+      throwingMinRange: 0,
+      throwingMaxRange: 0
+    },
+
+    // Special Combat Features (AZ from Auto codes)
+    combatFeatures: {
+      dualWieldTier: 0
     },
 
     // Immunities (I-series)
@@ -260,7 +275,8 @@ function parseIndividualEffect(effect, delta) {
       'D': 'BADGE_OF_HONOR',
       'E': 'WEAPON_COLLECTOR',
       'F': 'TWIN_FURY',
-      'G': 'PASSIVE_SHELL'
+      'G': 'PASSIVE_SHELL',
+      'H': 'EFFICIENT_WEAPONRY',
     };
     const key = flagMap[code];
     if (key) delta.flags[key] = true;
@@ -282,8 +298,15 @@ function parseIndividualEffect(effect, delta) {
     return;
   }
 
-  // Handle personality marker (legacy)
-  if (effect === 'TP') {
+  // Trait codes (T) - TA, TG, TC, TX (excluding TP talent points)
+  const traitCodeMatch = effect.match(/^T([AGCX])(?:=(.+))?$/);
+  if (traitCodeMatch) {
+    parseTraitEffect(traitCodeMatch, delta);
+    return;
+  }
+
+  // Handle TP (talent points) - ignore these as they're not needed
+  if (effect.match(/^TP(?:=\d+)?$/)) {
     return;
   }
 
@@ -342,7 +365,7 @@ function parseSkillEffect([_, type, code, valueStr], delta) {
         if (typeof value === 'string' && (value === 'X' || value === 'Y')) {
           // Handle dice tier modifications
           const modifier = value === 'X' ? 1 : -1;
-          delta.skillDiceTierModifiers[skillName] += modifier;
+          delta.skillTierModifiers[skillName] += modifier;
         } else if (typeof value === 'number') {
           delta.skills[skillName] += value;
         }
@@ -373,7 +396,7 @@ function parseWeaponEffect([_, type, code, valueStr], delta) {
   if (type === 'S') { // Skill value or dice tier modifier
     if (typeof value === 'string' && (value === 'X' || value === 'Y')) {
       const modifier = value === 'X' ? 1 : -1;
-      delta.weaponSkills[weaponName].diceTierModifier += modifier;
+      delta.weaponSkills[weaponName].tier += modifier;
     } else if (typeof value === 'number') {
       delta.weaponSkills[weaponName].skill += value;
     }
@@ -430,7 +453,7 @@ function parseCraftingEffect([_, type, code, valueStr], delta) {
   if (type === 'S') { // Skill value or dice tier modifier
     if (typeof value === 'string' && (value === 'X' || value === 'Y')) {
       const modifier = value === 'X' ? 1 : -1;
-      delta.craftingSkills[craftingName].diceTierModifier += modifier;
+      delta.craftingSkills[craftingName].tier += modifier;
     } else if (typeof value === 'number') {
       delta.craftingSkills[craftingName].skill += value;
     }
@@ -473,8 +496,71 @@ function parseAutoEffect([_, code, valueStr], delta) {
     '8': 'maxMorale', '9': 'spellCapacity', 'M': 'manaPoints'
   };
 
+  const weaponModMap = {
+    'A': 'simpleRangedMinRange',
+    'B': 'simpleRangedMaxRange',
+    'C': 'complexRangedMinRange',
+    'D': 'complexRangedMaxRange',
+    'E': 'throwingMinRange',
+    'F': 'throwingMaxRange'
+  };
+
   if (autoMap[code]) {
+    // Simple logging for mana parsing
+    if (code === 'M') {
+      console.log(`[Data Parser] Adding ${value} mana points`);
+    }
     delta.resources[autoMap[code]] += value;
+  } else if (weaponModMap[code]) {
+    delta.weaponModifications[weaponModMap[code]] += value;
+  } else if (code === 'Z') {
+    // Handle dual wield tiers (AZ=1 or AZ=2)
+    if (value === 1 || value === 2) {
+      // Take the highest tier if multiple are applied
+      delta.combatFeatures.dualWieldTier = Math.max(delta.combatFeatures.dualWieldTier, value);
+    }
+  }
+}
+
+/**
+ * Parse trait effects like TA, TG, TC, TX (excluding TP talent points)
+ */
+function parseTraitEffect([_, code, value], delta) {
+  const traitTypeMap = {
+    'A': 'ancestry',
+    'G': 'general',
+    'C': 'crafting',
+    'X': 'general' // TX maps to general traits
+  };
+
+  const traitType = traitTypeMap[code];
+  if (!traitType) {
+    return;
+  }
+
+  // Initialize traits array if it doesn't exist
+  if (!delta.traits) {
+    delta.traits = [];
+  }
+
+  // Add trait marker to the delta
+  // The value parameter can be used for trait-specific data if needed
+  const trait = {
+    type: traitType,
+    code: `T${code}`,
+    value: value || null
+  };
+
+  // Check if this trait type already exists and merge if needed
+  const existingIndex = delta.traits.findIndex(t => t.code === trait.code);
+  if (existingIndex >= 0) {
+    // Update existing trait
+    if (trait.value !== null) {
+      delta.traits[existingIndex].value = trait.value;
+    }
+  } else {
+    // Add new trait
+    delta.traits.push(trait);
   }
 }
 
@@ -581,29 +667,29 @@ export function combineDeltas(deltas) {
     });
 
     // Combine skill dice tier modifiers
-    Object.entries(delta.skillDiceTierModifiers).forEach(([skill, modifier]) => {
-      combined.skillDiceTierModifiers[skill] += modifier;
+    Object.entries(delta.skillTierModifiers).forEach(([skill, modifier]) => {
+      combined.skillTierModifiers[skill] += modifier;
     });
 
     // Combine weapon skills
     Object.entries(delta.weaponSkills).forEach(([weapon, data]) => {
       combined.weaponSkills[weapon].skill += data.skill;
       combined.weaponSkills[weapon].talent += data.talent;
-      combined.weaponSkills[weapon].diceTierModifier += data.diceTierModifier;
+      combined.weaponSkills[weapon].tier += data.tier;
     });
 
     // Combine magic skills
     Object.entries(delta.magicSkills).forEach(([magic, data]) => {
       combined.magicSkills[magic].skill += data.skill;
       combined.magicSkills[magic].talent += data.talent;
-      combined.magicSkills[magic].diceTierModifier += data.diceTierModifier;
+      combined.magicSkills[magic].tier += data.tier;
     });
 
     // Combine crafting skills
     Object.entries(delta.craftingSkills).forEach(([craft, data]) => {
       combined.craftingSkills[craft].skill += data.skill;
       combined.craftingSkills[craft].talent += data.talent;
-      combined.craftingSkills[craft].diceTierModifier += data.diceTierModifier;
+      combined.craftingSkills[craft].tier += data.tier;
     });
 
     // Combine mitigation
@@ -619,6 +705,20 @@ export function combineDeltas(deltas) {
     // Combine movement
     Object.entries(delta.movement).forEach(([type, value]) => {
       combined.movement[type] += value;
+    });
+
+    // Combine weapon modifications
+    Object.entries(delta.weaponModifications).forEach(([modification, value]) => {
+      combined.weaponModifications[modification] += value;
+    });
+
+    // Combine combat features (take highest tier for dual wield)
+    Object.entries(delta.combatFeatures).forEach(([feature, value]) => {
+      if (feature === 'dualWieldTier') {
+        combined.combatFeatures[feature] = Math.max(combined.combatFeatures[feature], value);
+      } else {
+        combined.combatFeatures[feature] += value;
+      }
     });
 
     // Combine immunities (merge arrays)
@@ -669,12 +769,12 @@ export function applyDeltaToCharacter(character, delta) {
   });
 
   // Apply skill dice tier modifiers
-  Object.entries(delta.skillDiceTierModifiers).forEach(([skill, modifier]) => {
+  Object.entries(delta.skillTierModifiers).forEach(([skill, modifier]) => {
     if (modifier !== 0 && character.skills && character.skills[skill]) {
-      if (!character.skills[skill].diceTierModifier) {
-        character.skills[skill].diceTierModifier = 0;
+      if (!character.skills[skill].tier) {
+        character.skills[skill].tier = 0;
       }
-      character.skills[skill].diceTierModifier += modifier;
+      character.skills[skill].tier += modifier;
     }
   });
 
@@ -683,11 +783,11 @@ export function applyDeltaToCharacter(character, delta) {
     if (character.weaponSkills && character.weaponSkills[weapon]) {
       if (data.skill !== 0) character.weaponSkills[weapon].value += data.skill;
       if (data.talent !== 0) character.weaponSkills[weapon].talent += data.talent;
-      if (data.diceTierModifier !== 0) {
-        if (!character.weaponSkills[weapon].diceTierModifier) {
-          character.weaponSkills[weapon].diceTierModifier = 0;
+      if (data.tier !== 0) {
+        if (!character.weaponSkills[weapon].tier) {
+          character.weaponSkills[weapon].tier = 0;
         }
-        character.weaponSkills[weapon].diceTierModifier += data.diceTierModifier;
+        character.weaponSkills[weapon].tier += data.tier;
       }
     }
   });
@@ -697,11 +797,11 @@ export function applyDeltaToCharacter(character, delta) {
     if (character.magicSkills && character.magicSkills[magic]) {
       if (data.skill !== 0) character.magicSkills[magic].value += data.skill;
       if (data.talent !== 0) character.magicSkills[magic].talent += data.talent;
-      if (data.diceTierModifier !== 0) {
-        if (!character.magicSkills[magic].diceTierModifier) {
-          character.magicSkills[magic].diceTierModifier = 0;
+      if (data.tier !== 0) {
+        if (!character.magicSkills[magic].tier) {
+          character.magicSkills[magic].tier = 0;
         }
-        character.magicSkills[magic].diceTierModifier += data.diceTierModifier;
+        character.magicSkills[magic].tier += data.tier;
       }
     }
   });
@@ -711,11 +811,11 @@ export function applyDeltaToCharacter(character, delta) {
     if (character.craftingSkills && character.craftingSkills[craft]) {
       if (data.skill !== 0) character.craftingSkills[craft].value += data.skill;
       if (data.talent !== 0) character.craftingSkills[craft].talent += data.talent;
-      if (data.diceTierModifier !== 0) {
-        if (!character.craftingSkills[craft].diceTierModifier) {
-          character.craftingSkills[craft].diceTierModifier = 0;
+      if (data.tier !== 0) {
+        if (!character.craftingSkills[craft].tier) {
+          character.craftingSkills[craft].tier = 0;
         }
-        character.craftingSkills[craft].diceTierModifier += data.diceTierModifier;
+        character.craftingSkills[craft].tier += data.tier;
       }
     }
   });
@@ -750,6 +850,16 @@ export function applyDeltaToCharacter(character, delta) {
         case 'spellCapacity':
           character.spellSlots = (character.spellSlots || 10) + value;
           break;
+        case 'maxMorale':
+          if (character.resources && character.resources.morale) {
+            character.resources.morale.max += value;
+          }
+          break;
+        case 'manaPoints':
+          if (character.resources && character.resources.mana) {
+            character.resources.mana.max += value;
+          }
+          break;
       }
     }
   });
@@ -763,6 +873,27 @@ export function applyDeltaToCharacter(character, delta) {
         // Store for later calculation
         if (!character.movement_bonuses) character.movement_bonuses = {};
         character.movement_bonuses[type] = (character.movement_bonuses[type] || 0) + value;
+      }
+    }
+  });
+
+  // Apply weapon modifications
+  Object.entries(delta.weaponModifications).forEach(([modification, value]) => {
+    if (value !== 0) {
+      if (!character.weaponModifications) character.weaponModifications = {};
+      character.weaponModifications[modification] = (character.weaponModifications[modification] || 0) + value;
+    }
+  });
+
+  // Apply combat features
+  Object.entries(delta.combatFeatures).forEach(([feature, value]) => {
+    if (value !== 0) {
+      if (!character.combatFeatures) character.combatFeatures = {};
+      if (feature === 'dualWieldTier') {
+        // Take the highest tier
+        character.combatFeatures[feature] = Math.max(character.combatFeatures[feature] || 0, value);
+      } else {
+        character.combatFeatures[feature] = (character.combatFeatures[feature] || 0) + value;
       }
     }
   });

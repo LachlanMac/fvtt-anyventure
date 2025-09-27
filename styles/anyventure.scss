@@ -6,19 +6,29 @@
 /*  Anyventure System Styles               */
 /* ========================================= */
 
+.window-app.anyventure-attack-roll-window {
+  width: 512px !important;
+  min-width: 512px;
+}
+
+.anyventure-attack-roll-dialog .dialog-content.standard-form {
+  padding: $spacing-lg;
+}
+
 .anyventure {
   /* ----------------------------------------- */
   /*  Window & Base Layout                    */
   /* ----------------------------------------- */
   
   .window-content {
-  background: $bg-darkest;
-  color: $text-light;
-  height: 100%;
-  padding: 0;
-  overflow: hidden;
-  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+    background: $bg-darkest;
+    color: $text-light;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Roboto', 'Helvetica Neue', sans-serif;
   }
+
 
   /* ----------------------------------------- */
   /*  Item Sheet Specific Styles              */
@@ -305,6 +315,44 @@
   border-bottom: 1px solid $border-gold;
   text-align: center;
 
+  .npc-type-select {
+    margin-top: $spacing-sm;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    text-align: left;
+
+    label {
+      font-size: $font-size-small;
+      font-weight: 600;
+      color: $gold-medium;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    select {
+      width: 100%;
+      background: rgba($purple-darkest, 0.8);
+      border: 1px solid $border-gold;
+      border-radius: $border-radius-sm;
+      color: $text-light;
+      padding: $spacing-xs $spacing-sm;
+      transition: $transition-fast;
+
+      &:hover,
+      &:focus {
+        border-color: $gold-bright;
+        background: rgba($purple-darkest, 0.95);
+        box-shadow: 0 0 6px rgba($gold-bright, 0.4);
+      }
+
+      option {
+        background: $purple-darkest;
+        color: $text-light;
+      }
+    }
+  }
+
   .character-portrait-row {
     display: flex;
     align-items: center;
@@ -327,6 +375,11 @@
         transform: scale(1.05);
         box-shadow: $shadow-lg, 0 0 20px $accent-glow;
       }
+  }
+
+  .npc .character-header .profile-img {
+    display: block;
+    margin: 0 auto $spacing-sm;
   }
   .woe-token, .wonder-token {
     width: 64px;
@@ -561,6 +614,10 @@
 
   &.energy .resource-fill {
       background: linear-gradient(90deg, $energy-color, color.scale($energy-color, $lightness: 10%));
+  }
+
+  &.mana .resource-fill {
+      background: linear-gradient(90deg, #87ceeb, color.scale(#87ceeb, $lightness: 10%));
   }
 
   &.morale .resource-fill {
@@ -1172,6 +1229,13 @@
 
       &.rollable:hover {
         text-shadow: 0 0 8px $accent-glow;
+      }
+
+      // Disabled skills (no rollable class) for NPCs with skill value < 0
+      &:not(.rollable) {
+        color: $text-medium;
+        cursor: default;
+        opacity: 0.5;
       }
   }
 
@@ -3674,14 +3738,17 @@
 // Hide default Foundry dice roll display when using custom attack or skill cards
 .chat-message:has(.anyventure-attack-card) .dice-roll,
 .chat-message:has(.anyventure-skill-card) .dice-roll,
-.chat-message:has(.anyventure-ability-card) .dice-roll {
+.chat-message:has(.anyventure-ability-card) .dice-roll,
+.chat-message:has(.initiative-card) .dice-roll,
+.chat-message:has(.initiative-card) .dice-result {
   display: none;
 }
 
 // Remove padding from message content when using custom attack or skill cards
 .chat-message:has(.anyventure-attack-card) .message-content,
 .chat-message:has(.anyventure-skill-card) .message-content,
-.chat-message:has(.anyventure-ability-card) .message-content {
+.chat-message:has(.anyventure-ability-card) .message-content,
+.chat-message:has(.initiative-card) .message-content {
   padding: 0;
 }
 
@@ -3730,10 +3797,16 @@
 
   .damage-info {
     margin: $spacing-xs 0;
-    text-align: center;
+    display: flex;
+    gap: $spacing-sm;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
 
     .damage-type {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       padding: 2px 6px;
       border-radius: $border-radius-sm;
       font-size: 0.9em;
@@ -3883,6 +3956,24 @@
   }
 }
 
+.anyventure-skill-card.initiative-card {
+  .result-total {
+    margin-top: $spacing-sm;
+    font-size: 1.1em;
+    font-weight: 700;
+    text-align: center;
+    color: $gold-medium;
+  }
+
+  .meta-info {
+    margin-top: $spacing-xs;
+    text-align: center;
+    font-size: 0.85em;
+    color: $text-medium;
+    letter-spacing: 0.25px;
+  }
+}
+
 // Dark theme card background for attack and skill chat cards
 .anyventure-attack-card,
 .anyventure-skill-card {
@@ -3964,6 +4055,142 @@
   .spell-charge pre {
     white-space: pre-wrap;
     word-break: break-word;
+  }
+
+  // New dialog structure styles
+  .spell-header {
+    margin-bottom: $spacing-md;
+
+    h3 {
+      margin: 0 0 $spacing-xs 0;
+      color: $gold-bright;
+      font-size: 1.2em;
+    }
+
+    .spell-school {
+      color: $text-medium;
+      font-size: $font-size-small;
+      font-style: italic;
+    }
+  }
+
+  .spell-details {
+    display: flex;
+    gap: $spacing-lg;
+    margin-bottom: $spacing-md;
+
+    .details-column {
+      flex: 1;
+      min-width: 0; // Prevent flex overflow
+    }
+
+    .detail-group {
+      margin-bottom: $spacing-md;
+
+      h4 {
+        margin: 0 0 $spacing-xs 0;
+        color: $gold-muted;
+        font-size: $font-size-medium;
+        border-bottom: 1px solid $border-light;
+        padding-bottom: $spacing-xs;
+      }
+
+      .detail-row {
+        padding: $spacing-xs 0;
+        color: $text-light;
+
+        strong {
+          color: $gold-muted;
+          margin-right: $spacing-xs;
+        }
+      }
+    }
+  }
+
+  .spell-text-section {
+    margin-bottom: $spacing-md;
+
+    h4 {
+      margin: 0 0 $spacing-xs 0;
+      color: $gold-muted;
+      font-size: $font-size-medium;
+    }
+
+    .spell-description,
+    .spell-charge {
+      background: rgba($purple-darkest, 0.3);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-sm;
+      padding: $spacing-sm;
+      color: $text-light;
+      line-height: 1.4;
+    }
+  }
+
+  // Energy stars should be yellow/gold
+  .fas.fa-star.filled {
+    color: $gold-bright;
+  }
+
+  .casting-options {
+    background: rgba($purple-darkest, 0.4);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    padding: $spacing-md;
+
+    h4 {
+      margin: 0 0 $spacing-sm 0;
+      color: $gold-bright;
+      font-size: $font-size-medium;
+    }
+
+    .roll-info {
+      margin-bottom: $spacing-sm;
+      color: $text-light;
+    }
+
+    .form-group {
+      margin-bottom: $spacing-sm;
+
+      label {
+        display: block;
+        color: $gold-muted;
+        margin-bottom: $spacing-xs;
+        font-size: $font-size-small;
+      }
+
+      input[type="number"] {
+        width: 80px;
+        padding: $spacing-xs;
+        background: rgba($bg-darkest, 0.8);
+        border: 1px solid $border-light;
+        border-radius: $border-radius-sm;
+        color: $text-light;
+
+        &:focus {
+          outline: none;
+          border-color: $gold-muted;
+        }
+      }
+    }
+
+    .roll-preview {
+      color: $text-light;
+      font-weight: bold;
+
+      #final-formula {
+        color: $gold-bright;
+        font-family: monospace;
+      }
+    }
+  }
+
+  // Responsive design for smaller screens
+  @media (max-width: 600px) {
+    .spell-details {
+      flex-direction: column;
+      gap: $spacing-md;
+    }
   }
 }
 
@@ -4426,3 +4653,456 @@
   }
 }
 
+// ===================================
+// Item Sheet Comprehensive Styling
+// ===================================
+
+.anyventure.item {
+
+  // Basic grid layouts
+  .item-basic-grid {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    padding: $spacing-md;
+  }
+
+  .basic-info-section,
+  .weapon-basic-section,
+  .consumable-basic-section,
+  .item-flags-section {
+    background: rgba($purple-darkest, 0.3);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-md;
+    padding: $spacing-md;
+
+    h3 {
+      margin: 0 0 $spacing-md 0;
+      color: $gold-bright;
+      font-size: $font-size-large;
+      border-bottom: 1px solid $border-light;
+      padding-bottom: $spacing-xs;
+    }
+  }
+
+  // Form grid layouts
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $spacing-md;
+    margin-top: $spacing-sm;
+  }
+
+  .form-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-md;
+  }
+
+  .form-grid-3col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-md;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+
+    label {
+      color: $gold-muted;
+      font-weight: bold;
+      font-size: $font-size-small;
+    }
+
+    input, select, textarea {
+      background: rgba($bg-darkest, 0.8);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-sm;
+      color: $text-light;
+      padding: $spacing-xs $spacing-sm;
+      font-size: $font-size-normal;
+
+      &:focus {
+        outline: none;
+        border-color: $gold-muted;
+        box-shadow: 0 0 0 2px rgba($gold-bright, 0.2);
+      }
+    }
+
+    small {
+      color: $text-medium;
+      font-size: $font-size-tiny;
+      font-style: italic;
+    }
+  }
+
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+  }
+
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-xs;
+    background: rgba($purple-dark, 0.3);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba($purple-dark, 0.5);
+    }
+
+    input[type="checkbox"] {
+      margin: 0;
+    }
+
+    span {
+      color: $text-light;
+      font-size: $font-size-small;
+    }
+  }
+
+  // Equipment Properties Section
+  .equipment-properties {
+    padding: $spacing-md;
+
+    .equipment-section, .shield-section {
+      background: rgba($purple-darkest, 0.3);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-md;
+      padding: $spacing-md;
+      margin-bottom: $spacing-lg;
+
+      h3 {
+        margin: 0 0 $spacing-md 0;
+        color: $gold-bright;
+        font-size: $font-size-large;
+        border-bottom: 1px solid $border-light;
+        padding-bottom: $spacing-xs;
+      }
+    }
+  }
+
+  // Weapon Properties Section
+  .weapon-properties {
+    padding: $spacing-md;
+
+    .attack-section, .secondary-attack-section {
+      background: rgba($purple-darkest, 0.3);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-md;
+      padding: $spacing-md;
+      margin-bottom: $spacing-lg;
+
+      h3 {
+        margin: 0 0 $spacing-md 0;
+        color: $gold-bright;
+        font-size: $font-size-large;
+        border-bottom: 1px solid $border-light;
+        padding-bottom: $spacing-xs;
+      }
+
+      h4 {
+        margin: $spacing-md 0 $spacing-sm 0;
+        color: $gold-muted;
+        font-size: $font-size-medium;
+      }
+    }
+
+    .weapon-attack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: $spacing-md;
+      margin-top: $spacing-sm;
+    }
+
+    .secondary-damage-section {
+      margin-top: $spacing-lg;
+      padding-top: $spacing-lg;
+      border-top: 1px solid $border-light;
+    }
+  }
+
+  // Bonuses Tab Styling
+  .bonuses-content {
+    padding: $spacing-md;
+
+    .resource-bonuses-section,
+    .attribute-bonuses-section,
+    .skills-bonuses-section {
+      background: rgba($purple-darkest, 0.3);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-md;
+      padding: $spacing-md;
+      margin-bottom: $spacing-lg;
+
+      h3 {
+        margin: 0 0 $spacing-md 0;
+        color: $gold-bright;
+        font-size: $font-size-large;
+        border-bottom: 1px solid $border-light;
+        padding-bottom: $spacing-xs;
+      }
+    }
+
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: $spacing-lg;
+      margin-top: $spacing-md;
+    }
+
+    .resource-group {
+      background: rgba($purple-dark, 0.3);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-sm;
+      padding: $spacing-md;
+
+      h4 {
+        margin: 0 0 $spacing-sm 0;
+        color: $gold-muted;
+        font-size: $font-size-medium;
+        text-align: center;
+      }
+    }
+
+    .attribute-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: $spacing-md;
+      margin-top: $spacing-md;
+
+      @media (max-width: 800px) {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      @media (max-width: 600px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .skills-category {
+      margin-bottom: $spacing-xl;
+
+      h4 {
+        margin: 0 0 $spacing-md 0;
+        color: $gold-muted;
+        font-size: $font-size-medium;
+        padding: $spacing-sm;
+        background: rgba($purple-dark, 0.4);
+        border-radius: $border-radius-sm;
+        text-align: center;
+      }
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: $spacing-sm;
+      margin-top: $spacing-sm;
+    }
+  }
+
+  // Mitigation Tab Styling
+  .mitigation-content {
+    padding: $spacing-md;
+
+    .mitigation-section,
+    .detection-section,
+    .immunities-section {
+      background: rgba($purple-darkest, 0.3);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-md;
+      padding: $spacing-md;
+      margin-bottom: $spacing-lg;
+
+      h3 {
+        margin: 0 0 $spacing-md 0;
+        color: $gold-bright;
+        font-size: $font-size-large;
+        border-bottom: 1px solid $border-light;
+        padding-bottom: $spacing-xs;
+      }
+    }
+
+    .mitigation-grid, .detection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: $spacing-md;
+      margin-top: $spacing-md;
+    }
+
+    .immunities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: $spacing-sm;
+      margin-top: $spacing-md;
+    }
+  }
+
+  // Special Tab Styling
+  .special-content {
+    padding: $spacing-md;
+
+    .special-properties-section,
+    .item-effects-section {
+      background: rgba($purple-darkest, 0.3);
+      border: 1px solid $border-light;
+      border-radius: $border-radius-md;
+      padding: $spacing-md;
+      margin-bottom: $spacing-lg;
+
+      h3 {
+        margin: 0 0 $spacing-md 0;
+        color: $gold-bright;
+        font-size: $font-size-large;
+        border-bottom: 1px solid $border-light;
+        padding-bottom: $spacing-xs;
+      }
+    }
+
+    .effects-container {
+      .effect-item {
+        background: rgba($purple-dark, 0.3);
+        border: 1px solid $border-light;
+        border-radius: $border-radius-sm;
+        padding: $spacing-md;
+        margin-bottom: $spacing-md;
+
+        .effect-header {
+          display: flex;
+          align-items: center;
+          gap: $spacing-sm;
+          margin-bottom: $spacing-sm;
+
+          input {
+            flex: 1;
+          }
+
+          .effect-delete {
+            background: rgba($health-color, 0.2);
+            border: 1px solid $health-color;
+            color: $health-color;
+            border-radius: $border-radius-sm;
+            padding: $spacing-xs $spacing-sm;
+            cursor: pointer;
+            font-weight: bold;
+
+            &:hover {
+              background: rgba($health-color, 0.4);
+            }
+          }
+        }
+
+        .effect-fields {
+          .form-group {
+            margin-bottom: $spacing-sm;
+          }
+        }
+      }
+
+      .add-effect {
+        background: rgba($gold-dark, 0.2);
+        border: 1px solid $gold-dark;
+        color: $gold-bright;
+        border-radius: $border-radius-sm;
+        padding: $spacing-sm $spacing-md;
+        cursor: pointer;
+        font-weight: bold;
+        width: 100%;
+
+        &:hover {
+          background: rgba($gold-dark, 0.4);
+        }
+      }
+    }
+  }
+
+  // Tab navigation improvements
+  .sheet-tabs {
+    border-bottom: 2px solid $border-light;
+    background: rgba($purple-darkest, 0.5);
+
+    .item {
+      background: rgba($purple-dark, 0.3);
+      border: 1px solid $border-light;
+      border-bottom: none;
+      color: $text-medium;
+      padding: $spacing-sm $spacing-md;
+      border-radius: $border-radius-sm $border-radius-sm 0 0;
+      margin-right: $spacing-xs;
+
+      &:hover {
+        background: rgba($purple-dark, 0.5);
+        color: $text-light;
+      }
+
+      &.active {
+        background: rgba($purple-darkest, 0.8);
+        color: $gold-bright;
+        border-bottom: 2px solid $gold-bright;
+      }
+    }
+  }
+
+  // Sheet body improvements
+  .sheet-body {
+    background: rgba($purple-darkest, 0.2);
+    min-height: 400px;
+
+    .tab {
+      display: none;
+
+      &.active {
+        display: block;
+      }
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 600px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form-grid-2col, .form-grid-3col {
+      grid-template-columns: 1fr;
+    }
+
+    .weapon-attack-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .attribute-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .skills-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  // Item type selector styling
+  .itemtype-selector {
+    font-weight: bold;
+
+    optgroup {
+      color: $gold-muted;
+      font-weight: bold;
+      font-style: normal;
+    }
+
+    option {
+      color: $text-light;
+      background: $bg-darkest;
+      font-weight: normal;
+    }
+  }
+}

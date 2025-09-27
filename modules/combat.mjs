@@ -13,7 +13,7 @@
 
 const PHASE_KEYS = ['preparation', 'early', 'middle', 'late'];
 const ELITE_TIERS = new Set(['elite', 'legend', 'mythic']);
-const GRUNT_TIERS = new Set(['minion', 'thrall', 'foe']);
+const GRUNT_TIERS = new Set(['minion', 'grunt', 'foe']);
 const PHASE_LABELS = {
   preparation: 'Preparation Phase',
   early: 'Early Phase',

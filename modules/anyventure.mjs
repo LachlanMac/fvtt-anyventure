@@ -27,43 +27,25 @@ Hooks.once('init', async function() {
 
   // Hook to intercept initiative rolls and use our custom formulas
   Hooks.on("preUpdateCombat", async (combat, update, options, userId) => {
-    console.log('[Initiative] preUpdateCombat hook triggered');
   });
 
-  // Override Combat.rollInitiative to use our custom formulas
+  // Override Combat.rollInitiative to delegate to Actor.rollInitiative for proper skill check formatting
   const originalRollInitiative = Combat.prototype.rollInitiative;
   Combat.prototype.rollInitiative = async function(ids, options = {}) {
-    console.log('[Initiative] Combat.rollInitiative intercepted');
 
     // Get the combatant(s)
     const combatants = this.combatants.filter(c => ids.includes(c.id));
 
     for (const combatant of combatants) {
-      if (combatant.actor?.getInitiativeFormula) {
-        const customFormula = combatant.actor.getInitiativeFormula();
-        console.log(`[Initiative] Using custom formula ${customFormula} for ${combatant.name}`);
-
-        // Create and evaluate the roll
-        const roll = new Roll(customFormula);
-        await roll.evaluate({ async: true });
-
-        // Update the combatant's initiative
-        await this.updateEmbeddedDocuments('Combatant', [{
-          _id: combatant.id,
-          initiative: roll.total
-        }]);
-
-        // Display the roll to chat
-        await roll.toMessage({
-          speaker: ChatMessage.getSpeaker({actor: combatant.actor}),
-          flavor: `${combatant.name} rolls initiative!`
-        });
+      if (combatant.actor?.rollInitiative) {
+        // Let the Actor handle the initiative roll with proper skill check formatting
+        await combatant.actor.rollInitiative(options);
       } else {
-        console.log(`[Initiative] No custom formula found for ${combatant.name}, using default`);
+        // Fallback to original method for this combatant
+        await originalRollInitiative.call(this, [combatant.id], options);
       }
     }
 
-    // Don't call the original method - we've handled it
     return this;
   };
 
@@ -418,8 +400,8 @@ CONFIG.statusEffects = [
     return dice[Math.min(level, 6)] || 'd4';
   });
 
-  // Helper for skill dice with upgrade/downgrade support (using diceTierModifier)
-  Handlebars.registerHelper('skillDieWithUpgrade', function(level, diceTierModifier) {
+  // Helper for skill dice with upgrade/downgrade support (using tier modifiers)
+  Handlebars.registerHelper('skillDieWithUpgrade', function(level, tier) {
     // Dice progression table: [downgraded, base, upgraded]
     const diceTable = [
       ['d2', 'd4', 'd6'],   // Level 0
@@ -433,7 +415,7 @@ CONFIG.statusEffects = [
 
     const nlevel = Number(level);
     const skillLevel = Math.min(Math.max(isNaN(nlevel) ? 0 : nlevel, 0), 6);
-    const tierModifier = diceTierModifier || 0;
+    const tierModifier = Number.isFinite(Number(tier)) ? Number(tier) : 0;
     const upgradeLevel = Math.min(Math.max(tierModifier + 1, 0), 2); // Convert -1,0,1 to 0,1,2
 
     const row = diceTable[skillLevel];
@@ -441,9 +423,9 @@ CONFIG.statusEffects = [
     return row[upgradeLevel] || 'd4';
   });
 
-  // Helper for skill upgrade CSS class (using diceTierModifier)
-  Handlebars.registerHelper('skillUpgradeClass', function(diceTierModifier) {
-    const tierModifier = diceTierModifier || 0;
+  // Helper for skill upgrade CSS class (using tier modifiers)
+  Handlebars.registerHelper('skillUpgradeClass', function(tier) {
+    const tierModifier = Number.isFinite(Number(tier)) ? Number(tier) : 0;
     if (tierModifier > 0) return 'skill-upgraded';
     if (tierModifier < 0) return 'skill-downgraded';
     return '';

@@ -139,7 +139,7 @@ export function getDeltaSummary(delta) {
   });
 
   // Summarize dice tier modifiers
-  Object.entries(delta.skillDiceTierModifiers).forEach(([skill, modifier]) => {
+  Object.entries(delta.skillTierModifiers).forEach(([skill, modifier]) => {
     if (modifier !== 0) {
       const skillName = skill.charAt(0).toUpperCase() + skill.slice(1);
       const modText = modifier > 0 ? 'upgrade' : 'downgrade';
@@ -149,36 +149,36 @@ export function getDeltaSummary(delta) {
 
   // Summarize weapon skills
   Object.entries(delta.weaponSkills).forEach(([weapon, data]) => {
-    if (data.skill !== 0 || data.talent !== 0 || data.diceTierModifier !== 0) {
+    if (data.skill !== 0 || data.talent !== 0 || data.tier !== 0) {
       const weaponName = weapon.replace(/([A-Z])/g, ' $1').trim();
       const parts = [];
       if (data.skill !== 0) parts.push(`skill ${data.skill > 0 ? '+' : ''}${data.skill}`);
       if (data.talent !== 0) parts.push(`talent ${data.talent > 0 ? '+' : ''}${data.talent}`);
-      if (data.diceTierModifier !== 0) parts.push(`dice ${data.diceTierModifier > 0 ? 'upgrade' : 'downgrade'}`);
+      if (data.tier !== 0) parts.push(`dice ${data.tier > 0 ? 'upgrade' : 'downgrade'}`);
       summary.weaponSkills.push(`${weaponName}: ${parts.join(', ')}`);
     }
   });
 
   // Summarize magic skills
   Object.entries(delta.magicSkills).forEach(([magic, data]) => {
-    if (data.skill !== 0 || data.talent !== 0 || data.diceTierModifier !== 0) {
+    if (data.skill !== 0 || data.talent !== 0 || data.tier !== 0) {
       const magicName = magic.charAt(0).toUpperCase() + magic.slice(1);
       const parts = [];
       if (data.skill !== 0) parts.push(`skill ${data.skill > 0 ? '+' : ''}${data.skill}`);
       if (data.talent !== 0) parts.push(`talent ${data.talent > 0 ? '+' : ''}${data.talent}`);
-      if (data.diceTierModifier !== 0) parts.push(`dice ${data.diceTierModifier > 0 ? 'upgrade' : 'downgrade'}`);
+      if (data.tier !== 0) parts.push(`dice ${data.tier > 0 ? 'upgrade' : 'downgrade'}`);
       summary.magicSkills.push(`${magicName}: ${parts.join(', ')}`);
     }
   });
 
   // Summarize crafting skills
   Object.entries(delta.craftingSkills).forEach(([craft, data]) => {
-    if (data.skill !== 0 || data.talent !== 0 || data.diceTierModifier !== 0) {
+    if (data.skill !== 0 || data.talent !== 0 || data.tier !== 0) {
       const craftName = craft.charAt(0).toUpperCase() + craft.slice(1);
       const parts = [];
       if (data.skill !== 0) parts.push(`skill ${data.skill > 0 ? '+' : ''}${data.skill}`);
       if (data.talent !== 0) parts.push(`talent ${data.talent > 0 ? '+' : ''}${data.talent}`);
-      if (data.diceTierModifier !== 0) parts.push(`dice ${data.diceTierModifier > 0 ? 'upgrade' : 'downgrade'}`);
+      if (data.tier !== 0) parts.push(`dice ${data.tier > 0 ? 'upgrade' : 'downgrade'}`);
       summary.craftingSkills.push(`${craftName}: ${parts.join(', ')}`);
     }
   });
