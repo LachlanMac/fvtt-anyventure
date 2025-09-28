@@ -283,6 +283,16 @@ CONFIG.statusEffects = [
       img: "systems/anyventure/images/conditions/hidden.svg",
     },
     {
+      id: "numbed",
+      label: "Numbed",
+      img: "systems/anyventure/images/conditions/numbed.svg",
+    },
+        {
+      id: "broken",
+      label: "Broken",
+      img: "systems/anyventure/images/conditions/broken.svg",
+    },
+    {
       id: "partialcover",
       label: "Partial Cover",
       img: "systems/anyventure/images/conditions/partialcover.svg",

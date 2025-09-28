@@ -1,4 +1,5 @@
 import { logError, logWarning } from "../utils/logger.js";
+import { formatDamageType } from "../utils/formatters.mjs";
 
 export class AnyventureTakeDamageDialog extends foundry.applications.api.DialogV2 {
   constructor(options = {}) {
@@ -89,8 +90,8 @@ export class AnyventureTakeDamageDialog extends foundry.applications.api.DialogV
       // Damage is equal to or less than mitigation: take 0 damage
       finalDmg = 0;
     } else if (totalDamage <= resistance) {
-      // Damage is greater than mitigation but less than or equal to resistance: take half damage
-      finalDmg = Math.round((totalDamage * 0.5) * postFactor);
+      // Damage is greater than mitigation but less than or equal to resistance: take half damage (rounded down)
+      finalDmg = Math.floor((totalDamage * 0.5) * postFactor);
     } else {
       // Damage is greater than resistance: take full damage
       finalDmg = Math.round(totalDamage * postFactor);
@@ -98,24 +99,167 @@ export class AnyventureTakeDamageDialog extends foundry.applications.api.DialogV
 
     finalDmg = Math.max(0, finalDmg);
 
-    const up = {};
-    if (dtype === 'resolve') {
-      const cur = this.actor.system.resources?.resolve?.value || 0;
-      up['system.resources.resolve.value'] = Math.max(0, cur - finalDmg);
-    } else if (dtype === 'energy') {
-      const cur = this.actor.system.resources?.energy?.value || 0;
-      up['system.resources.energy.value'] = Math.max(0, cur - finalDmg);
-    } else {
-      const cur = this.actor.system.resources?.health?.value || 0;
-      up['system.resources.health.value'] = Math.max(0, cur - finalDmg);
+    // Determine mitigation result for display
+    let mitigationResult = 'none';
+    if (finalDmg === 0 && totalDamage > 0) {
+      mitigationResult = 'fully_mitigated';
+    } else if (totalDamage > mitigation && totalDamage <= resistance && finalDmg < totalDamage) {
+      mitigationResult = 'resisted';
     }
 
-    if (Object.keys(up).length) {
-      await this.actor.update(up);
+    // Apply damage using new routing rules
+    const damageResults = await this._applyDamageToResources(finalDmg, dtype);
+
+    if (Object.keys(damageResults.updates).length) {
+      await this.actor.update(damageResults.updates);
       this.actor.sheet?.render(false);
-      ui.notifications?.warn?.(`Damage: -${finalDmg} to ${dtype === 'resolve' ? 'Resolve' : dtype === 'energy' ? 'Energy' : 'Health'}`);
+
+      // Create damage chat card with enhanced information
+      await this._createDamageChatCard(finalDmg, dtype, base, extra, cond, phase, mitigation, mitigationResult, damageResults);
     }
     this._applied = true;
+  }
+
+  /**
+   * Apply damage to character resources using new routing rules
+   */
+  async _applyDamageToResources(finalDamage, damageType) {
+    const resources = this.actor.system.resources || {};
+    const updates = {};
+    const damageBreakdown = {
+      moraleDamage: 0,
+      healthDamage: 0,
+      resolveDamage: 0,
+      energyDamage: 0
+    };
+
+    let remainingDamage = finalDamage;
+
+    // Psychic damage goes directly to Resolve
+    if (damageType === 'psychic') {
+      const currentResolve = resources.resolve?.value || 0;
+      const resolveDeduction = Math.min(remainingDamage, currentResolve);
+      damageBreakdown.resolveDamage = resolveDeduction;
+      updates['system.resources.resolve.value'] = Math.max(0, currentResolve - resolveDeduction);
+      remainingDamage -= resolveDeduction;
+    }
+    // Resolve and True damage go directly to their targets (no morale priority)
+    else if (damageType === 'resolve') {
+      const currentResolve = resources.resolve?.value || 0;
+      const resolveDeduction = Math.min(remainingDamage, currentResolve);
+      damageBreakdown.resolveDamage = resolveDeduction;
+      updates['system.resources.resolve.value'] = Math.max(0, currentResolve - resolveDeduction);
+      remainingDamage -= resolveDeduction;
+    }
+    else if (damageType === 'energy') {
+      const currentEnergy = resources.energy?.value || 0;
+      const energyDeduction = Math.min(remainingDamage, currentEnergy);
+      damageBreakdown.energyDamage = energyDeduction;
+      updates['system.resources.energy.value'] = Math.max(0, currentEnergy - energyDeduction);
+      remainingDamage -= energyDeduction;
+    }
+    // All other damage types (including true) go through morale first, then health
+    else {
+      // First, apply to morale (if available and > 0)
+      const currentMorale = resources.morale?.value || 0;
+      if (currentMorale > 0) {
+        const moraleDeduction = Math.min(remainingDamage, currentMorale);
+        damageBreakdown.moraleDamage = moraleDeduction;
+        updates['system.resources.morale.value'] = Math.max(0, currentMorale - moraleDeduction);
+        remainingDamage -= moraleDeduction;
+      }
+
+      // Then, apply remaining damage to health
+      if (remainingDamage > 0) {
+        const currentHealth = resources.health?.value || 0;
+        const healthDeduction = Math.min(remainingDamage, currentHealth);
+        damageBreakdown.healthDamage = healthDeduction;
+        updates['system.resources.health.value'] = Math.max(0, currentHealth - healthDeduction);
+        remainingDamage -= healthDeduction;
+      }
+    }
+
+    return { updates, damageBreakdown, remainingDamage };
+  }
+
+  /**
+   * Create a damage chat card instead of UI notification
+   */
+  async _createDamageChatCard(finalDamage, damageType, rawDamage, extraMitigation, condition, phase, mitigation, mitigationResult, damageResults) {
+    const damageTypeFormatted = formatDamageType(damageType);
+
+    // Build chat card content using the established card styling
+    let cardContent = `<div class="anyventure-damage-card">`;
+
+    // Main damage header
+    cardContent += `<div class="damage-header">`;
+    cardContent += `<div class="character-name"><strong>${this.actor.name}</strong> has taken damage</div>`;
+    cardContent += `<div class="damage-amount">`;
+    cardContent += `<span class="damage-type ${damageTypeFormatted.cssClass}">${finalDamage} ${damageTypeFormatted.text}</span>`;
+    cardContent += `</div>`;
+
+    // Show resource breakdown
+    cardContent += `<div class="resource-breakdown">`;
+    if (damageResults.damageBreakdown.moraleDamage > 0) {
+      cardContent += `<div class="resource-line">Morale: -${damageResults.damageBreakdown.moraleDamage}</div>`;
+    }
+    if (damageResults.damageBreakdown.healthDamage > 0) {
+      cardContent += `<div class="resource-line">Health: -${damageResults.damageBreakdown.healthDamage}</div>`;
+    }
+    if (damageResults.damageBreakdown.resolveDamage > 0) {
+      cardContent += `<div class="resource-line">Resolve: -${damageResults.damageBreakdown.resolveDamage}</div>`;
+    }
+    if (damageResults.damageBreakdown.energyDamage > 0) {
+      cardContent += `<div class="resource-line">Energy: -${damageResults.damageBreakdown.energyDamage}</div>`;
+    }
+    cardContent += `</div>`;
+    cardContent += `</div>`;
+
+    // Details section - show mitigation and other details
+    const hasDetails = rawDamage !== finalDamage || extraMitigation > 0 || condition !== 'none' || mitigation > 0 || mitigationResult !== 'none';
+    if (hasDetails) {
+      cardContent += `<div class="damage-details">`;
+
+      // Mitigation information (always show if there's any mitigation)
+      if (mitigation > 0) {
+        cardContent += `<div class="detail-line">Mitigation: ${mitigation}`;
+        if (mitigationResult === 'fully_mitigated') {
+          cardContent += ` <span class="mitigation-result fully-mitigated">(Fully Mitigated)</span>`;
+        } else if (mitigationResult === 'resisted') {
+          cardContent += ` <span class="mitigation-result resisted">(Resisted - Half Damage)</span>`;
+        }
+        cardContent += `</div>`;
+      }
+
+      // Raw damage (only if different from final)
+      if (rawDamage !== finalDamage) {
+        cardContent += `<div class="detail-line">Raw Damage: ${rawDamage}</div>`;
+      }
+
+      // Extra mitigation (only if > 0)
+      if (extraMitigation > 0) {
+        cardContent += `<div class="detail-line">Extra Mitigation: ${extraMitigation}</div>`;
+      }
+
+      // Condition (only if not 'none')
+      if (condition !== 'none') {
+        const conditionText = condition === 'double' ? 'Double Damage' : 'Half Damage';
+        const phaseText = phase === 'before' ? 'Before Mitigation' : 'After Mitigation';
+        cardContent += `<div class="detail-line">Condition: ${conditionText} (${phaseText})</div>`;
+      }
+
+      cardContent += `</div>`;
+    }
+
+    cardContent += `</div>`;
+
+    // Create and send the chat message
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      content: cardContent,
+      type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+      rollMode: game.settings.get('core', 'rollMode'),
+    });
   }
 
   static async show(options = {}) { const d = new AnyventureTakeDamageDialog(options); return d.render({ force: true }); }

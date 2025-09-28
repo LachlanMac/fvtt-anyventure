@@ -7,7 +7,10 @@ import { formatDamageType } from '../utils/formatters.mjs';
 export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2 {
 
   constructor(options = {}) {
-    // Build buttons array dynamically to optionally insert Unfizzle
+    // Check if actor has mana available
+    const hasMana = options.actor?.system?.resources?.mana?.value > 0;
+
+    // Build buttons array dynamically to optionally insert Mana Channel
     const buttons = [
       {
         action: 'channel',
@@ -22,6 +25,16 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
         callback: (event, button, dialog) => this.handleCast(event, button, dialog, 'charge')
       }
     ];
+
+    // Add mana channeling option if actor has mana
+    if (hasMana) {
+      buttons.splice(1, 0, { // Insert after Channel but before Charge
+        action: 'mana-channel',
+        label: 'Channel (Mana)',
+        icon: 'fa-solid fa-sparkles',
+        callback: (event, button, dialog) => this.handleCast(event, button, dialog, 'mana-channel')
+      });
+    }
     if (options.isFizzled) {
       buttons.push({
         action: 'unfizzle',
@@ -167,9 +180,13 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
     // Spell slots are display-only now; no gating warning here
 
     // Show energy warning immediately if actor lacks energy for this spell
+    // but only if they also don't have mana available as an alternative
     try {
       const currentEnergy = this.actor?.system?.resources?.energy?.value ?? 0;
-      if (this.energyCost > 0 && currentEnergy < this.energyCost) {
+      const currentMana = this.actor?.system?.resources?.mana?.value ?? 0;
+      const hasManaAlternative = currentMana > 0;
+
+      if (this.energyCost > 0 && currentEnergy < this.energyCost && !hasManaAlternative) {
         const warnEl = this.element.querySelector('.energy-warning');
         if (warnEl) {
           warnEl.textContent = `Not enough energy for this spell (requires ${this.energyCost}, you have ${currentEnergy}).`;
@@ -194,20 +211,40 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
       });
     } catch (_e) {}
     ui.notifications?.info?.(`[Anyventure] ${this.spellName}: ${mode} clicked`);
-    // Energy check
+    // Energy/Mana check
     const currentEnergy = this.actor?.system?.resources?.energy?.value ?? 0;
-    if (this.energyCost > 0 && currentEnergy < this.energyCost) {
-      try {
-        const warn = dialog.element.querySelector('.energy-warning');
-        if (warn) {
-          warn.textContent = `Not enough energy for this spell (requires ${this.energyCost}, you have ${currentEnergy}).`;
-          warn.style.display = 'block';
+    const currentMana = this.actor?.system?.resources?.mana?.value ?? 0;
+
+    if (mode === 'mana-channel') {
+      // For mana channeling, check mana instead of energy
+      if (currentMana < 1) {
+        try {
+          const warn = dialog.element.querySelector('.energy-warning');
+          if (warn) {
+            warn.textContent = `Not enough mana for this spell (requires 1, you have ${currentMana}).`;
+            warn.style.display = 'block';
+          }
+        } catch (_e) {
+          ui.notifications?.warn?.('Not enough mana to cast.');
         }
-      } catch (_e) {
-        ui.notifications?.warn?.('Not enough energy to cast.');
+        console.warn('[Anyventure] Not enough mana to cast', { required: 1, current: currentMana });
+        return;
       }
-      console.warn('[Anyventure] Not enough energy to cast', { required: this.energyCost, current: currentEnergy });
-      return;
+    } else {
+      // For normal channeling, check energy
+      if (this.energyCost > 0 && currentEnergy < this.energyCost) {
+        try {
+          const warn = dialog.element.querySelector('.energy-warning');
+          if (warn) {
+            warn.textContent = `Not enough energy for this spell (requires ${this.energyCost}, you have ${currentEnergy}).`;
+            warn.style.display = 'block';
+          }
+        } catch (_e) {
+          ui.notifications?.warn?.('Not enough energy to cast.');
+        }
+        console.warn('[Anyventure] Not enough energy to cast', { required: this.energyCost, current: currentEnergy });
+        return;
+      }
     }
 
     // No spell slot gating — display only
@@ -233,8 +270,12 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
     let flavorText = `<div class="anyventure-ability-card">`;
     const chargedClass = mode === 'charge' ? ' charged' : '';
     flavorText += `<div class="ability-name${chargedClass}"><strong>${this.spellName}</strong></div>`;
-    // Energy line
-    flavorText += `<div class="energy-cost">Energy: ${renderEnergy(this.energyCost)}</div>`;
+    // Energy/Mana line
+    if (mode === 'mana-channel') {
+      flavorText += `<div class="energy-cost">Mana: 1</div>`;
+    } else {
+      flavorText += `<div class="energy-cost">Energy: ${renderEnergy(this.energyCost)}</div>`;
+    }
 
     // Results and formula
     flavorText += `<div class="dice-results"><strong>Results:</strong> [${diceResults.join(', ')}]</div>`;
@@ -300,11 +341,19 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
       rollMode: game.settings.get('core', 'rollMode'),
     });
 
-    // Deduct energy
-    if (this.energyCost > 0 && this.actor) {
-      const newEnergy = Math.max(0, currentEnergy - this.energyCost);
-      await this.actor.update({ 'system.resources.energy.value': newEnergy });
-      console.log('[Anyventure] Deducted energy for spell', { cost: this.energyCost, newEnergy });
+    // Deduct energy or mana
+    if (this.actor) {
+      if (mode === 'mana-channel') {
+        // Deduct 1 mana
+        const newMana = Math.max(0, currentMana - 1);
+        await this.actor.update({ 'system.resources.mana.value': newMana });
+        console.log('[Anyventure] Deducted mana for spell', { cost: 1, newMana });
+      } else if (this.energyCost > 0) {
+        // Deduct energy
+        const newEnergy = Math.max(0, currentEnergy - this.energyCost);
+        await this.actor.update({ 'system.resources.energy.value': newEnergy });
+        console.log('[Anyventure] Deducted energy for spell', { cost: this.energyCost, newEnergy });
+      }
     }
 
     // No spell slot deductions — display only

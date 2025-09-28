@@ -120,6 +120,7 @@ export function createEmptyDelta() {
       healthRegen: 0,
       resolveRegen: 0,
       energyRegen: 0,
+      moraleRegen: 0,
       maxMorale: 0,
       spellCapacity: 0,
       manaPoints: 0
@@ -644,6 +645,26 @@ function addNonZeroValuesToConditional(subDelta, conditionalArray) {
 }
 
 /**
+ * Helper function to combine simple numeric values
+ */
+function combineSimpleValues(combined, delta, property) {
+  Object.entries(delta[property]).forEach(([key, value]) => {
+    combined[property][key] += value;
+  });
+}
+
+/**
+ * Helper function to combine skill objects with skill/talent/tier structure
+ */
+function combineSkillObjects(combined, delta, property) {
+  Object.entries(delta[property]).forEach(([key, data]) => {
+    combined[property][key].skill += data.skill;
+    combined[property][key].talent += data.talent;
+    combined[property][key].tier += data.tier;
+  });
+}
+
+/**
  * Combine multiple deltas into a single delta
  * @param {Array<Object>} deltas - Array of delta objects to combine
  * @returns {Object} - Combined delta
@@ -652,63 +673,21 @@ export function combineDeltas(deltas) {
   const combined = createEmptyDelta();
 
   for (const delta of deltas) {
-    // Combine attributes
-    Object.entries(delta.attributes).forEach(([attr, value]) => {
-      combined.attributes[attr] += value;
-    });
+    // Combine simple numeric properties
+    combineSimpleValues(combined, delta, 'attributes');
+    combineSimpleValues(combined, delta, 'skills');
+    combineSimpleValues(combined, delta, 'skillTierModifiers');
+    combineSimpleValues(combined, delta, 'mitigation');
+    combineSimpleValues(combined, delta, 'resources');
+    combineSimpleValues(combined, delta, 'movement');
+    combineSimpleValues(combined, delta, 'weaponModifications');
 
-    // Combine skills
-    Object.entries(delta.skills).forEach(([skill, value]) => {
-      combined.skills[skill] += value;
-    });
+    // Combine skill objects
+    combineSkillObjects(combined, delta, 'weaponSkills');
+    combineSkillObjects(combined, delta, 'magicSkills');
+    combineSkillObjects(combined, delta, 'craftingSkills');
 
-    // Combine skill dice tier modifiers
-    Object.entries(delta.skillTierModifiers).forEach(([skill, modifier]) => {
-      combined.skillTierModifiers[skill] += modifier;
-    });
-
-    // Combine weapon skills
-    Object.entries(delta.weaponSkills).forEach(([weapon, data]) => {
-      combined.weaponSkills[weapon].skill += data.skill;
-      combined.weaponSkills[weapon].talent += data.talent;
-      combined.weaponSkills[weapon].tier += data.tier;
-    });
-
-    // Combine magic skills
-    Object.entries(delta.magicSkills).forEach(([magic, data]) => {
-      combined.magicSkills[magic].skill += data.skill;
-      combined.magicSkills[magic].talent += data.talent;
-      combined.magicSkills[magic].tier += data.tier;
-    });
-
-    // Combine crafting skills
-    Object.entries(delta.craftingSkills).forEach(([craft, data]) => {
-      combined.craftingSkills[craft].skill += data.skill;
-      combined.craftingSkills[craft].talent += data.talent;
-      combined.craftingSkills[craft].tier += data.tier;
-    });
-
-    // Combine mitigation
-    Object.entries(delta.mitigation).forEach(([type, value]) => {
-      combined.mitigation[type] += value;
-    });
-
-    // Combine resources
-    Object.entries(delta.resources).forEach(([resource, value]) => {
-      combined.resources[resource] += value;
-    });
-
-    // Combine movement
-    Object.entries(delta.movement).forEach(([type, value]) => {
-      combined.movement[type] += value;
-    });
-
-    // Combine weapon modifications
-    Object.entries(delta.weaponModifications).forEach(([modification, value]) => {
-      combined.weaponModifications[modification] += value;
-    });
-
-    // Combine combat features (take highest tier for dual wield)
+    // Combine combat features (special handling for dual wield)
     Object.entries(delta.combatFeatures).forEach(([feature, value]) => {
       if (feature === 'dualWieldTier') {
         combined.combatFeatures[feature] = Math.max(combined.combatFeatures[feature], value);
@@ -736,6 +715,24 @@ export function combineDeltas(deltas) {
   }
 
   return combined;
+}
+
+/**
+ * Helper function to apply skill objects with skill/talent/tier structure
+ */
+function applySkillObjects(character, delta, charProperty, deltaProperty) {
+  Object.entries(delta[deltaProperty]).forEach(([key, data]) => {
+    if (character[charProperty] && character[charProperty][key]) {
+      if (data.skill !== 0) character[charProperty][key].value += data.skill;
+      if (data.talent !== 0) character[charProperty][key].talent += data.talent;
+      if (data.tier !== 0) {
+        if (!character[charProperty][key].tier) {
+          character[charProperty][key].tier = 0;
+        }
+        character[charProperty][key].tier += data.tier;
+      }
+    }
+  });
 }
 
 /**
@@ -774,47 +771,10 @@ export function applyDeltaToCharacter(character, delta) {
     }
   });
 
-  // Apply weapon skills
-  Object.entries(delta.weaponSkills).forEach(([weapon, data]) => {
-    if (character.weaponSkills && character.weaponSkills[weapon]) {
-      if (data.skill !== 0) character.weaponSkills[weapon].value += data.skill;
-      if (data.talent !== 0) character.weaponSkills[weapon].talent += data.talent;
-      if (data.tier !== 0) {
-        if (!character.weaponSkills[weapon].tier) {
-          character.weaponSkills[weapon].tier = 0;
-        }
-        character.weaponSkills[weapon].tier += data.tier;
-      }
-    }
-  });
-
-  // Apply magic skills
-  Object.entries(delta.magicSkills).forEach(([magic, data]) => {
-    if (character.magicSkills && character.magicSkills[magic]) {
-      if (data.skill !== 0) character.magicSkills[magic].value += data.skill;
-      if (data.talent !== 0) character.magicSkills[magic].talent += data.talent;
-      if (data.tier !== 0) {
-        if (!character.magicSkills[magic].tier) {
-          character.magicSkills[magic].tier = 0;
-        }
-        character.magicSkills[magic].tier += data.tier;
-      }
-    }
-  });
-
-  // Apply crafting skills
-  Object.entries(delta.craftingSkills).forEach(([craft, data]) => {
-    if (character.craftingSkills && character.craftingSkills[craft]) {
-      if (data.skill !== 0) character.craftingSkills[craft].value += data.skill;
-      if (data.talent !== 0) character.craftingSkills[craft].talent += data.talent;
-      if (data.tier !== 0) {
-        if (!character.craftingSkills[craft].tier) {
-          character.craftingSkills[craft].tier = 0;
-        }
-        character.craftingSkills[craft].tier += data.tier;
-      }
-    }
-  });
+  // Apply skill objects using helper function
+  applySkillObjects(character, delta, 'weaponSkills', 'weaponSkills');
+  applySkillObjects(character, delta, 'magicSkills', 'magicSkills');
+  applySkillObjects(character, delta, 'craftingSkills', 'craftingSkills');
 
   // Apply mitigation
   Object.entries(delta.mitigation).forEach(([type, value]) => {
@@ -854,6 +814,26 @@ export function applyDeltaToCharacter(character, delta) {
         case 'manaPoints':
           if (character.resources && character.resources.mana) {
             character.resources.mana.max += value;
+          }
+          break;
+        case 'healthRegen':
+          if (character.resources && character.resources.health) {
+            character.resources.health.regen = (character.resources.health.regen || 0) + value;
+          }
+          break;
+        case 'resolveRegen':
+          if (character.resources && character.resources.resolve) {
+            character.resources.resolve.regen = (character.resources.resolve.regen || 0) + value;
+          }
+          break;
+        case 'energyRegen':
+          if (character.resources && character.resources.energy) {
+            character.resources.energy.regen = (character.resources.energy.regen || 0) + value;
+          }
+          break;
+        case 'moraleRegen':
+          if (character.resources && character.resources.morale) {
+            character.resources.morale.regen = (character.resources.morale.regen || 0) + value;
           }
           break;
       }

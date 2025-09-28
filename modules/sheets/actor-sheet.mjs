@@ -163,6 +163,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Prepare conditions for display
     try {
       context.conditionCards = this._prepareConditions();
+      console.log("DEBUG: conditionCards in context:", context.conditionCards);
     } catch (error) {
       console.warn("Error preparing conditions:", error);
       context.conditionCards = [];
@@ -219,136 +220,69 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
    * @private
    */
   _prepareTraits(context) {
-    const ancestryTraits = [];
-    const generalTraits = [];
-    const craftingTraits = [];
-    const culturalTraits = [];
-    const personalityTraits = [];
-
+    // Trait collections with their corresponding codes and default names
+    const traitTypes = {
+      TA: { collection: [], name: 'ancestryTraits', defaultName: 'Ancestry Trait' },
+      TG: { collection: [], name: 'generalTraits', defaultName: 'General Trait' },
+      TC: { collection: [], name: 'craftingTraits', defaultName: 'Crafting Trait' },
+      TP: { collection: [], name: 'personalityTraits', defaultName: 'Personality Trait' },
+      TX: { collection: [], name: 'culturalTraits', defaultName: 'Cultural Trait' }
+    };
 
     // Helper function to process options for trait codes
     const processOptions = (options, sourceName, allSelected = false) => {
       const optionsToProcess = allSelected ? options : options.filter(opt => opt.selected);
 
       for (const option of optionsToProcess) {
-        if (!option.data) continue;
-
-        // Parse the data looking for TA, TG, TC, TP codes
-        const data = option.data;
-
-        if (typeof data !== 'string') continue;
+        if (!option.data || typeof option.data !== 'string') continue;
 
         // Split by colon to handle multiple data codes in one string
-        const dataParts = data.split(':').map(part => part.trim());
+        const dataParts = option.data.split(':').map(part => part.trim());
 
         for (const dataPart of dataParts) {
-          // Look for trait codes: TA=trait_name, TG=trait_name, TC=trait_name, TP=trait_name, TX=trait_name, or just TA, TG, TC, TP, TX
-          const taMatch = dataPart.match(/^TA(?:=(.+))?$/i);
-          const tgMatch = dataPart.match(/^TG(?:=(.+))?$/i);
-          const tcMatch = dataPart.match(/^TC(?:=(.+))?$/i);
-          const tpMatch = dataPart.match(/^TP(?:=(.+))?$/i);
-          const txMatch = dataPart.match(/^TX(?:=(.+))?$/i);
-
-          if (taMatch) {
-            const traitName = taMatch[1] ? taMatch[1].trim() : option.name || 'Ancestry Trait';
-            if (traitName && !ancestryTraits.some(t => t.name === traitName)) {
-              ancestryTraits.push({
-                name: traitName,
-                description: option.description || '',
-                source: sourceName
-              });
-            }
-          }
-
-          if (tgMatch) {
-            const traitName = tgMatch[1] ? tgMatch[1].trim() : option.name || 'General Trait';
-            if (traitName && !generalTraits.some(t => t.name === traitName)) {
-              generalTraits.push({
-                name: traitName,
-                description: option.description || '',
-                source: sourceName
-              });
-            }
-          }
-
-          if (tcMatch) {
-            const traitName = tcMatch[1] ? tcMatch[1].trim() : option.name || 'Crafting Trait';
-            if (traitName && !craftingTraits.some(t => t.name === traitName)) {
-              craftingTraits.push({
-                name: traitName,
-                description: option.description || '',
-                source: sourceName
-              });
-            }
-          }
-
-          if (tpMatch) {
-            const traitName = tpMatch[1] ? tpMatch[1].trim() : option.name || 'Personality Trait';
-            if (traitName && !personalityTraits.some(t => t.name === traitName)) {
-              personalityTraits.push({
-                name: traitName,
-                description: option.description || '',
-                source: sourceName
-              });
-            }
-          }
-
-          if (txMatch) {
-            const traitName = txMatch[1] ? txMatch[1].trim() : option.name || 'Cultural Trait';
-            if (traitName && !culturalTraits.some(t => t.name === traitName)) {
-              culturalTraits.push({
-                name: traitName,
-                description: option.description || '',
-                source: sourceName
-              });
+          // Check each trait type
+          for (const [code, typeInfo] of Object.entries(traitTypes)) {
+            const match = dataPart.match(new RegExp(`^${code}(?:=(.+))?$`, 'i'));
+            if (match) {
+              const traitName = match[1] ? match[1].trim() : option.name || typeInfo.defaultName;
+              if (traitName && !typeInfo.collection.some(t => t.name === traitName)) {
+                typeInfo.collection.push({
+                  name: traitName,
+                  description: option.description || '',
+                  source: sourceName
+                });
+              }
             }
           }
         }
       }
     };
 
-    // Process modules (selected options only, excluding personality modules)
-    const modules = context.items.filter(i => i.type === 'module' && i.system.mtype !== 'personality');
-    for (const module of modules) {
-      if (!module.system.options) continue;
-      processOptions(module.system.options, module.name, false);
-    }
+    // Define item processing rules
+    const itemTypes = [
+      { filter: i => i.type === 'module' && i.system.mtype !== 'personality', process: false },
+      { filter: i => i.type === 'ancestry', process: false },
+      { filter: i => i.type === 'trait', process: false },
+      { filter: i => i.type === 'culture', process: false },
+      { filter: i => i.type === 'module' && i.system.mtype === 'personality', process: false }
+    ];
 
-    // Process ancestry items (respect selected field like other item types)
-    const ancestries = context.items.filter(i => i.type === 'ancestry');
-    for (const ancestry of ancestries) {
-      if (!ancestry.system.options) continue;
-      processOptions(ancestry.system.options, ancestry.name, false);
-    }
-
-    // Process trait items (only selected options)
-    const traits = context.items.filter(i => i.type === 'trait');
-    for (const trait of traits) {
-      if (!trait.system.options) continue;
-      processOptions(trait.system.options, trait.name, false);
-    }
-
-    // Process culture items (use selected options)
-    const cultures = context.items.filter(i => i.type === 'culture');
-    for (const culture of cultures) {
-      if (culture.system.options) {
-        processOptions(culture.system.options, culture.name, false);
+    // Process all item types
+    for (const { filter } of itemTypes) {
+      const items = context.items.filter(filter);
+      for (const item of items) {
+        if (item.system.options) {
+          processOptions(item.system.options, item.name, false);
+        }
       }
     }
 
-    // Process personality modules (selected options only)
-    const personalityModules = context.items.filter(i => i.type === 'module' && i.system.mtype === 'personality');
-    for (const personality of personalityModules) {
-      if (!personality.system.options) continue;
-      processOptions(personality.system.options, personality.name, false);
-    }
-
     // Add the trait arrays to context for template use
-    context.ancestryTraits = ancestryTraits;
-    context.generalTraits = generalTraits;
-    context.craftingTraits = craftingTraits;
-    context.culturalTraits = culturalTraits;
-    context.personalityTraits = personalityTraits;
+    context.ancestryTraits = traitTypes.TA.collection;
+    context.generalTraits = traitTypes.TG.collection;
+    context.craftingTraits = traitTypes.TC.collection;
+    context.culturalTraits = traitTypes.TX.collection;
+    context.personalityTraits = traitTypes.TP.collection;
   }
 
   /**
@@ -361,47 +295,20 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const allActions = context.items.filter(i => i.type === 'action');
     const reactions = context.items.filter(i => i.type === 'reaction');
 
-    // Debug logging for NPCs only
-    if (this.actor.type === 'npc') {
-      console.log('[Anyventure] NPC Abilities Debug - Actor:', this.actor.name);
-      console.log('[Anyventure] All actions found:', allActions.length);
-
-      // Log each action and why it's being categorized
-      allActions.forEach(action => {
-        const abilityType = action.system?.abilityType;
-        const isAttack = abilityType === 'attack';
-        console.log(action);
-        console.log(`[Anyventure] Action: "${action.name}" | actionType: "${abilityType}" | Goes to: ${isAttack ? 'ATTACKS section' : 'ACTIONS section'}`);
-      });
-
-      // Log reactions
-      console.log('[Anyventure] All reactions found:', reactions.length);
-      reactions.forEach(reaction => {
-        console.log(`[Anyventure] Reaction: "${reaction.name}" | Goes to: REACTIONS section`);
-      });
-    }
-
     // Separate attack actions from regular actions
     const attackActions = allActions.filter(i => i.system.abilityType === 'attack');
     const regularActions = allActions.filter(i => i.system.abilityType !== 'attack');
 
     // Sort by name for better organization
-    attackActions.sort((a, b) => a.name.localeCompare(b.name));
-    regularActions.sort((a, b) => a.name.localeCompare(b.name));
-    reactions.sort((a, b) => a.name.localeCompare(b.name));
-
-    // Debug logging results for NPCs
-    if (this.actor.type === 'npc') {
-      console.log('[Anyventure] Final sorting results:');
-      console.log(`[Anyventure] - Attack Actions (${attackActions.length}):`, attackActions.map(a => a.name));
-      console.log(`[Anyventure] - Regular Actions (${regularActions.length}):`, regularActions.map(a => a.name));
-      console.log(`[Anyventure] - Reactions (${reactions.length}):`, reactions.map(r => r.name));
-    }
+    const sortByName = (a, b) => a.name.localeCompare(b.name);
+    attackActions.sort(sortByName);
+    regularActions.sort(sortByName);
+    reactions.sort(sortByName);
 
     // Add to context for template use
-    context.actionItems = regularActions; // Keep existing for characters
+    context.actionItems = regularActions;
     context.reactionItems = reactions;
-    context.attackActions = attackActions; // New for NPCs (and characters if they have attack actions)
+    context.attackActions = attackActions;
   }
 
   /**
@@ -642,8 +549,12 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Safety check for actor effects
     if (!this.actor?.effects) {
+      console.log("DEBUG: No actor effects found");
       return conditions;
     }
+
+    console.log("DEBUG: Actor effects:", this.actor.effects);
+    console.log("DEBUG: Number of effects:", this.actor.effects.size);
 
     // Get condition descriptions lookup
     const conditionDescriptions = {
@@ -667,15 +578,29 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     for (const effect of this.actor.effects) {
       try {
-        if (!effect || !effect.statuses || effect.statuses.size === 0) continue; // Skip effects without status
+        console.log("DEBUG: Processing effect:", effect);
+        console.log("DEBUG: Effect statuses:", effect.statuses);
+        console.log("DEBUG: Effect flags:", effect.flags);
+
+        if (!effect || !effect.statuses || effect.statuses.size === 0) {
+          console.log("DEBUG: Skipping effect - no statuses");
+          continue; // Skip effects without status
+        }
 
         const statusId = effect.statuses.first();
         const flags = (effect.flags && effect.flags.anyventure) || {};
 
+        console.log("DEBUG: Status ID:", statusId);
+        console.log("DEBUG: Anyventure flags:", flags);
+
+        // Use status ID for name if available, otherwise use effect label
+        const conditionName = statusId ? statusId.charAt(0).toUpperCase() + statusId.slice(1) : (effect.label || "Unknown Condition");
+
         const conditionData = {
           id: effect.id || "",
-          name: effect.label || "Unknown Condition",
-          icon: effect.icon || effect.img || "icons/svg/aura.svg",
+          name: conditionName,
+          statusId: statusId,
+          icon: effect.img || "icons/svg/aura.svg",
           description: conditionDescriptions[statusId] || effect.description || "",
           checkType: flags.checkType || null,
           currentCheck: flags.currentCheck || null,
@@ -685,6 +610,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
           isEditable: true
         };
 
+        console.log("DEBUG: Created condition data:", conditionData);
         conditions.push(conditionData);
       } catch (error) {
         console.warn("Error processing condition effect:", effect, error);
@@ -692,6 +618,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       }
     }
 
+    console.log("DEBUG: Final conditions array:", conditions);
     return conditions;
   }
 
@@ -1024,6 +951,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Render the item sheet for viewing/editing prior to the editable check.
     html.find('.item-edit').click(ev => {
+      ev.stopPropagation(); // Prevent triggering parent clickable elements
       const li = $(ev.currentTarget).closest(".item, .inventory-row");
       const itemId = li.data("itemId") || li.data("item-id");
       const item = this.actor.items.get(itemId);
@@ -1051,6 +979,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Delete Inventory Item
     html.find('.item-delete').click(ev => {
+      ev.stopPropagation(); // Prevent triggering parent clickable elements
       const button = ev.currentTarget;
       let itemId;
 
@@ -1123,7 +1052,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Condition management
     html.find('.condition-roll-btn').click(this._onConditionRoll.bind(this));
-    html.find('.condition-remove').click(this._onConditionRemove.bind(this));
+    html.find('.condition-remove-btn').click(this._onConditionRemove.bind(this));
     html.find('.condition-edit-btn').click(this._onConditionEdit.bind(this));
     html.find('.editable-field').change(this._onConditionFieldChange.bind(this));
 
@@ -1388,10 +1317,63 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   /**
-   * Start Turn placeholder
+   * Start Turn - restore energy based on regen
    */
-  _onStartTurn() {
-    // Future: start-of-turn effects, regen, etc.
+  async _onStartTurn() {
+    const resources = this.actor.system.resources || {};
+    const energyRegen = (resources.energy?.regen || 0) + 2; // Base 2 + regen bonus
+
+    if (resources.energy && energyRegen > 0) {
+      const current = resources.energy.value || 0;
+      const max = resources.energy.max || 0;
+      const newValue = Math.min(current + energyRegen, max);
+
+      if (newValue > current) {
+        await this.actor.update({ 'system.resources.energy.value': newValue });
+        this.render(false);
+
+        // Create energy restoration chat card
+        await this._createEnergyRestorationChatCard(newValue - current, current, newValue, energyRegen);
+      }
+    }
+  }
+
+  /**
+   * Create an energy restoration chat card for start turn
+   */
+  async _createEnergyRestorationChatCard(energyRestored, previousValue, newValue, totalRegen) {
+    const baseRegen = 2;
+    const bonusRegen = totalRegen - baseRegen;
+
+    // Build chat card content using established card styling
+    let cardContent = `<div class="anyventure-energy-card">`;
+
+    // Main header
+    cardContent += `<div class="energy-header">`;
+    cardContent += `<div class="character-name"><strong>${this.actor.name}</strong> starts turn</div>`;
+    cardContent += `<div class="energy-amount">`;
+    cardContent += `<span class="energy-restored">+${energyRestored} Energy</span>`;
+    cardContent += ` (${previousValue} → ${newValue})`;
+    cardContent += `</div>`;
+    cardContent += `</div>`;
+
+    // Details section - show breakdown if there are bonuses
+    if (bonusRegen > 0) {
+      cardContent += `<div class="energy-details">`;
+      cardContent += `<div class="detail-line">Base Regeneration: ${baseRegen}</div>`;
+      cardContent += `<div class="detail-line">Bonus Regeneration: ${bonusRegen}</div>`;
+      cardContent += `</div>`;
+    }
+
+    cardContent += `</div>`;
+
+    // Create and send the chat message
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      content: cardContent,
+      type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+      rollMode: game.settings.get('core', 'rollMode'),
+    });
   }
 
   /**
@@ -3140,33 +3122,79 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
    */
   async _onConditionRoll(event) {
     event.preventDefault();
+    event.stopPropagation();
 
     const button = event.currentTarget;
     const checkType = button.dataset.checkType;
     const dc = parseInt(button.dataset.dc);
-    const effectId = button.dataset.effectId;
+    const conditionId = button.dataset.conditionId;
 
-    // Use the existing roll dialog system
-    const dialog = new AnyventureRollDialog(this.actor, {
-      skillKey: checkType,
-      skillCategory: 'basic',
-      targetDC: dc,
-      title: `${checkType.charAt(0).toUpperCase() + checkType.slice(1)} Recovery Check`,
-      rollType: 'skill'
+    if (!checkType || !dc || !conditionId) {
+      ui.notifications.warn("Missing condition data for recovery check.");
+      return;
+    }
+
+    // Map check types to their skill categories
+    const skillCategoryMap = {
+      'resilience': 'basic',
+      'concentration': 'basic',
+      'endurance': 'basic',
+      'fitness': 'basic',
+      'logic': 'basic',
+      'senses': 'basic'
+      // Add more mappings as needed for other conditions
+    };
+
+    const skillCategory = skillCategoryMap[checkType] || 'basic';
+    const skillName = checkType.charAt(0).toUpperCase() + checkType.slice(1);
+
+    // Get the skill and prepare roll data
+    const skill = this.actor.system[skillCategory]?.[checkType];
+    if (!skill) {
+      ui.notifications.warn(`Skill ${checkType} not found in ${skillCategory} category.`);
+      return;
+    }
+
+    // Import and use the roll dialog directly with a promise wrapper
+    const { AnyventureRollDialog } = await import('./roll-dialog.mjs');
+
+    // Create a promise that resolves when the dialog completes
+    const result = await new Promise((resolve) => {
+      const dialog = new AnyventureRollDialog({
+        title: `${skillName} Recovery Check`,
+        skillName: skillName,
+        baseDice: skill.talent || 1,
+        diceType: this._getDiceTypeForLevel(skill.value || 0),
+        actor: this.actor,
+        rollCallback: (roll, data) => {
+          // Resolve with the roll result (animation wait is handled in roll dialog)
+          resolve({ total: roll.total, roll: roll });
+        }
+      });
+
+      dialog.render({ force: true });
+
+      // Also handle cancel case
+      dialog.addEventListener('close', () => {
+        resolve(null); // Resolve with null if dialog is closed without rolling
+      });
     });
 
-    const result = await dialog.roll();
+    if (!result) {
+      // Dialog was cancelled
+      return;
+    }
 
-    if (result && result.total >= dc) {
+    if (result.total >= dc) {
       // Success! Remove the condition
-      const effect = this.actor.effects.get(effectId);
+      const effect = this.actor.effects.get(conditionId);
       if (effect) {
         await effect.delete();
-        ui.notifications.info(`${this.actor.name} recovers from ${effect.label}!`);
+        ui.notifications.info(`${this.actor.name} recovers from ${effect.label || checkType}!`);
       }
-    } else if (result) {
+    } else {
       // Failed - potentially reduce DC if it's a progressive condition
-      const effect = this.actor.effects.get(effectId);
+      const effect = this.actor.effects.get(conditionId);
       if (effect && effect.flags.anyventure?.reduceBy) {
         const currentDC = effect.flags.anyventure.currentCheck;
         const newDC = Math.max(1, currentDC - (effect.flags.anyventure.reduceBy || 1));
@@ -3177,6 +3205,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         });
 
         ui.notifications.info(`Recovery failed. DC reduced to ${newDC} for next attempt.`);
+        this.render(false); // Refresh to show updated DC
       }
     }
   }
@@ -3188,21 +3217,30 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
    */
   async _onConditionRemove(event) {
     event.preventDefault();
+    event.stopPropagation();
 
-    const effectId = event.currentTarget.dataset.effectId;
-    const effect = this.actor.effects.get(effectId);
+    const conditionId = event.currentTarget.dataset.conditionId;
 
-    if (effect) {
-      const confirmed = await Dialog.confirm({
-        title: "Remove Condition",
-        content: `<p>Remove <strong>${effect.label}</strong> condition?</p>`,
-        defaultYes: false
-      });
+    if (!conditionId) {
+      ui.notifications.warn("Missing condition ID for removal.");
+      return;
+    }
 
-      if (confirmed) {
-        await effect.delete();
-        ui.notifications.info(`Removed ${effect.label} condition.`);
-      }
+    const effect = this.actor.effects.get(conditionId);
+    if (!effect) {
+      ui.notifications.warn("Condition not found.");
+      return;
+    }
+
+    const confirmed = await Dialog.confirm({
+      title: "Remove Condition",
+      content: `<p>Remove <strong>${effect.label || "this condition"}</strong>?</p>`,
+      defaultYes: false
+    });
+
+    if (confirmed) {
+      await effect.delete();
+      ui.notifications.info(`Removed ${effect.label || "condition"}.`);
     }
   }
 
@@ -3213,14 +3251,24 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
    */
   async _onConditionEdit(event) {
     event.preventDefault();
+    event.stopPropagation();
 
-    const effectId = event.currentTarget.dataset.effectId;
-    const effect = this.actor.effects.get(effectId);
+    const conditionId = event.currentTarget.dataset.conditionId;
 
-    if (effect) {
-      // Open the standard Active Effect configuration dialog
-      effect.sheet.render(true);
+    if (!conditionId) {
+      ui.notifications.warn("Missing condition ID for editing.");
+      return;
     }
+
+    const effect = this.actor.effects.get(conditionId);
+    if (!effect) {
+      ui.notifications.warn("Condition not found.");
+      return;
+    }
+
+    // Import and show the custom condition edit dialog
+    const { AnyventureConditionEditDialog } = await import('./condition-edit-dialog.mjs');
+    AnyventureConditionEditDialog.show(effect);
   }
 
   /**
@@ -3233,7 +3281,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     const input = event.currentTarget;
     const field = input.dataset.field;
-    const effectId = input.dataset.effectId;
+    const conditionId = input.dataset.conditionId;
     const value = parseInt(input.value);
 
     if (isNaN(value)) return;

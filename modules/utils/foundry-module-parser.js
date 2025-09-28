@@ -104,6 +104,34 @@ export function parseFoundryModuleItem(foundryItem) {
 }
 
 /**
+ * Helper function to summarize simple numeric properties
+ */
+function summarizeSimpleValues(delta, property, summary, propertyKey) {
+  Object.entries(delta[property]).forEach(([key, value]) => {
+    if (value !== 0) {
+      const name = key.charAt(0).toUpperCase() + key.slice(1);
+      summary[propertyKey].push(`${name}: ${value > 0 ? '+' : ''}${value}`);
+    }
+  });
+}
+
+/**
+ * Helper function to summarize skill objects with skill/talent/tier structure
+ */
+function summarizeSkillObjects(delta, property, summary, propertyKey, nameTransform = null) {
+  Object.entries(delta[property]).forEach(([key, data]) => {
+    if (data.skill !== 0 || data.talent !== 0 || data.tier !== 0) {
+      const name = nameTransform ? nameTransform(key) : key.charAt(0).toUpperCase() + key.slice(1);
+      const parts = [];
+      if (data.skill !== 0) parts.push(`skill ${data.skill > 0 ? '+' : ''}${data.skill}`);
+      if (data.talent !== 0) parts.push(`talent ${data.talent > 0 ? '+' : ''}${data.talent}`);
+      if (data.tier !== 0) parts.push(`dice ${data.tier > 0 ? 'upgrade' : 'downgrade'}`);
+      summary[propertyKey].push(`${name}: ${parts.join(', ')}`);
+    }
+  });
+}
+
+/**
  * Get a human-readable summary of a delta's effects
  * @param {Object} delta - Delta object to summarize
  * @returns {Object} - Summary object with categories and effects
@@ -123,20 +151,12 @@ export function getDeltaSummary(delta) {
     conditionals: []
   };
 
-  // Summarize attributes
-  Object.entries(delta.attributes).forEach(([attr, value]) => {
-    if (value !== 0) {
-      summary.attributes.push(`${attr.charAt(0).toUpperCase() + attr.slice(1)}: ${value > 0 ? '+' : ''}${value}`);
-    }
-  });
-
-  // Summarize skills
-  Object.entries(delta.skills).forEach(([skill, value]) => {
-    if (value !== 0) {
-      const skillName = skill.charAt(0).toUpperCase() + skill.slice(1);
-      summary.skills.push(`${skillName}: ${value > 0 ? '+' : ''}${value}`);
-    }
-  });
+  // Summarize simple numeric properties
+  summarizeSimpleValues(delta, 'attributes', summary, 'attributes');
+  summarizeSimpleValues(delta, 'skills', summary, 'skills');
+  summarizeSimpleValues(delta, 'mitigation', summary, 'mitigation');
+  summarizeSimpleValues(delta, 'resources', summary, 'resources');
+  summarizeSimpleValues(delta, 'movement', summary, 'movement');
 
   // Summarize dice tier modifiers
   Object.entries(delta.skillTierModifiers).forEach(([skill, modifier]) => {
@@ -147,65 +167,11 @@ export function getDeltaSummary(delta) {
     }
   });
 
-  // Summarize weapon skills
-  Object.entries(delta.weaponSkills).forEach(([weapon, data]) => {
-    if (data.skill !== 0 || data.talent !== 0 || data.tier !== 0) {
-      const weaponName = weapon.replace(/([A-Z])/g, ' $1').trim();
-      const parts = [];
-      if (data.skill !== 0) parts.push(`skill ${data.skill > 0 ? '+' : ''}${data.skill}`);
-      if (data.talent !== 0) parts.push(`talent ${data.talent > 0 ? '+' : ''}${data.talent}`);
-      if (data.tier !== 0) parts.push(`dice ${data.tier > 0 ? 'upgrade' : 'downgrade'}`);
-      summary.weaponSkills.push(`${weaponName}: ${parts.join(', ')}`);
-    }
-  });
-
-  // Summarize magic skills
-  Object.entries(delta.magicSkills).forEach(([magic, data]) => {
-    if (data.skill !== 0 || data.talent !== 0 || data.tier !== 0) {
-      const magicName = magic.charAt(0).toUpperCase() + magic.slice(1);
-      const parts = [];
-      if (data.skill !== 0) parts.push(`skill ${data.skill > 0 ? '+' : ''}${data.skill}`);
-      if (data.talent !== 0) parts.push(`talent ${data.talent > 0 ? '+' : ''}${data.talent}`);
-      if (data.tier !== 0) parts.push(`dice ${data.tier > 0 ? 'upgrade' : 'downgrade'}`);
-      summary.magicSkills.push(`${magicName}: ${parts.join(', ')}`);
-    }
-  });
-
-  // Summarize crafting skills
-  Object.entries(delta.craftingSkills).forEach(([craft, data]) => {
-    if (data.skill !== 0 || data.talent !== 0 || data.tier !== 0) {
-      const craftName = craft.charAt(0).toUpperCase() + craft.slice(1);
-      const parts = [];
-      if (data.skill !== 0) parts.push(`skill ${data.skill > 0 ? '+' : ''}${data.skill}`);
-      if (data.talent !== 0) parts.push(`talent ${data.talent > 0 ? '+' : ''}${data.talent}`);
-      if (data.tier !== 0) parts.push(`dice ${data.tier > 0 ? 'upgrade' : 'downgrade'}`);
-      summary.craftingSkills.push(`${craftName}: ${parts.join(', ')}`);
-    }
-  });
-
-  // Summarize mitigation
-  Object.entries(delta.mitigation).forEach(([type, value]) => {
-    if (value !== 0) {
-      const typeName = type.charAt(0).toUpperCase() + type.slice(1);
-      summary.mitigation.push(`${typeName}: ${value > 0 ? '+' : ''}${value}`);
-    }
-  });
-
-  // Summarize resources
-  Object.entries(delta.resources).forEach(([resource, value]) => {
-    if (value !== 0) {
-      const resourceName = resource.charAt(0).toUpperCase() + resource.slice(1);
-      summary.resources.push(`${resourceName}: ${value > 0 ? '+' : ''}${value}`);
-    }
-  });
-
-  // Summarize movement
-  Object.entries(delta.movement).forEach(([type, value]) => {
-    if (value !== 0) {
-      const typeName = type.charAt(0).toUpperCase() + type.slice(1);
-      summary.movement.push(`${typeName}: ${value > 0 ? '+' : ''}${value}`);
-    }
-  });
+  // Summarize skill objects
+  summarizeSkillObjects(delta, 'weaponSkills', summary, 'weaponSkills',
+    (key) => key.replace(/([A-Z])/g, ' $1').trim());
+  summarizeSkillObjects(delta, 'magicSkills', summary, 'magicSkills');
+  summarizeSkillObjects(delta, 'craftingSkills', summary, 'craftingSkills');
 
   // Summarize immunities
   if (delta.immunities.length > 0) {

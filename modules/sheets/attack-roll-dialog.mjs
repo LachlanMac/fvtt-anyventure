@@ -287,7 +287,7 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
         let color = '#f87171'; // red for failures
         let style = '';
 
-        if (result > defenseCheck) {
+        if (result >= defenseCheck) {
           color = '#4ade80'; // green for successes
         }
 
@@ -306,7 +306,7 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
         const extraDamage = Number(this.attackData.damageExtra) || 0;
 
         // Count hits and crits
-        const hits = allResultsSorted.filter(result => result > defenseCheck);
+        const hits = allResultsSorted.filter(result => result >= defenseCheck);
         const crits = allResultsSorted.filter(result => critThreshold && result >= critThreshold);
 
         if (hits.length > 0) {
@@ -358,7 +358,7 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
         inherentPenalty: this.inherentPenalty,
         totalPenalty,
         keepLowest: rollConfig.keepLowest,
-        hit: defenseCheck ? highestDie > defenseCheck : null
+        hit: defenseCheck ? highestDie >= defenseCheck : null
       });
     }
 

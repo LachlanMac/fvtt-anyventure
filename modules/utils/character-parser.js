@@ -16,56 +16,36 @@ import { DefaultAbilities } from './default-abilities.js';
  * @param {Object} targetDelta - The delta to merge into (mutated)
  */
 function mergeDeltas(sourceDelta, targetDelta) {
-  // Merge attributes
-  Object.entries(sourceDelta.attributes).forEach(([attr, value]) => {
-    targetDelta.attributes[attr] += value;
-  });
+  // Helper function to merge simple value objects
+  const mergeSimpleValues = (source, target) => {
+    Object.entries(source).forEach(([key, value]) => {
+      target[key] += value;
+    });
+  };
 
-  // Merge skills
-  Object.entries(sourceDelta.skills).forEach(([skill, value]) => {
-    targetDelta.skills[skill] += value;
-  });
+  // Helper function to merge skill objects with skill/talent/tier properties
+  const mergeSkillObjects = (source, target) => {
+    Object.entries(source).forEach(([key, data]) => {
+      target[key].skill += data.skill;
+      target[key].talent += data.talent;
+      target[key].tier += data.tier;
+    });
+  };
 
-  // Merge skill dice tier modifiers
-  Object.entries(sourceDelta.skillTierModifiers).forEach(([skill, modifier]) => {
-    targetDelta.skillTierModifiers[skill] += modifier;
-  });
+  // Merge all simple value collections
+  mergeSimpleValues(sourceDelta.attributes, targetDelta.attributes);
+  mergeSimpleValues(sourceDelta.skills, targetDelta.skills);
+  mergeSimpleValues(sourceDelta.skillTierModifiers, targetDelta.skillTierModifiers);
 
-  // Merge weapon skills
-  Object.entries(sourceDelta.weaponSkills).forEach(([weapon, data]) => {
-    targetDelta.weaponSkills[weapon].skill += data.skill;
-    targetDelta.weaponSkills[weapon].talent += data.talent;
-    targetDelta.weaponSkills[weapon].tier += data.tier;
-  });
+  // Merge all skill object collections
+  mergeSkillObjects(sourceDelta.weaponSkills, targetDelta.weaponSkills);
+  mergeSkillObjects(sourceDelta.magicSkills, targetDelta.magicSkills);
+  mergeSkillObjects(sourceDelta.craftingSkills, targetDelta.craftingSkills);
 
-  // Merge magic skills
-  Object.entries(sourceDelta.magicSkills).forEach(([magic, data]) => {
-    targetDelta.magicSkills[magic].skill += data.skill;
-    targetDelta.magicSkills[magic].talent += data.talent;
-    targetDelta.magicSkills[magic].tier += data.tier;
-  });
-
-  // Merge crafting skills
-  Object.entries(sourceDelta.craftingSkills).forEach(([craft, data]) => {
-    targetDelta.craftingSkills[craft].skill += data.skill;
-    targetDelta.craftingSkills[craft].talent += data.talent;
-    targetDelta.craftingSkills[craft].tier += data.tier;
-  });
-
-  // Merge mitigation
-  Object.entries(sourceDelta.mitigation).forEach(([type, value]) => {
-    targetDelta.mitigation[type] += value;
-  });
-
-  // Merge resources
-  Object.entries(sourceDelta.resources).forEach(([resource, value]) => {
-    targetDelta.resources[resource] += value;
-  });
-
-  // Merge movement
-  Object.entries(sourceDelta.movement).forEach(([type, value]) => {
-    targetDelta.movement[type] += value;
-  });
+  // Merge remaining simple value collections
+  mergeSimpleValues(sourceDelta.mitigation, targetDelta.mitigation);
+  mergeSimpleValues(sourceDelta.resources, targetDelta.resources);
+  mergeSimpleValues(sourceDelta.movement, targetDelta.movement);
 
   // Merge abilities (avoid duplicates)
   if (sourceDelta.abilities && sourceDelta.abilities.length > 0) {

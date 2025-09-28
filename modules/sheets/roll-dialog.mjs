@@ -163,17 +163,22 @@ export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
     flavorText += `</div>`;
 
     // Send to chat
-    await roll.toMessage({
+    const chatMessage = await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       flavor: flavorText,
       rollMode: game.settings.get('core', 'rollMode'),
     });
-    
+
+    // Wait for Dice So Nice animation if the module is active
+    if (game.modules.get("dice-so-nice")?.active && game.dice3d) {
+      await game.dice3d.waitFor3DAnimationByMessageID(chatMessage.id);
+    }
+
     // Call the callback if provided
     if (this.rollCallback) {
-      this.rollCallback(roll, { bonusDice, penaltyDice });
+      this.rollCallback(roll, { bonusDice, penaltyDice, messageId: chatMessage.id });
     }
-    
+
     return { roll, bonusDice, penaltyDice };
   }
 
@@ -210,15 +215,20 @@ export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
     flavorText += `</div>`;
 
     // Send to chat
-    await roll.toMessage({
+    const chatMessage = await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       flavor: flavorText,
       rollMode: game.settings.get('core', 'rollMode'),
     });
 
+    // Wait for Dice So Nice animation if the module is active
+    if (game.modules.get("dice-so-nice")?.active && game.dice3d) {
+      await game.dice3d.waitFor3DAnimationByMessageID(chatMessage.id);
+    }
+
     // Call the callback if provided
     if (this.rollCallback) {
-      this.rollCallback(roll, { bonusDice: 0, penaltyDice: 0, singleDie: true });
+      this.rollCallback(roll, { bonusDice: 0, penaltyDice: 0, singleDie: true, messageId: chatMessage.id });
     }
 
     return { roll, bonusDice: 0, penaltyDice: 0, singleDie: true };

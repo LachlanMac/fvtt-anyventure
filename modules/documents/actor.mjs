@@ -215,61 +215,26 @@ export class AnyventureActor extends Actor {
             }
           }
 
-          // Basic skill bonuses (nested objects with add_bonus/set_bonus)
-          if (itemSystem.basic && typeof itemSystem.basic === 'object') {
-            for (const [skill, skillData] of Object.entries(itemSystem.basic)) {
-              if (skillData && typeof skillData === 'object') {
-                const addBonus = Number(skillData.add_bonus || 0);
-                const setBonus = Number(skillData.set_bonus || 0);
-                // For now, just use add_bonus (we can implement set_bonus logic later)
-                if (addBonus !== 0) {
-                  equipmentBonuses.basic[skill] = (equipmentBonuses.basic[skill] || 0) + addBonus;
+          // Helper function to process skill bonuses
+          const processSkillBonuses = (skillData, bonusCategory) => {
+            if (skillData && typeof skillData === 'object') {
+              for (const [skill, data] of Object.entries(skillData)) {
+                if (data && typeof data === 'object') {
+                  const addBonus = Number(data.add_bonus || 0);
+                  // For now, just use add_bonus (talents and set_bonus need different handling)
+                  if (addBonus !== 0) {
+                    bonusCategory[skill] = (bonusCategory[skill] || 0) + addBonus;
+                  }
                 }
               }
             }
-          }
+          };
 
-          // Weapon skill bonuses (nested objects with add_bonus/set_bonus/add_talent/set_talent)
-          if (itemSystem.weapon && typeof itemSystem.weapon === 'object') {
-            for (const [skill, skillData] of Object.entries(itemSystem.weapon)) {
-              if (skillData && typeof skillData === 'object') {
-                const addBonus = Number(skillData.add_bonus || 0);
-                const addTalent = Number(skillData.add_talent || 0);
-                // For now, just use add_bonus for skill values (talents would need different handling)
-                if (addBonus !== 0) {
-                  equipmentBonuses.weapon[skill] = (equipmentBonuses.weapon[skill] || 0) + addBonus;
-                }
-              }
-            }
-          }
-
-          // Magic skill bonuses (nested objects with add_bonus/set_bonus/add_talent/set_talent)
-          if (itemSystem.magic && typeof itemSystem.magic === 'object') {
-            for (const [skill, skillData] of Object.entries(itemSystem.magic)) {
-              if (skillData && typeof skillData === 'object') {
-                const addBonus = Number(skillData.add_bonus || 0);
-                const addTalent = Number(skillData.add_talent || 0);
-                // For now, just use add_bonus for skill values
-                if (addBonus !== 0) {
-                  equipmentBonuses.magic[skill] = (equipmentBonuses.magic[skill] || 0) + addBonus;
-                }
-              }
-            }
-          }
-
-          // Craft skill bonuses (nested objects with add_bonus/set_bonus/add_talent/set_talent)
-          if (itemSystem.craft && typeof itemSystem.craft === 'object') {
-            for (const [skill, skillData] of Object.entries(itemSystem.craft)) {
-              if (skillData && typeof skillData === 'object') {
-                const addBonus = Number(skillData.add_bonus || 0);
-                const addTalent = Number(skillData.add_talent || 0);
-                // For now, just use add_bonus for skill values
-                if (addBonus !== 0) {
-                  equipmentBonuses.craft[skill] = (equipmentBonuses.craft[skill] || 0) + addBonus;
-                }
-              }
-            }
-          }
+          // Process all skill categories
+          processSkillBonuses(itemSystem.basic, equipmentBonuses.basic);
+          processSkillBonuses(itemSystem.weapon, equipmentBonuses.weapon);
+          processSkillBonuses(itemSystem.magic, equipmentBonuses.magic);
+          processSkillBonuses(itemSystem.craft, equipmentBonuses.craft);
 
           // Mitigation bonuses (flat numeric values)
           if (itemSystem.mitigation && typeof itemSystem.mitigation === 'object') {
@@ -370,60 +335,25 @@ export class AnyventureActor extends Actor {
         systemData.movement.walk = baseWalk + walkBonus;
       }
 
-      // Attributes
-      for (const [attr, bonus] of Object.entries(equipmentBonuses.attributes)) {
-        if (systemData.attributes?.[attr] !== undefined && systemData._base.attributes?.[attr] !== undefined) {
-          const baseValue = systemData._base.attributes[attr].value;
-          const newValue = baseValue + bonus;
-          systemData.attributes[attr].value = newValue;
-        } else {
-          logWarning(`Attribute ${attr} not found in systemData or _base`);
+      // Helper function to apply bonuses to skill categories
+      const applyBonuses = (bonusCategory, systemCategory, baseCategory, categoryName, valueProperty = 'value') => {
+        for (const [key, bonus] of Object.entries(bonusCategory)) {
+          if (systemCategory?.[key] !== undefined && baseCategory?.[key] !== undefined) {
+            const baseValue = baseCategory[key][valueProperty];
+            const newValue = baseValue + bonus;
+            systemCategory[key][valueProperty] = newValue;
+          } else {
+            logWarning(`${categoryName} ${key} not found in systemData or _base`);
+          }
         }
-      }
+      };
 
-      // Skills - Basic
-      for (const [skill, bonus] of Object.entries(equipmentBonuses.basic)) {
-        if (systemData.basic?.[skill] !== undefined && systemData._base.basic?.[skill] !== undefined) {
-          const baseValue = systemData._base.basic[skill].value;
-          const newValue = baseValue + bonus;
-          systemData.basic[skill].value = newValue;
-        } else {
-          logWarning(`Basic skill ${skill} not found in systemData or _base`);
-        }
-      }
-
-      // Skills - Weapon
-      for (const [skill, bonus] of Object.entries(equipmentBonuses.weapon)) {
-        if (systemData.weapon?.[skill] !== undefined && systemData._base.weapon?.[skill] !== undefined) {
-          const baseValue = systemData._base.weapon[skill].value;
-          const newValue = baseValue + bonus;
-          systemData.weapon[skill].value = newValue;
-        } else {
-          logWarning(`Weapon skill ${skill} not found in systemData or _base`);
-        }
-      }
-
-      // Skills - Magic
-      for (const [skill, bonus] of Object.entries(equipmentBonuses.magic)) {
-        if (systemData.magic?.[skill] !== undefined && systemData._base.magic?.[skill] !== undefined) {
-          const baseValue = systemData._base.magic[skill].value;
-          const newValue = baseValue + bonus;
-          systemData.magic[skill].value = newValue;
-        } else {
-          logWarning(`Magic skill ${skill} not found in systemData or _base`);
-        }
-      }
-
-      // Skills - Craft
-      for (const [skill, bonus] of Object.entries(equipmentBonuses.craft)) {
-        if (systemData.craft?.[skill] !== undefined && systemData._base.craft?.[skill] !== undefined) {
-          const baseValue = systemData._base.craft[skill].value;
-          const newValue = baseValue + bonus;
-          systemData.craft[skill].value = newValue;
-        } else {
-          logWarning(`Craft skill ${skill} not found in systemData or _base`);
-        }
-      }
+      // Apply bonuses to all categories
+      applyBonuses(equipmentBonuses.attributes, systemData.attributes, systemData._base.attributes, 'Attribute');
+      applyBonuses(equipmentBonuses.basic, systemData.basic, systemData._base.basic, 'Basic skill');
+      applyBonuses(equipmentBonuses.weapon, systemData.weapon, systemData._base.weapon, 'Weapon skill');
+      applyBonuses(equipmentBonuses.magic, systemData.magic, systemData._base.magic, 'Magic skill');
+      applyBonuses(equipmentBonuses.craft, systemData.craft, systemData._base.craft, 'Craft skill');
 
       // Mitigation
       for (const [type, bonus] of Object.entries(equipmentBonuses.mitigation)) {
@@ -708,24 +638,12 @@ export class AnyventureActor extends Actor {
     // Copy the skill scores to the top level, so that rolls can use
     // formulas like `@basic.fitness.value + @basic.fitness.talent`.
     // Since skills are directly on system, we reference them directly
-    if (data.basic) {
-      for (let [key, skill] of Object.entries(data.basic)) {
-        data[`basic.${key}`] = skill;
-      }
-    }
-    if (data.weapon) {
-      for (let [key, skill] of Object.entries(data.weapon)) {
-        data[`weapon.${key}`] = skill;
-      }
-    }
-    if (data.magic) {
-      for (let [key, skill] of Object.entries(data.magic)) {
-        data[`magic.${key}`] = skill;
-      }
-    }
-    if (data.crafting) {
-      for (let [key, skill] of Object.entries(data.crafting)) {
-        data[`crafting.${key}`] = skill;
+    const skillCategories = ['basic', 'weapon', 'magic', 'crafting'];
+    for (const category of skillCategories) {
+      if (data[category]) {
+        for (let [key, skill] of Object.entries(data[category])) {
+          data[`${category}.${key}`] = skill;
+        }
       }
     }
   }

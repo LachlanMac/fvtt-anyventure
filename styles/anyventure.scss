@@ -3996,6 +3996,322 @@
   }
 }
 
+// Damage Card Styling for Chat Messages
+.chat-message:has(.anyventure-damage-card) .dice-roll,
+.chat-message:has(.anyventure-damage-card) .message-content {
+  padding: 0;
+}
+
+.anyventure-damage-card {
+  background: rgba($purple-darkest, 0.9);
+  border: 1px solid $border-light;
+  border-radius: $border-radius-md;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  padding: $spacing-sm;
+  border-left: 4px solid #dc3545; // Red left border for damage
+
+  .damage-header {
+    text-align: center;
+    margin-bottom: $spacing-sm;
+
+    .character-name {
+      font-size: $font-size-medium;
+      color: $text-light;
+      margin-bottom: $spacing-xs;
+    }
+
+    .damage-amount {
+      font-size: $font-size-large;
+      font-weight: bold;
+      color: $text-light;
+
+      .damage-type {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 8px;
+        border-radius: $border-radius-sm;
+        font-weight: bold;
+        border: 1px solid transparent;
+        margin-right: $spacing-xs;
+
+        // Physical damage type
+        &.damage-type-physical {
+          background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+          color: #FFF8DC;
+          border-color: #CD853F;
+        }
+
+        // Heat damage type
+        &.damage-type-heat {
+          background: linear-gradient(135deg, #FF4500 0%, #DC143C 100%);
+          color: #FFFAF0;
+          border-color: #FF6347;
+        }
+
+        // Cold damage type
+        &.damage-type-cold {
+          background: linear-gradient(135deg, #4682B4 0%, #87CEEB 100%);
+          color: #F0F8FF;
+          border-color: #B0C4DE;
+        }
+
+        // Electric damage type
+        &.damage-type-electric {
+          background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+          color: #000080;
+          border-color: #FFFF00;
+          text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+        }
+
+        // Dark damage type
+        &.damage-type-dark {
+          background: linear-gradient(135deg, #2F4F4F 0%, #000000 100%);
+          color: #E6E6FA;
+          border-color: #483D8B;
+        }
+
+        // Divine damage type
+        &.damage-type-divine {
+          background: linear-gradient(135deg, #FFD700 0%, #FFF8DC 100%);
+          color: #8B4513;
+          border-color: #DAA520;
+          text-shadow: 0 0 2px rgba(255, 215, 0, 0.8);
+        }
+
+        // Arcane/Aether damage type
+        &.damage-type-arcane,
+        &.damage-type-aether {
+          background: linear-gradient(135deg, #9932CC 0%, #8A2BE2 100%);
+          color: #E0E6FF;
+          border-color: #BA55D3;
+        }
+
+        // Psychic damage type
+        &.damage-type-psychic {
+          background: linear-gradient(135deg, #FF1493 0%, #DA70D6 100%);
+          color: #FFF0F5;
+          border-color: #FF69B4;
+        }
+
+        // Toxic damage type
+        &.damage-type-toxic {
+          background: linear-gradient(135deg, #32CD32 0%, #228B22 100%);
+          color: #F0FFF0;
+          border-color: #7CFC00;
+        }
+
+        // True damage type
+        &.damage-type-true {
+          background: linear-gradient(135deg, #696969 0%, #A9A9A9 100%);
+          color: #F5F5F5;
+          border-color: #D3D3D3;
+        }
+
+        // Resolve damage type
+        &.damage-type-resolve {
+          background: linear-gradient(135deg, #9932CC 0%, #8A2BE2 100%);
+          color: #E0E6FF;
+          border-color: #BA55D3;
+        }
+
+        // Energy damage type
+        &.damage-type-energy {
+          background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+          color: #000080;
+          border-color: #FFFF00;
+          text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+        }
+      }
+    }
+
+    .resource-breakdown {
+      font-size: $font-size-small;
+      color: $text-medium;
+      margin-top: $spacing-xs;
+
+      .resource-line {
+        display: inline-block;
+        margin-right: $spacing-md;
+        margin-bottom: $spacing-xs;
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+
+  .damage-details {
+    background: rgba($purple-darkest, 0.4);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    padding: $spacing-sm;
+    margin-top: $spacing-sm;
+
+    .detail-line {
+      color: $text-light;
+      font-size: $font-size-small;
+      margin-bottom: $spacing-xs;
+      line-height: 1.3;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .mitigation-result {
+        font-weight: bold;
+        font-style: italic;
+
+        &.fully-mitigated {
+          color: #4ade80; // Green for fully mitigated
+        }
+
+        &.resisted {
+          color: #fbbf24; // Yellow/orange for resisted
+        }
+      }
+    }
+  }
+}
+
+// Energy Restoration Card Styling for Chat Messages
+.chat-message:has(.anyventure-energy-card) .dice-roll,
+.chat-message:has(.anyventure-energy-card) .message-content {
+  padding: 0;
+}
+
+.anyventure-energy-card {
+  background: rgba($purple-darkest, 0.9);
+  border: 1px solid $border-light;
+  border-radius: $border-radius-md;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  padding: $spacing-sm;
+  border-left: 4px solid #fbbf24; // Yellow left border for energy restoration
+
+  .energy-header {
+    text-align: center;
+    margin-bottom: $spacing-sm;
+
+    .character-name {
+      font-size: $font-size-medium;
+      color: $text-light;
+      margin-bottom: $spacing-xs;
+    }
+
+    .energy-amount {
+      font-size: $font-size-large;
+      font-weight: bold;
+      color: $text-light;
+
+      .energy-restored {
+        color: #4ade80; // Green for energy gained
+        font-weight: bold;
+      }
+    }
+  }
+
+  .energy-details {
+    background: rgba($purple-darkest, 0.4);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    padding: $spacing-sm;
+    margin-top: $spacing-sm;
+
+    .detail-line {
+      color: $text-light;
+      font-size: $font-size-small;
+      margin-bottom: $spacing-xs;
+      line-height: 1.3;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// Rest Recovery Card Styling for Chat Messages
+.chat-message:has(.anyventure-rest-card) .dice-roll,
+.chat-message:has(.anyventure-rest-card) .message-content {
+  padding: 0;
+}
+
+.anyventure-rest-card {
+  background: rgba($purple-darkest, 0.9);
+  border: 1px solid $border-light;
+  border-radius: $border-radius-md;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  padding: $spacing-sm;
+  border-left: 4px solid #4ade80; // Green left border for rest recovery
+
+  .rest-header {
+    text-align: center;
+    margin-bottom: $spacing-sm;
+
+    .character-name {
+      font-size: $font-size-large;
+      color: $text-light;
+      font-weight: bold;
+    }
+  }
+
+  .recovery-breakdown {
+    .recovery-section,
+    .spell-section {
+      margin-bottom: $spacing-sm;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .section-title {
+        font-size: $font-size-medium;
+        font-weight: bold;
+        color: $gold-medium;
+        margin-bottom: $spacing-xs;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .recovery-line {
+        color: $text-light;
+        font-size: $font-size-small;
+        margin-bottom: $spacing-xs;
+        padding-left: $spacing-sm;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .rest-details {
+    background: rgba($purple-darkest, 0.4);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    padding: $spacing-sm;
+    margin-top: $spacing-sm;
+
+    .detail-line {
+      color: $text-light;
+      font-size: $font-size-small;
+      margin-bottom: $spacing-xs;
+      line-height: 1.3;
+
+      &:first-child {
+        color: $gold-muted;
+        font-weight: bold;
+      }
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
 // Dark theme card background for attack and skill chat cards
 .anyventure-attack-card,
 .anyventure-skill-card {
@@ -5451,6 +5767,92 @@
             font-size: 12px;
             font-style: italic;
           }
+        }
+      }
+    }
+
+    // Condition-specific styles for ability-item structure
+    .condition-item {
+      .condition-check-info {
+        font-size: 11px;
+        color: $text-medium;
+        margin-top: $spacing-xs;
+
+        .check-label {
+          color: $gold-medium;
+          font-weight: 500;
+        }
+
+        .original-check {
+          color: $text-dark;
+          font-style: italic;
+          margin-left: $spacing-xs;
+        }
+      }
+
+      .condition-turns {
+        font-size: 10px;
+        color: $text-dark;
+        margin-top: $spacing-xs;
+
+        .turns-label {
+          color: $resolve-color;
+        }
+      }
+
+      .ability-controls {
+        .condition-roll-btn {
+          color: $gold-medium;
+          background: transparent;
+          border: 1px solid rgba($gold-medium, 0.3);
+          padding: $spacing-xs;
+          border-radius: $border-radius-sm;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          margin-right: $spacing-xs;
+
+          &:hover {
+            background: rgba($gold-medium, 0.1);
+            color: $gold-bright;
+          }
+        }
+      }
+    }
+
+    // Condition Edit Dialog Styling
+    .anyventure-condition-edit-dialog {
+      .form-group {
+        margin-bottom: $spacing-md;
+
+        label {
+          display: block;
+          color: $text-medium;
+          font-weight: 500;
+          margin-bottom: $spacing-xs;
+        }
+
+        input[type="number"] {
+          width: 100%;
+          background: rgba($bg-dark, 0.8);
+          border: 1px solid rgba($border-medium, 0.5);
+          border-radius: $border-radius-sm;
+          padding: $spacing-sm;
+          color: $text-light;
+          font-size: 14px;
+
+          &:focus {
+            outline: none;
+            border-color: $gold-medium;
+            box-shadow: 0 0 4px rgba($gold-medium, 0.3);
+          }
+        }
+
+        .hint {
+          font-size: 11px;
+          color: $text-dark;
+          font-style: italic;
+          margin-top: $spacing-xs;
+          margin-bottom: 0;
         }
       }
     }
