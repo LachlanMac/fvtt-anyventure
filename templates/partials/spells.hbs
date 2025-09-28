@@ -45,6 +45,10 @@
             {{#if item.system.subschool}}({{item.system.subschool}}){{/if}}
           </div>
 
+          <div class="spell-range">
+            {{#if item.system.range}}{{formatSpellRange item.system.range}}{{/if}}
+          </div>
+
           <div class="spell-casting">
             {{#if item.system.fizzled}}
               <span class="school-roll fizzled">Fizzled</span>

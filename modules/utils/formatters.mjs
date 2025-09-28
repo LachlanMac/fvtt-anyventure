@@ -32,7 +32,28 @@ function getRangeCategory(rangeKey) {
 }
 
 /**
- * Convert range KEY values to descriptive range text
+ * Convert single range KEY value to spell range text (descriptive name + max units)
+ * @param {number} rangeKey - The range KEY value
+ * @returns {string} - Spell range text (e.g., "Short [10 Units]")
+ */
+export function formatSpellRange(rangeKey) {
+  const category = getRangeCategory(rangeKey);
+
+  if (category.name === "Self") {
+    return "Self";
+  } else if (category.name === "Adjacent") {
+    return "Adjacent";
+  } else if (category.name === "Nearby") {
+    return "Nearby [1 Unit]";
+  } else if (category.maxUnits === Infinity) {
+    return `${category.name} [${category.minUnits}+ Units]`;
+  } else {
+    return `${category.name} [${category.maxUnits} Units]`;
+  }
+}
+
+/**
+ * Convert range KEY values to descriptive range text (for weapons - optimal ranges)
  * @param {number} minRangeKey - Minimum range KEY value
  * @param {number} maxRangeKey - Maximum range KEY value
  * @returns {string} - Descriptive range text

@@ -8,6 +8,7 @@
 // Import the data parsing utilities
 import { parseDataCode, createEmptyDelta, combineDeltas, applyDeltaToCharacter } from './data-parser.js';
 import { logError, logWarning } from './logger.js';
+import { DefaultAbilities } from './default-abilities.js';
 
 /**
  * Merge one delta into another (mutates target delta)
@@ -556,6 +557,9 @@ export async function parseAndApplyCharacterEffects(actor) {
     // Parse and create ability items
     await parseAbilities(actor, combinedDelta);
 
+    // Add default abilities (actions/reactions all characters have)
+    await DefaultAbilities.addDefaultAbilitiesToCharacter(actor);
+
   // Apply effects to character (returns a plain, detached structure)
   const updateDataRaw = applyParsedEffectsToCharacter(actor, combinedDelta);
   const dup = (v) => (foundry?.utils?.duplicate ? foundry.utils.duplicate(v) : JSON.parse(JSON.stringify(v)));
@@ -692,6 +696,7 @@ async function resetCharacterToBase(actor) {
   updateData['system.resources.energy.max'] = 0;
   updateData['system.resources.resolve.max'] = 0;
   updateData['system.resources.morale.max'] = 0;
+  updateData['system.resources.mana.max'] = 0;
 
   // Reset basic skills to zero (stored in system.basic in FoundryVTT)
   if (actor.system.basic) {

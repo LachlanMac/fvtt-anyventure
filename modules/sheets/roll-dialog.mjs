@@ -40,6 +40,12 @@ export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
           callback: (event, button, dialog) => this.handleRoll(event, button, dialog)
         },
         {
+          action: "roll1d",
+          label: "Roll 1d",
+          icon: "fa-solid fa-dice-one",
+          callback: (event, button, dialog) => this.handleRoll1d(event, button, dialog)
+        },
+        {
           action: "cancel",
           label: "Cancel",
           icon: "fa-solid fa-times"
@@ -169,6 +175,53 @@ export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
     }
     
     return { roll, bonusDice, penaltyDice };
+  }
+
+  /**
+   * Handle the roll 1d button click (ignores bonus/penalty dice)
+   */
+  async handleRoll1d(event, button, dialog) {
+    const formula = `1${this.diceType}`;
+
+    // Create the roll
+    const roll = new Roll(formula, this.actor?.getRollData() || {});
+    await roll.evaluate();
+
+    // Extract individual die results for display [x]
+    const diceResults = [];
+    if (roll.terms[0] && roll.terms[0].results) {
+      for (let result of roll.terms[0].results) {
+        diceResults.push(result.result);
+      }
+    }
+
+    // Build structured flavor text
+    let flavorText = `<div class="anyventure-skill-card">`;
+
+    // 1. Skill name/title
+    flavorText += `<div class="skill-name"><strong>${this.skillName} Check (Single Die)</strong></div>`;
+
+    // 2. Dice Results
+    flavorText += `<div class=\"dice-results\"><strong>Result:</strong> ${diceResults[0]}</div>`;
+
+    // 3. Formula summary
+    flavorText += `<div class=\"formula\">Formula: 1${this.diceType} (ignoring bonus/penalty)</div>`;
+
+    flavorText += `</div>`;
+
+    // Send to chat
+    await roll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      flavor: flavorText,
+      rollMode: game.settings.get('core', 'rollMode'),
+    });
+
+    // Call the callback if provided
+    if (this.rollCallback) {
+      this.rollCallback(roll, { bonusDice: 0, penaltyDice: 0, singleDie: true });
+    }
+
+    return { roll, bonusDice: 0, penaltyDice: 0, singleDie: true };
   }
 
   /**

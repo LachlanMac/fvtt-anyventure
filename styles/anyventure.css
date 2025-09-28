@@ -14,6 +14,54 @@
   /* ----------------------------------------- */
   /*  Window & Base Layout                    */
   /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Item Sheet Specific Styles              */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Left Sidebar                            */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Resources Section                       */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Mitigations Table                       */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Movement Table                           */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Main Content Area                       */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Tab Navigation (Bottom)                 */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Skills Page                             */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Specialized Skills                      */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Items Lists                             */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Biography Tab                           */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Roll Dialog Styles                      */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Scrollbar Styling                       */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Utility Classes                         */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Moves Tab                               */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Spells Section                          */
+  /* ----------------------------------------- */
 }
 .anyventure .window-content {
   background: #1a1525;
@@ -22,11 +70,6 @@
   padding: 0;
   overflow: hidden;
   font-family: "Roboto", "Helvetica Neue", sans-serif;
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Item Sheet Specific Styles              */
-  /* ----------------------------------------- */
 }
 .anyventure.item .window-content {
   display: flex;
@@ -224,11 +267,6 @@
   gap: 0;
   position: relative;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Left Sidebar                            */
-  /* ----------------------------------------- */
-}
 .anyventure .left-sidebar {
   flex: 0 0 280px;
   background: #2d2438;
@@ -289,7 +327,8 @@
   border-radius: 50%;
   border: 3px solid #daa520;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7), 0 0 10px rgba(255, 215, 0, 0.4);
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -307,7 +346,8 @@
   border-radius: 50%;
   border: 3px solid #daa520;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6), 0 0 8px rgba(255, 215, 0, 0.4);
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
   transition: all 0.3s ease;
   cursor: pointer;
   filter: brightness(1) saturate(1);
@@ -365,11 +405,6 @@
 .anyventure .character-header .charname input:hover, .anyventure .character-header .charname input:focus {
   border-color: #ffd700;
   box-shadow: 0 2px 0 0 rgba(255, 215, 0, 0.4);
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Resources Section                       */
-  /* ----------------------------------------- */
 }
 .anyventure .resources-section {
   padding: 12px;
@@ -510,11 +545,6 @@
 .anyventure .resource-bar.morale .resource-fill {
   background: linear-gradient(90deg, #b8860b, rgb(228.5846153846, 166.4692307692, 13.6653846154));
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Mitigations Table                       */
-  /* ----------------------------------------- */
-}
 .anyventure .mitigations-container {
   padding: 8px;
   background: rgba(26, 21, 37, 0.2);
@@ -598,11 +628,6 @@
 .anyventure .mitigations-table td.resist-value {
   color: #cdaa3d;
   font-weight: bold;
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Movement Table                           */
-  /* ----------------------------------------- */
 }
 .anyventure .movement-container {
   padding: 8px;
@@ -693,11 +718,6 @@
   color: #cdaa3d;
   font-weight: bold;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Main Content Area                       */
-  /* ----------------------------------------- */
-}
 .anyventure .main-content {
   flex: 1;
   display: flex;
@@ -768,11 +788,6 @@
 .anyventure .tab.active {
   display: block;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Tab Navigation (Bottom)                 */
-  /* ----------------------------------------- */
-}
 .anyventure .module-points {
   padding: 8px;
   background: linear-gradient(135deg, rgba(74, 60, 92, 0.3), rgba(45, 36, 56, 0.3));
@@ -784,11 +799,6 @@
   color: #ffd700;
   font-weight: bold;
   font-size: 12px;
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Skills Page                             */
-  /* ----------------------------------------- */
 }
 .anyventure .skills-page, .anyventure .character-page {
   height: 100%;
@@ -823,7 +833,8 @@
 .anyventure .skills-page .character-essentials .character-essential-section .essential-icon img, .anyventure .character-page .character-essentials .character-essential-section .essential-icon img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .anyventure .skills-page .character-essentials .character-essential-section .essential-content, .anyventure .character-page .character-essentials .character-essential-section .essential-content {
   flex: 1;
@@ -1086,11 +1097,6 @@
 .anyventure .skill-row .skill-value-group .skill-die.skill-downgraded {
   color: #dc3545;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Specialized Skills                      */
-  /* ----------------------------------------- */
-}
 .anyventure .specialized-skills {
   margin-top: 8px;
 }
@@ -1231,11 +1237,6 @@
   pointer-events: none;
   opacity: 0;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Items Lists                             */
-  /* ----------------------------------------- */
-}
 .anyventure .items-list {
   list-style: none;
   margin: 0;
@@ -1326,11 +1327,6 @@
   flex: 0 0 200px;
   padding: 0 8px;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Biography Tab                           */
-  /* ----------------------------------------- */
-}
 .anyventure .biography-content {
   padding: 16px;
 }
@@ -1343,11 +1339,6 @@
   border-bottom: 1px solid #b8860b;
   padding-bottom: 4px;
   color: #ffd700;
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Roll Dialog Styles                      */
-  /* ----------------------------------------- */
 }
 .anyventure-roll-dialog {
   min-width: 400px;
@@ -1463,11 +1454,6 @@
   font-size: 16px;
   text-shadow: 0 0 4px rgba(255, 215, 0, 0.4);
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Scrollbar Styling                       */
-  /* ----------------------------------------- */
-}
 .anyventure ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -1486,11 +1472,6 @@
 .anyventure * {
   scrollbar-width: thin;
   scrollbar-color: #6b5980 #1a1525;
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Utility Classes                         */
-  /* ----------------------------------------- */
 }
 .anyventure .rollable:hover {
   color: #ffd700;
@@ -1531,11 +1512,6 @@
 }
 .anyventure button:active {
   transform: translateY(1px);
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Moves Tab                               */
-  /* ----------------------------------------- */
 }
 .anyventure .moves-container {
   padding: 12px;
@@ -1579,6 +1555,9 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 2px;
 }
 .anyventure .moves-container .moves-section .moves-list .move-item {
   display: flex;
@@ -1647,7 +1626,8 @@
 .anyventure .moves-container .weapon-attack-item .weapon-attack-header .weapon-icon img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .anyventure .moves-container .weapon-attack-item .weapon-attack-header .weapon-info {
   flex: 1;
@@ -1790,11 +1770,6 @@
   font-style: italic;
   padding: 12px;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Spells Section                          */
-  /* ----------------------------------------- */
-}
 .anyventure .spells-section {
   background: rgba(26, 21, 37, 0.3);
   border: 1px solid rgba(155, 137, 179, 0.3);
@@ -1873,7 +1848,8 @@
   height: 32px;
   border: 1px solid rgba(218, 165, 32, 0.3);
   border-radius: 2px;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .anyventure .spells-section .anyventure-spell-card .spell-content {
   min-width: 0;
@@ -1891,7 +1867,6 @@
   font-weight: 600;
   color: #daa520;
   margin: 0;
-  flex: 0 0 auto;
 }
 .anyventure .spells-section .anyventure-spell-card .spell-content .spell-header .spell-energy {
   display: flex;
@@ -1927,15 +1902,33 @@
   color: #6b5980;
   border: 1px solid rgba(107, 89, 128, 0.4);
 }
+.anyventure .spells-section .anyventure-spell-card .spell-content .spell-header .spell-tags .range-badge {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: rgba(218, 165, 32, 0.3);
+  color: #ffd700;
+  border: 1px solid rgba(218, 165, 32, 0.5);
+}
 .anyventure .spells-section .anyventure-spell-card .spell-content .spell-details {
   display: grid;
-  grid-template-columns: 1fr 110px;
+  grid-template-columns: 1fr minmax(80px, auto) 110px;
   align-items: center;
   font-size: 11px;
 }
 .anyventure .spells-section .anyventure-spell-card .spell-content .spell-details .spell-school {
   color: #c5bdd1;
   font-weight: 500;
+}
+.anyventure .spells-section .anyventure-spell-card .spell-content .spell-details .spell-range {
+  justify-self: center;
+  text-align: center;
+  color: #daa520;
+  font-weight: 500;
+  font-size: 9px;
+  padding: 0 8px;
 }
 .anyventure .spells-section .anyventure-spell-card .spell-content .spell-details .spell-casting {
   justify-self: end;
@@ -2229,6 +2222,9 @@
   box-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
   outline: none;
 }
+#chat-form #chat-message::-moz-placeholder {
+  color: #8b7a9e;
+}
 #chat-form #chat-message::placeholder {
   color: #8b7a9e;
 }
@@ -2349,6 +2345,9 @@
 /*  Item Sheet Styles (scoped to .anyventure) */
 /* ========================================= */
 .anyventure {
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Equipment Tab Styles                    */
   /* ----------------------------------------- */
 }
 .anyventure.item .window-content {
@@ -2575,11 +2574,6 @@
 .anyventure.item .form-group.stacked {
   margin-bottom: 8px;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Equipment Tab Styles                    */
-  /* ----------------------------------------- */
-}
 .anyventure .equipment-top-row {
   display: flex;
   gap: 24px;
@@ -2676,6 +2670,8 @@
   justify-content: center;
   width: 100%;
   height: 100%;
+  /* Item Quantity Controls for stackable items */
+  /* Quantity display only (no controls) for equipped items */
 }
 .anyventure .slot-container-small .equipped-item img {
   width: 36px;
@@ -2683,10 +2679,8 @@
   border: none;
   outline: none;
   border-radius: 4px;
-  object-fit: cover;
-}
-.anyventure .slot-container-small .equipped-item {
-  /* Item Quantity Controls for stackable items */
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .anyventure .slot-container-small .equipped-item .item-quantity-controls {
   position: absolute;
@@ -2733,9 +2727,6 @@
   text-align: center;
   padding: 0 2px;
   line-height: 1;
-}
-.anyventure .slot-container-small .equipped-item {
-  /* Quantity display only (no controls) for equipped items */
 }
 .anyventure .slot-container-small .equipped-item .quantity-display-only {
   position: absolute;
@@ -2906,7 +2897,8 @@
   width: 24px;
   height: 24px;
   border-radius: 4px;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .anyventure .inventory-table .inventory-row .col-weight,
 .anyventure .inventory-table .inventory-row .col-encumbrance,
@@ -3064,16 +3056,18 @@
   height: 32px;
   border: 1px solid rgba(218, 165, 32, 0.3);
   border-radius: 2px;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .anyventure .moves-section .ability-item .ability-content {
   flex: 1;
   min-width: 0;
 }
 .anyventure .moves-section .ability-item .ability-content .ability-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
+  gap: 8px;
   margin-bottom: 4px;
 }
 .anyventure .moves-section .ability-item .ability-content .ability-header .ability-name {
@@ -3081,7 +3075,6 @@
   font-weight: 600;
   color: #daa520;
   margin: 0;
-  flex: 0 0 auto;
 }
 .anyventure .moves-section .ability-item .ability-content .ability-header .ability-energy {
   display: flex;
@@ -3089,7 +3082,6 @@
   gap: 3px;
   font-size: 10px;
   color: #e8e3f0;
-  flex: 0 0 auto;
 }
 .anyventure .moves-section .ability-item .ability-content .ability-header .ability-energy i {
   font-size: 9px;
@@ -3098,7 +3090,8 @@
 .anyventure .moves-section .ability-item .ability-content .ability-header .ability-tags {
   display: flex;
   gap: 4px;
-  flex: 0 0 auto;
+  min-width: 90px;
+  justify-content: flex-end;
 }
 .anyventure .moves-section .ability-item .ability-content .ability-header .ability-tags .daily-badge, .anyventure .moves-section .ability-item .ability-content .ability-header .ability-tags .magic-badge {
   padding: 2px 6px;
@@ -3599,6 +3592,102 @@
   }
 }
 
+.anyventure-ability-use-dialog {
+  width: 512px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.anyventure-ability-use-dialog .ability-header {
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.anyventure-ability-use-dialog .ability-header h3 {
+  margin: 0 0 2px 0;
+  color: #ffd700;
+  font-size: 1.2em;
+}
+.anyventure-ability-use-dialog .ability-header .ability-type-badge {
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.anyventure-ability-use-dialog .ability-header .ability-type-badge.action {
+  background: rgba(74, 60, 92, 0.3);
+  border: 1px solid #6b5980;
+  color: #6b5980;
+}
+.anyventure-ability-use-dialog .ability-header .ability-type-badge.reaction {
+  background: rgba(218, 165, 32, 0.2);
+  border: 1px solid #daa520;
+  color: #ffd700;
+}
+.anyventure-ability-use-dialog .ability-energy-cost {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(26, 21, 37, 0.4);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  padding: 4px;
+  margin-bottom: 8px;
+  font-size: 1em;
+  color: #e8e3f0;
+}
+.anyventure-ability-use-dialog .ability-energy-cost strong {
+  color: #c5bdd1;
+}
+.anyventure-ability-use-dialog .ability-energy-cost .energy-cost .fa-star.filled {
+  color: #ffd700;
+  font-size: 0.9em;
+  margin-right: 2px;
+}
+.anyventure-ability-use-dialog .ability-text-section {
+  background: rgba(26, 21, 37, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+.anyventure-ability-use-dialog .ability-text-section h4 {
+  margin: 0 0 4px 0;
+  color: #daa520;
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(184, 134, 11, 0.3);
+  padding-bottom: 2px;
+}
+.anyventure-ability-use-dialog .ability-text-section .ability-description, .anyventure-ability-use-dialog .ability-text-section .anyventure-roll-dialog .anyventure-spell-cast-dialog .spell-description, .anyventure-roll-dialog .anyventure-spell-cast-dialog .anyventure-ability-use-dialog .ability-text-section .spell-description, .anyventure-ability-use-dialog .ability-text-section .anyventure-roll-dialog .anyventure-spell-cast-dialog .spell-charge, .anyventure-roll-dialog .anyventure-spell-cast-dialog .anyventure-ability-use-dialog .ability-text-section .spell-charge {
+  color: #e8e3f0;
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.anyventure-ability-use-dialog .energy-warning {
+  background: rgba(220, 53, 69, 0.18);
+  border: 2px solid rgba(220, 53, 69, 0.8);
+  border-radius: 4px;
+  padding: 4px;
+  margin: 8px 0;
+  color: #e8e3f0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.anyventure-ability-use-dialog .energy-warning i {
+  color: #dc3545;
+  font-size: 1.2em;
+}
+
 .injuries-container {
   display: flex;
   flex-direction: column;
@@ -3627,7 +3716,8 @@
 .injuries-container .character-essential-section .essential-icon img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .injuries-container .character-essential-section .essential-content {
   flex: 1;
@@ -3763,7 +3853,8 @@
   height: 32px;
   border: 1px solid rgba(218, 165, 32, 0.3);
   border-radius: 2px;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .spells-container .spells-section .anyventure-spell-card .spell-content {
   min-width: 0;
@@ -3781,7 +3872,6 @@
   font-weight: 600;
   color: #daa520;
   margin: 0;
-  flex: 0 0 auto;
 }
 .spells-container .spells-section .anyventure-spell-card .spell-content .spell-header .spell-energy {
   display: flex;
@@ -3817,15 +3907,33 @@
   color: #6b5980;
   border: 1px solid rgba(107, 89, 128, 0.4);
 }
+.spells-container .spells-section .anyventure-spell-card .spell-content .spell-header .spell-tags .range-badge {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: rgba(218, 165, 32, 0.3);
+  color: #ffd700;
+  border: 1px solid rgba(218, 165, 32, 0.5);
+}
 .spells-container .spells-section .anyventure-spell-card .spell-content .spell-details {
   display: grid;
-  grid-template-columns: 1fr 110px;
+  grid-template-columns: 1fr minmax(80px, auto) 110px;
   align-items: center;
   font-size: 11px;
 }
 .spells-container .spells-section .anyventure-spell-card .spell-content .spell-details .spell-school {
   color: #c5bdd1;
   font-weight: 500;
+}
+.spells-container .spells-section .anyventure-spell-card .spell-content .spell-details .spell-range {
+  justify-self: center;
+  text-align: center;
+  color: #daa520;
+  font-weight: 500;
+  font-size: 9px;
+  padding: 0 8px;
 }
 .spells-container .spells-section .anyventure-spell-card .spell-content .spell-details .spell-casting {
   justify-self: end;
@@ -4355,5 +4463,168 @@
   background: #1a1525;
   font-weight: normal;
 }
-
-/*# sourceMappingURL=anyventure.css.map */
+.anyventure.item .conditions-container {
+  padding: 8px;
+}
+.anyventure.item .conditions-container .condition-card {
+  background: rgba(45, 36, 56, 0.6);
+  border: 1px solid rgba(155, 137, 179, 0.5);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  padding: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.anyventure.item .conditions-container .condition-card .condition-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.anyventure.item .conditions-container .condition-card .condition-header .condition-icon img {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid rgba(155, 137, 179, 0.3);
+}
+.anyventure.item .conditions-container .condition-card .condition-header .condition-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #daa520;
+}
+.anyventure.item .conditions-container .condition-card .condition-header .condition-controls .condition-remove {
+  color: #dc3545;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+.anyventure.item .conditions-container .condition-card .condition-header .condition-controls .condition-remove:hover {
+  background: rgba(220, 53, 69, 0.2);
+}
+.anyventure.item .conditions-container .condition-card .condition-content {
+  margin-bottom: 8px;
+}
+.anyventure.item .conditions-container .condition-card .condition-content .condition-description {
+  color: #c5bdd1;
+  font-size: 12px;
+  margin-bottom: 4px;
+  font-style: italic;
+}
+.anyventure.item .conditions-container .condition-card .condition-content .condition-check-info {
+  background: rgba(26, 21, 37, 0.4);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  padding: 4px;
+}
+.anyventure.item .conditions-container .condition-card .condition-content .condition-check-info .check-details {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+.anyventure.item .conditions-container .condition-card .condition-content .condition-check-info .check-details .check-label {
+  color: #c5bdd1;
+  font-size: 11px;
+  font-weight: 500;
+}
+.anyventure.item .conditions-container .condition-card .condition-content .condition-check-info .check-details .check-type {
+  color: #daa520;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.anyventure.item .conditions-container .condition-card .condition-content .condition-check-info .check-details .check-dc {
+  color: #e8e3f0;
+  font-weight: 500;
+}
+.anyventure.item .conditions-container .condition-card .condition-content .condition-check-info .check-details .check-dc .current-check {
+  width: 50px;
+  background: rgba(45, 36, 56, 0.8);
+  border: 1px solid rgba(155, 137, 179, 0.5);
+  color: #e8e3f0;
+  text-align: center;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin-left: 2px;
+}
+.anyventure.item .conditions-container .condition-card .condition-content .condition-check-info .check-details .original-check {
+  color: #8b7a9e;
+  font-size: 10px;
+  font-style: italic;
+}
+.anyventure.item .conditions-container .condition-card .condition-content .condition-check-info .turns-active {
+  color: #c5bdd1;
+  font-size: 11px;
+}
+.anyventure.item .conditions-container .condition-card .condition-content .condition-check-info .turns-active .turns-field {
+  width: 40px;
+  background: rgba(45, 36, 56, 0.8);
+  border: 1px solid rgba(155, 137, 179, 0.5);
+  color: #e8e3f0;
+  text-align: center;
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin-left: 2px;
+}
+.anyventure.item .conditions-container .condition-card .condition-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+.anyventure.item .conditions-container .condition-card .condition-actions .condition-roll-btn {
+  background: linear-gradient(135deg, #b8860b 0%, #daa520 100%);
+  color: #e8e3f0;
+  border: 1px solid #daa520;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.anyventure.item .conditions-container .condition-card .condition-actions .condition-roll-btn:hover {
+  background: linear-gradient(135deg, #daa520 0%, #ffd700 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.anyventure.item .conditions-container .condition-card .condition-actions .condition-edit-btn {
+  background: rgba(155, 137, 179, 0.3);
+  color: #c5bdd1;
+  border: 1px solid rgba(155, 137, 179, 0.5);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.anyventure.item .conditions-container .condition-card .condition-actions .condition-edit-btn:hover {
+  background: rgba(155, 137, 179, 0.5);
+  color: #e8e3f0;
+}
+.anyventure.item .conditions-container .conditions-empty {
+  text-align: center;
+  padding: 16px;
+}
+.anyventure.item .conditions-container .conditions-empty .empty-message {
+  color: #8b7a9e;
+}
+.anyventure.item .conditions-container .conditions-empty .empty-message i {
+  font-size: 48px;
+  color: #cdaa3d;
+  margin-bottom: 8px;
+}
+.anyventure.item .conditions-container .conditions-empty .empty-message p {
+  margin: 2px 0;
+}
+.anyventure.item .conditions-container .conditions-empty .empty-message p.empty-hint {
+  font-size: 12px;
+  font-style: italic;
+}/*# sourceMappingURL=anyventure.css.map */

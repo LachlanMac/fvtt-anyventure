@@ -113,6 +113,7 @@
     <nav class="sheet-tabs tabs" data-group="character-secondary">
       <a class="item active" data-tab="traits">Traits</a>
       {{#unless (eq actor.type "npc")}}<a class="item" data-tab="modules">Modules</a>{{/unless}}
+      <a class="item" data-tab="conditions">Conditions</a>
       <a class="item" data-tab="injuries">Injuries</a>
     </nav>
 
@@ -281,6 +282,19 @@
         </li>
         {{/each}}
       </ol>
+    </div>
+
+    {{!-- Conditions Tab --}}
+    <div class="tab conditions" data-group="character-secondary" data-tab="conditions">
+      <div class="conditions-container">
+        <div class="conditions-empty">
+          <div class="empty-message">
+            <i class="fas fa-heart"></i>
+            <p>No active conditions</p>
+            <p class="empty-hint">Conditions will appear here when applied to this character</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     {{!-- Injuries Tab --}}

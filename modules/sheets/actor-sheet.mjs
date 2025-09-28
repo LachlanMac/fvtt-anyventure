@@ -1,9 +1,10 @@
-import { formatRange, formatCategory, formatDamageType } from "../utils/formatters.mjs";
+import { formatRange, formatSpellRange, formatCategory, formatDamageType } from "../utils/formatters.mjs";
 import { AnyventureAttackRollDialog } from "./attack-roll-dialog.mjs";
 import { AnyventureRecoverResourcesDialog } from "./recover-resources-dialog.mjs";
 import { AnyventureTakeDamageDialog } from "./take-damage-dialog.mjs";
 import { AnyventureRestDialog } from "./rest-dialog.mjs";
 import { AnyventureSpellCastDialog } from "./spell-cast-dialog.mjs";
+import { AnyventureAbilityUseDialog } from "./ability-use-dialog.mjs";
 import { parseAndApplyCharacterEffects } from "../utils/character-parser.js";
 
 const WEAPON_SLOTS = ['mainhand', 'offhand', 'extra1', 'extra2', 'extra3'];
@@ -26,6 +27,15 @@ const TWO_HANDED_FLAG = 'two-handed';
  * @extends {foundry.appv1.sheets.ActorSheet}
  */
 export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
+
+  constructor(...args) {
+    super(...args);
+    // Store active sub-tabs per actor
+    this._activeSubTabs = {
+      moves: 'attacks',  // Default to attacks tab
+      character: 'traits'  // Default to traits tab (traits, modules, conditions, injuries)
+    };
+  }
 
   /** @override */
   static get defaultOptions() {
@@ -149,6 +159,14 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Prepare active effects
     context.effects = prepareActiveEffectCategories(this.actor.effects);
+
+    // Prepare conditions for display
+    try {
+      context.conditionCards = this._prepareConditions();
+    } catch (error) {
+      console.warn("Error preparing conditions:", error);
+      context.conditionCards = [];
+    }
 
     return context;
   }
@@ -615,6 +633,69 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   /**
+   * Prepare conditions data for display in the conditions tab
+   * @returns {Array} Array of condition card data
+   * @private
+   */
+  _prepareConditions() {
+    const conditions = [];
+
+    // Safety check for actor effects
+    if (!this.actor?.effects) {
+      return conditions;
+    }
+
+    // Get condition descriptions lookup
+    const conditionDescriptions = {
+      maddened: "Cannot identify friend from foe. Unaffected by other mind-altering conditions like charmed, confused, or afraid.",
+      blind: "Cannot see. Suffers penalty dice to all attacks and defense checks. Fails all vision-based Senses checks.",
+      prone: "On the ground. Movement is halved. Melee attackers gain bonus dice.",
+      stunned: "Cannot take Actions or Reactions.",
+      confused: "Each turn: (1) attack random target, (2) move randomly, (3) lose Action, (4) act normally.",
+      afraid: "Cannot take Reactions. Must make Resilience check to use Actions.",
+      charmed: "Under another creature's influence. Cannot target them with hostile actions.",
+      paralyzed: "Cannot move or take Actions/Reactions. Automatically fail physical defense checks.",
+      unconscious: "Cannot take Actions, Reactions, or Movement. Automatically fail physical defense checks.",
+      bleeding: "Take damage at the end of each turn.",
+      poisoned: "Suffer from toxin effects.",
+      ignited: "On fire, taking damage each turn.",
+      frozen: "Movement and actions severely limited by cold.",
+      deafened: "Cannot hear. May fail sound-based Senses checks.",
+      invisible: "Cannot be seen by normal vision.",
+      hidden: "Undetected by normal senses."
+    };
+
+    for (const effect of this.actor.effects) {
+      try {
+        if (!effect || !effect.statuses || effect.statuses.size === 0) continue; // Skip effects without status
+
+        const statusId = effect.statuses.first();
+        const flags = (effect.flags && effect.flags.anyventure) || {};
+
+        const conditionData = {
+          id: effect.id || "",
+          name: effect.label || "Unknown Condition",
+          icon: effect.icon || effect.img || "icons/svg/aura.svg",
+          description: conditionDescriptions[statusId] || effect.description || "",
+          checkType: flags.checkType || null,
+          currentCheck: flags.currentCheck || null,
+          startingCheck: flags.startingCheck || null,
+          turnsActive: flags.turnsActive || 0,
+          canRoll: !!flags.checkType,
+          isEditable: true
+        };
+
+        conditions.push(conditionData);
+      } catch (error) {
+        console.warn("Error processing condition effect:", effect, error);
+        continue;
+      }
+    }
+
+    return conditions;
+  }
+
+  /**
    * Get equipped weapons for the moves section
    * @param {Object} context The actor context
    * @returns {Array} Array of equipped weapons with attack data
@@ -904,6 +985,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
   activateListeners(html) {
     super.activateListeners(html);
 
+    // Restore sub-tab states after render
+    this._restoreSubTabStates(html);
+
     // Always bind UI-only tab interactions (work in readonly too)
     // Moves sub-tabs
     html.find('.moves-container .inventory-tab').off('click').on('click', this._onMovesTabClick.bind(this));
@@ -925,6 +1009,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       const $target = $(ev.currentTarget);
       const tab = $target.data('tab');
       const $section = $target.closest('.traits-modules-section');
+
+      // Store the active tab
+      this._activeSubTabs.character = tab;
 
       // Toggle active on nav items
       $target.siblings('a.item').removeClass('active');
@@ -1033,6 +1120,12 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Ability usage (actions and reactions)
     html.find('.ability-clickable').click(this._onAbilityUse.bind(this));
+
+    // Condition management
+    html.find('.condition-roll-btn').click(this._onConditionRoll.bind(this));
+    html.find('.condition-remove').click(this._onConditionRemove.bind(this));
+    html.find('.condition-edit-btn').click(this._onConditionEdit.bind(this));
+    html.find('.editable-field').change(this._onConditionFieldChange.bind(this));
 
     // Resource quick actions
     html.find('.quick-action-btn').off('click').on('click', this._onQuickAction.bind(this));
@@ -1674,57 +1767,22 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       });
     }
 
-    // Fallback: show confirmation dialog and post to chat as a generic ability use
-    const abilityName = item.name;
-    const description = item.system.description || "No description available";
-
-    const confirmed = await Dialog.confirm({
-      title: "Use Ability",
-      content: `
-        <div style="margin-bottom: 10px;">
-          <strong>Are you sure you want to use this ${abilityType}?</strong>
-        </div>
-        <div style="margin-bottom: 10px;">
-          <strong>Name:</strong> ${abilityName}
-        </div>
-        <div style="margin-bottom: 10px;">
-          <strong>Energy Cost:</strong> ${energyCost === 0 ? "None" : energyCost}
-        </div>
-        <div style="margin-bottom: 10px;">
-          <strong>Description:</strong><br>
-          ${description}
-        </div>
-      `,
-      yes: () => true,
-      no: () => false,
-      defaultYes: false
+    // Show the styled ability use dialog
+    const dialogResult = await AnyventureAbilityUseDialog.show({
+      actor: this.actor,
+      item: item,
+      abilityName: item.name,
+      abilityType: abilityType,
+      energyCost: energyCost,
+      currentEnergy: currentEnergy,
+      description: item.system.description || "No description available",
+      daily: item.system.daily || false,
+      magic: item.system.magic || false,
+      source: item.system.source || null
     });
 
-    if (!confirmed) return;
-
-    // Deduct energy if there's a cost
-    if (energyCost > 0) {
-      const newEnergy = currentEnergy - energyCost;
-      await this.actor.update({ 'system.resources.energy.value': newEnergy });
-    }
-
-    // Post to chat
-    const chatData = {
-      user: game.user.id,
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      content: `
-        <div class="anyventure-ability-card ${abilityType}-card">
-          <div class="ability-name">${abilityName}</div>
-          ${energyCost > 0 ? `<div class="energy-cost">Energy: ${this._renderEnergy(energyCost)}</div>` : ''}
-          <div class="ability-description">
-            ${description}
-          </div>
-        </div>
-      `,
-      style: CONST.CHAT_MESSAGE_STYLES.OTHER
-    };
-
-    ChatMessage.create(chatData);
+    // The dialog handles energy deduction and chat posting internally
+    // No need for additional code here since it's all handled in the dialog
   }
 
   /**
@@ -2755,6 +2813,41 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   /**
+   * Restore sub-tab states after sheet render
+   * @param {jQuery} html - The rendered HTML
+   * @private
+   */
+  _restoreSubTabStates(html) {
+    // Restore moves sub-tab if we're on the moves tab
+    if (html.find('.sheet-tabs .item[data-tab="moves"]').hasClass('active')) {
+      const movesActiveTab = this._activeSubTabs.moves || 'attacks';
+      const movesContainer = html.find('.moves-container');
+
+      // Remove default active classes
+      movesContainer.find('.inventory-tab').removeClass('active');
+      movesContainer.find('.inventory-tab-content').removeClass('active');
+
+      // Set the saved active tab
+      movesContainer.find(`.inventory-tab[data-tab="${movesActiveTab}"]`).addClass('active');
+      movesContainer.find(`.inventory-tab-content[data-tab-content="${movesActiveTab}"]`).addClass('active');
+    }
+
+    // Restore character sub-tab if we're on the character tab
+    if (html.find('.sheet-tabs .item[data-tab="character"]').hasClass('active')) {
+      const characterActiveTab = this._activeSubTabs.character || 'traits';
+      const characterSection = html.find('.traits-modules-section');
+
+      // Remove default active classes
+      characterSection.find("nav.sheet-tabs[data-group='character-secondary'] a.item").removeClass('active');
+      characterSection.find(".tab[data-group='character-secondary']").removeClass('active');
+
+      // Set the saved active tab
+      characterSection.find(`nav.sheet-tabs[data-group='character-secondary'] a.item[data-tab='${characterActiveTab}']`).addClass('active');
+      characterSection.find(`.tab[data-group='character-secondary'][data-tab='${characterActiveTab}']`).addClass('active');
+    }
+  }
+
+  /**
    * Handle moves tab clicks
    * @param {Event} event   The originating click event
    * @private
@@ -2763,6 +2856,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     event.preventDefault();
     const tab = event.currentTarget;
     const tabName = tab.dataset.tab;
+
+    // Store the active tab
+    this._activeSubTabs.moves = tabName;
 
     // Remove active class from all tabs and contents
     const container = tab.closest('.moves-container');
@@ -2836,6 +2932,17 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const baseDice = magicSkill.talent || 1;
     const diceType = this._getDiceTypeForLevel(magicSkill.value || 0);
 
+    // Format spell range if it's a number
+    let formattedRange = spell.system.range;
+    if (typeof spell.system.range === 'number' || (typeof spell.system.range === 'string' && !isNaN(parseInt(spell.system.range)))) {
+      // Convert to number and use spell-specific range formatting
+      const rangeValue = parseInt(spell.system.range);
+      formattedRange = formatSpellRange(rangeValue);
+      console.log(`[Spell Cast] Formatted spell range ${spell.system.range} (${typeof spell.system.range}) -> ${formattedRange}`);
+    } else {
+      console.log(`[Spell Cast] Range not formatted: ${spell.system.range} (${typeof spell.system.range})`);
+    }
+
     // Create spell cast dialog
     const dialog = new AnyventureSpellCastDialog({
       title: `Cast ${spell.name}`,
@@ -2854,7 +2961,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       components: spell.system.components,
       damage: spell.system.damage,
       damageType: spell.system.damageType,
-      range: spell.system.range,
+      range: formattedRange,
       duration: spell.system.duration,
       ritualDuration: spell.system.ritualDuration,
       school: spell.system.school,
@@ -3020,6 +3127,123 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const e = Number(energy) || 0;
     if (e === 0) return 'None';
     return Array.from({ length: e }).map(() => '<i class="fas fa-star"></i>').join('');
+  }
+
+  /* -------------------------------------------- */
+  /*  Condition Event Handlers                   */
+  /* -------------------------------------------- */
+
+  /**
+   * Handle rolling a recovery check for a condition
+   * @param {Event} event The triggering click event
+   * @private
+   */
+  async _onConditionRoll(event) {
+    event.preventDefault();
+
+    const button = event.currentTarget;
+    const checkType = button.dataset.checkType;
+    const dc = parseInt(button.dataset.dc);
+    const effectId = button.dataset.effectId;
+
+    // Use the existing roll dialog system
+    const dialog = new AnyventureRollDialog(this.actor, {
+      skillKey: checkType,
+      skillCategory: 'basic',
+      targetDC: dc,
+      title: `${checkType.charAt(0).toUpperCase() + checkType.slice(1)} Recovery Check`,
+      rollType: 'skill'
+    });
+
+    const result = await dialog.roll();
+
+    if (result && result.total >= dc) {
+      // Success! Remove the condition
+      const effect = this.actor.effects.get(effectId);
+      if (effect) {
+        await effect.delete();
+        ui.notifications.info(`${this.actor.name} recovers from ${effect.label}!`);
+      }
+    } else if (result) {
+      // Failed - potentially reduce DC if it's a progressive condition
+      const effect = this.actor.effects.get(effectId);
+      if (effect && effect.flags.anyventure?.reduceBy) {
+        const currentDC = effect.flags.anyventure.currentCheck;
+        const newDC = Math.max(1, currentDC - (effect.flags.anyventure.reduceBy || 1));
+
+        await effect.update({
+          'flags.anyventure.currentCheck': newDC,
+          'flags.anyventure.turnsActive': (effect.flags.anyventure.turnsActive || 0) + 1
+        });
+
+        ui.notifications.info(`Recovery failed. DC reduced to ${newDC} for next attempt.`);
+      }
+    }
+  }
+
+  /**
+   * Handle removing a condition
+   * @param {Event} event The triggering click event
+   * @private
+   */
+  async _onConditionRemove(event) {
+    event.preventDefault();
+
+    const effectId = event.currentTarget.dataset.effectId;
+    const effect = this.actor.effects.get(effectId);
+
+    if (effect) {
+      const confirmed = await Dialog.confirm({
+        title: "Remove Condition",
+        content: `<p>Remove <strong>${effect.label}</strong> condition?</p>`,
+        defaultYes: false
+      });
+
+      if (confirmed) {
+        await effect.delete();
+        ui.notifications.info(`Removed ${effect.label} condition.`);
+      }
+    }
+  }
+
+  /**
+   * Handle editing condition details
+   * @param {Event} event The triggering click event
+   * @private
+   */
+  async _onConditionEdit(event) {
+    event.preventDefault();
+
+    const effectId = event.currentTarget.dataset.effectId;
+    const effect = this.actor.effects.get(effectId);
+
+    if (effect) {
+      // Open the standard Active Effect configuration dialog
+      effect.sheet.render(true);
+    }
+  }
+
+  /**
+   * Handle changing editable condition fields
+   * @param {Event} event The triggering change event
+   * @private
+   */
+  async _onConditionFieldChange(event) {
+    event.preventDefault();
+
+    const input = event.currentTarget;
+    const field = input.dataset.field;
+    const effectId = input.dataset.effectId;
+    const value = parseInt(input.value);
+
+    if (isNaN(value)) return;
+
+    const effect = this.actor.effects.get(effectId);
+    if (effect) {
+      await effect.update({
+        [`flags.anyventure.${field}`]: value
+      });
+    }
   }
 }
 

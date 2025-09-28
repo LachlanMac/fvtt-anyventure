@@ -1,0 +1,87 @@
+{{!-- Conditions Tab Content --}}
+<div class="conditions-container">
+  {{#if conditionCards}}
+    {{#each conditionCards as |condition|}}
+    <div class="condition-card" data-effect-id="{{condition.id}}">
+
+      {{!-- Condition Header --}}
+      <div class="condition-header">
+        <div class="condition-icon">
+          <img src="{{condition.icon}}" alt="{{condition.name}}" />
+        </div>
+        <div class="condition-name">{{condition.name}}</div>
+        <div class="condition-controls">
+          <a class="condition-remove" title="Remove Condition" data-effect-id="{{condition.id}}">
+            <i class="fas fa-times"></i>
+          </a>
+        </div>
+      </div>
+
+      {{!-- Condition Content --}}
+      <div class="condition-content">
+        {{#if condition.description}}
+        <p class="condition-description">{{condition.description}}</p>
+        {{/if}}
+
+        {{#if condition.checkType}}
+        <div class="condition-check-info">
+          <div class="check-details">
+            <span class="check-label">Recovery Check:</span>
+            <span class="check-type">{{capitalize condition.checkType}}</span>
+            <span class="check-dc">DC
+              <input type="number"
+                     class="current-check editable-field"
+                     value="{{condition.currentCheck}}"
+                     data-field="currentCheck"
+                     data-effect-id="{{condition.id}}" />
+            </span>
+            {{#if condition.startingCheck}}
+            <span class="original-check">(started at {{condition.startingCheck}})</span>
+            {{/if}}
+          </div>
+
+          {{#if condition.turnsActive}}
+          <div class="turns-active">
+            Turns Active:
+            <input type="number"
+                   class="turns-field editable-field"
+                   value="{{condition.turnsActive}}"
+                   data-field="turnsActive"
+                   data-effect-id="{{condition.id}}"
+                   readonly />
+          </div>
+          {{/if}}
+        </div>
+        {{/if}}
+      </div>
+
+      {{!-- Condition Actions --}}
+      <div class="condition-actions">
+        {{#if condition.canRoll}}
+        <button class="condition-roll-btn"
+                data-check-type="{{condition.checkType}}"
+                data-dc="{{condition.currentCheck}}"
+                data-effect-id="{{condition.id}}">
+          <i class="fas fa-dice-d20"></i>
+          Roll {{capitalize condition.checkType}} Check
+        </button>
+        {{/if}}
+
+        <button class="condition-edit-btn" data-effect-id="{{condition.id}}">
+          <i class="fas fa-edit"></i>
+          Edit Details
+        </button>
+      </div>
+
+    </div>
+    {{/each}}
+  {{else}}
+  <div class="conditions-empty">
+    <div class="empty-message">
+      <i class="fas fa-heart"></i>
+      <p>No active conditions</p>
+      <p class="empty-hint">Conditions will appear here when applied to this character</p>
+    </div>
+  </div>
+  {{/if}}
+</div>

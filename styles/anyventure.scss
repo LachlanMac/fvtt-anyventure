@@ -1861,6 +1861,9 @@
         display: flex;
         flex-direction: column;
         gap: $spacing-sm;
+        max-height: 60vh;
+        overflow-y: auto;
+        padding-right: $spacing-xs;
 
         .move-item {
           display: flex;
@@ -2231,7 +2234,6 @@
             font-weight: 600;
             color: $gold-medium;
             margin: 0;
-            flex: 0 0 auto;
           }
 
           .spell-energy {
@@ -2273,18 +2275,38 @@
               color: $purple-light;
               border: 1px solid rgba($purple-light, 0.4);
             }
+
+            .range-badge {
+              padding: 2px 6px;
+              border-radius: 3px;
+              font-size: 9px;
+              font-weight: 600;
+              text-transform: uppercase;
+              background: rgba($gold-medium, 0.3);
+              color: $gold-bright;
+              border: 1px solid rgba($gold-medium, 0.5);
+            }
           }
         }
 
         .spell-details {
           display: grid;
-          grid-template-columns: 1fr 110px; // left: school/subschool, right: roll
+          grid-template-columns: 1fr minmax(80px, auto) 110px; // left: school/subschool, center: range, right: roll
           align-items: center;
           font-size: 11px;
 
           .spell-school {
             color: $text-medium;
             font-weight: 500;
+          }
+
+          .spell-range {
+            justify-self: center;
+            text-align: center;
+            color: $gold-medium;
+            font-weight: 500;
+            font-size: 9px;
+            padding: 0 8px;
           }
 
           .spell-casting {
@@ -3630,9 +3652,10 @@
         min-width: 0;
 
         .ability-header {
-          display: flex;
-          justify-content: space-between;
+          display: grid;
+          grid-template-columns: 1fr auto auto;
           align-items: center;
+          gap: 8px;
           margin-bottom: 4px;
 
           .ability-name {
@@ -3640,7 +3663,6 @@
             font-weight: 600;
             color: $gold-medium;
             margin: 0;
-            flex: 0 0 auto;
           }
 
           .ability-energy {
@@ -3649,7 +3671,6 @@
             gap: 3px;
             font-size: 10px;
             color: $text-light;
-            flex: 0 0 auto;
 
             i {
               font-size: 9px;
@@ -3660,7 +3681,8 @@
           .ability-tags {
             display: flex;
             gap: 4px;
-            flex: 0 0 auto;
+            min-width: 90px;
+            justify-content: flex-end;
 
             .daily-badge, .magic-badge {
               padding: 2px 6px;
@@ -4194,6 +4216,119 @@
   }
 }
 
+// Ability Use Dialog - matching spell cast dialog styling
+.anyventure-ability-use-dialog {
+  width: 512px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+
+  .ability-header {
+    margin-bottom: $spacing-md;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h3 {
+      margin: 0 0 $spacing-xs 0;
+      color: $gold-bright;
+      font-size: 1.2em;
+    }
+
+    .ability-type-badge {
+      padding: $spacing-xs $spacing-sm;
+      border-radius: $border-radius-sm;
+      font-size: 0.9em;
+      font-weight: 600;
+      text-transform: uppercase;
+
+      &.action {
+        background: rgba($purple-medium, 0.3);
+        border: 1px solid $purple-light;
+        color: $purple-light;
+      }
+
+      &.reaction {
+        background: rgba($gold-medium, 0.2);
+        border: 1px solid $gold-medium;
+        color: $gold-bright;
+      }
+    }
+  }
+
+  .ability-energy-cost {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba($purple-darkest, 0.4);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    padding: $spacing-sm;
+    margin-bottom: $spacing-md;
+    font-size: 1em;
+    color: $text-light;
+
+    strong {
+      color: $text-medium;
+    }
+
+    .energy-cost {
+      .fa-star.filled {
+        color: $gold-bright;
+        font-size: 0.9em;
+        margin-right: 2px;
+      }
+    }
+  }
+
+  .ability-text-section {
+    background: rgba($purple-darkest, 0.3);
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    padding: $spacing-md;
+    margin-bottom: $spacing-md;
+
+    h4 {
+      margin: 0 0 $spacing-sm 0;
+      color: $gold-medium;
+      font-size: 1em;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba($gold-dark, 0.3);
+      padding-bottom: $spacing-xs;
+    }
+
+    .ability-description {
+      color: $text-light;
+      line-height: 1.5;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+  }
+
+  .energy-warning {
+    background: rgba($health-color, 0.18);
+    border: 2px solid rgba($health-color, 0.8);
+    border-radius: $border-radius-sm;
+    padding: $spacing-sm;
+    margin: $spacing-md 0;
+    color: $text-light;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    i {
+      color: $health-color;
+      font-size: 1.2em;
+    }
+  }
+
+}
+
 // Injuries Container - apply same styling as character-essentials
 .injuries-container {
   display: flex;
@@ -4405,7 +4540,6 @@
             font-weight: 600;
             color: $gold-medium;
             margin: 0;
-            flex: 0 0 auto;
           }
         
           .spell-energy {
@@ -4447,18 +4581,38 @@
               color: $purple-light;
               border: 1px solid rgba($purple-light, 0.4);
             }
+
+            .range-badge {
+              padding: 2px 6px;
+              border-radius: 3px;
+              font-size: 9px;
+              font-weight: 600;
+              text-transform: uppercase;
+              background: rgba($gold-medium, 0.3);
+              color: $gold-bright;
+              border: 1px solid rgba($gold-medium, 0.5);
+            }
           }
         }
 
         .spell-details {
           display: grid;
-          grid-template-columns: 1fr 110px; // left: school/subschool, right: roll
+          grid-template-columns: 1fr minmax(80px, auto) 110px; // left: school/subschool, center: range, right: roll
           align-items: center;
           font-size: 11px;
 
           .spell-school {
             color: $text-medium;
             font-weight: 500;
+          }
+
+          .spell-range {
+            justify-self: center;
+            text-align: center;
+            color: $gold-medium;
+            font-weight: 500;
+            font-size: 9px;
+            padding: 0 8px;
           }
 
           .spell-casting {
@@ -5103,6 +5257,202 @@
       color: $text-light;
       background: $bg-darkest;
       font-weight: normal;
+    }
+  }
+
+  // Conditions Tab Styling
+  .conditions-container {
+    padding: $spacing-md;
+
+    .condition-card {
+      background: rgba($bg-dark, 0.6);
+      border: 1px solid rgba($border-medium, 0.5);
+      border-radius: $border-radius-md;
+      margin-bottom: $spacing-md;
+      padding: $spacing-md;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+      .condition-header {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: $spacing-sm;
+        margin-bottom: $spacing-sm;
+
+        .condition-icon img {
+          width: 32px;
+          height: 32px;
+          border-radius: $border-radius-sm;
+          border: 1px solid rgba($border-medium, 0.3);
+        }
+
+        .condition-name {
+          font-size: 16px;
+          font-weight: 600;
+          color: $gold-medium;
+        }
+
+        .condition-controls {
+          .condition-remove {
+            color: $health-color;
+            cursor: pointer;
+            padding: $spacing-xs;
+            border-radius: $border-radius-sm;
+            transition: background-color 0.2s;
+
+            &:hover {
+              background: rgba($health-color, 0.2);
+            }
+          }
+        }
+      }
+
+      .condition-content {
+        margin-bottom: $spacing-md;
+
+        .condition-description {
+          color: $text-medium;
+          font-size: 12px;
+          margin-bottom: $spacing-sm;
+          font-style: italic;
+        }
+
+        .condition-check-info {
+          background: rgba($purple-darkest, 0.4);
+          border: 1px solid rgba($border-medium, 0.3);
+          border-radius: $border-radius-sm;
+          padding: $spacing-sm;
+
+          .check-details {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+            margin-bottom: $spacing-xs;
+
+            .check-label {
+              color: $text-medium;
+              font-size: 11px;
+              font-weight: 500;
+            }
+
+            .check-type {
+              color: $gold-medium;
+              font-weight: 600;
+              text-transform: capitalize;
+            }
+
+            .check-dc {
+              color: $text-light;
+              font-weight: 500;
+
+              .current-check {
+                width: 50px;
+                background: rgba($bg-dark, 0.8);
+                border: 1px solid rgba($border-medium, 0.5);
+                color: $text-light;
+                text-align: center;
+                font-size: 12px;
+                padding: 2px 4px;
+                border-radius: $border-radius-sm;
+                margin-left: $spacing-xs;
+              }
+            }
+
+            .original-check {
+              color: $text-dark;
+              font-size: 10px;
+              font-style: italic;
+            }
+          }
+
+          .turns-active {
+            color: $text-medium;
+            font-size: 11px;
+
+            .turns-field {
+              width: 40px;
+              background: rgba($bg-dark, 0.8);
+              border: 1px solid rgba($border-medium, 0.5);
+              color: $text-light;
+              text-align: center;
+              font-size: 11px;
+              padding: 2px 4px;
+              border-radius: $border-radius-sm;
+              margin-left: $spacing-xs;
+            }
+          }
+        }
+      }
+
+      .condition-actions {
+        display: flex;
+        gap: $spacing-sm;
+        justify-content: flex-end;
+
+        .condition-roll-btn {
+          background: linear-gradient(135deg, $gold-dark 0%, $gold-medium 100%);
+          color: $text-light;
+          border: 1px solid $gold-medium;
+          padding: $spacing-xs $spacing-sm;
+          border-radius: $border-radius-sm;
+          font-size: 11px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          gap: $spacing-xs;
+
+          &:hover {
+            background: linear-gradient(135deg, $gold-medium 0%, $gold-bright 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+          }
+        }
+
+        .condition-edit-btn {
+          background: rgba($border-medium, 0.3);
+          color: $text-medium;
+          border: 1px solid rgba($border-medium, 0.5);
+          padding: $spacing-xs $spacing-sm;
+          border-radius: $border-radius-sm;
+          font-size: 11px;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          gap: $spacing-xs;
+
+          &:hover {
+            background: rgba($border-medium, 0.5);
+            color: $text-light;
+          }
+        }
+      }
+    }
+
+    .conditions-empty {
+      text-align: center;
+      padding: $spacing-xl;
+
+      .empty-message {
+        color: $text-dark;
+
+        i {
+          font-size: 48px;
+          color: $gold-muted;
+          margin-bottom: $spacing-md;
+        }
+
+        p {
+          margin: $spacing-xs 0;
+
+          &.empty-hint {
+            font-size: 12px;
+            font-style: italic;
+          }
+        }
+      }
     }
   }
 }
