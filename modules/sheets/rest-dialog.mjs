@@ -36,9 +36,22 @@ export class AnyventureRestDialog extends foundry.applications.api.DialogV2 {
     const num = (name) => Number(button.form.elements[name]?.value || 0) || 0;
 
     const type = val('rtype');
+
+    // Calculate base morale with trait conditionals
+    let baseMorale = 0;
+    if (type === 'unfavorable') {
+      // Check for NO_COMFORTS trait - prevents morale loss on unfavorable rest
+      if (this.actor.system.conditionals?.flags?.NO_COMFORTS === true) {
+        baseMorale = 0; // No morale loss
+      }
+      else {
+        baseMorale = -2; // Normal unfavorable rest morale loss (applies to URBAN_COMFORT too)
+      }
+    }
+
     const base = type === 'favorable'
       ? { health: 3, resolve: 1, morale: 0 }
-      : { health: 2, resolve: 0, morale: -2 };
+      : { health: 2, resolve: 0, morale: baseMorale };
 
     // Add regen bonuses from actor's resources
     const resources = this.actor.system.resources || {};
@@ -49,9 +62,16 @@ export class AnyventureRestDialog extends foundry.applications.api.DialogV2 {
     };
 
     const bonus = { health: num('hbonus'), resolve: num('rbonus'), morale: num('mbonus') };
+
+    // Apply URBAN_COMFORT trait - lose 1 resolve during unfavorable rest
+    let baseResolve = base.resolve;
+    if (type === 'unfavorable' && this.actor.system.conditionals?.flags?.URBAN_COMFORT === true) {
+      baseResolve = base.resolve - 1; // Lose 1 resolve
+    }
+
     const delta = {
       health: base.health + bonus.health + regenBonus.health,
-      resolve: base.resolve + bonus.resolve + regenBonus.resolve,
+      resolve: baseResolve + bonus.resolve + regenBonus.resolve,
       morale: base.morale + bonus.morale + regenBonus.morale
     };
 

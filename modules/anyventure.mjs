@@ -22,7 +22,7 @@ Hooks.once('init', async function() {
 
   // Set up initiative configuration FIRST to prevent undefined errors
   CONFIG.Combat.initiative = {
-    formula: "1d20",  // Default fallback
+    formula: "1d4",  // Default fallback
     decimals: 0
   };
 

@@ -95,27 +95,18 @@ export class AnyventureActor extends Actor {
 
     // Restore working values from the persisted base snapshot (if present)
     this._restoreFromBase(systemData);
-
-    console.log(this.name, this.system);
-
     // Ensure skills expose standardized tier data
     this._normalizeSkillTiers(systemData);
-
     // Calculate skill talents based on attributes
     this._calculateSkillTalents(systemData);
-
     // Apply equipment bonuses (weapons, armor, etc.)
     this._applyEquipmentBonuses(systemData);
-
     // Apply injury effects
     this._applyInjuries(systemData);
-
     // Apply conditions and temporary effects
     this._applyConditions(systemData);
-
     // Final movement calculations
     this._calculateMovement(systemData);
-
     // Final resource calculations with all bonuses applied
     this._calculateResources(systemData);
   }

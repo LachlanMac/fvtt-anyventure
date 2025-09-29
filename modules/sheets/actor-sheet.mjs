@@ -1410,8 +1410,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
    * Start Turn - restore energy based on regen
    */
   async _onStartTurn() {
+    const base_energy_regen = 3;
     const resources = this.actor.system.resources || {};
-    const energyRegen = (resources.energy?.regen || 0) + 2; // Base 2 + regen bonus
+    const energyRegen = (resources.energy?.regen || 0) + base_energy_regen;
 
     if (resources.energy && energyRegen > 0) {
       const current = resources.energy.value || 0;
@@ -2376,6 +2377,14 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
       if (isOneHanded) {
         if (!canUseExtraWeaponSlots && this._isExtraWeaponSlot(slotName)) return false;
+
+        // Check for complex weapons in offhand - requires TWIN_FURY trait
+        if (slotName === 'offhand' && this._isComplexWeapon(item)) {
+          if (!this.actor.system.conditionals?.flags?.TWIN_FURY) {
+            return false; // Cannot equip complex weapons to offhand without TWIN_FURY
+          }
+        }
+
         return WEAPON_SLOTS.includes(slotName);
       } else if (isTwoHanded) {
         if (!canUseExtraWeaponSlots && this._isExtraWeaponSlot(slotName)) return false;
@@ -2633,6 +2642,12 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
   async _equipItem(item, slotName) {
     if (this._isExtraWeaponSlot(slotName) && this._isComplexWeapon(item) && !this._hasWeaponCollectorTrait()) {
       ui.notifications.warn(`${item.name} requires the Weapon Collector trait to equip in extra weapon slots.`);
+      return;
+    }
+
+    // Check for complex weapons in offhand without TWIN_FURY trait
+    if (slotName === 'offhand' && this._isComplexWeapon(item) && !this.actor.system.conditionals?.flags?.TWIN_FURY) {
+      ui.notifications.warn(`${item.name} requires the Twin Fury trait to equip complex weapons in the offhand.`);
       return;
     }
 
