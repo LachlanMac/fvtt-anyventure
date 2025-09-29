@@ -618,6 +618,7 @@ async function preloadHandlebarsTemplates() {
     "systems/anyventure/templates/partials/equipment.hbs",
     "systems/anyventure/templates/partials/moves.hbs",
     "systems/anyventure/templates/partials/spells.hbs",
+    "systems/anyventure/templates/partials/songs.hbs",
     "systems/anyventure/templates/partials/modules.hbs",
     "systems/anyventure/templates/partials/mitigations.hbs",
     "systems/anyventure/templates/partials/movement.hbs",
@@ -640,6 +641,7 @@ async function preloadHandlebarsTemplates() {
     "systems/anyventure/templates/partials/items/module-properties.hbs",
     "systems/anyventure/templates/partials/items/spell-properties.hbs",
     "systems/anyventure/templates/partials/items/song-properties.hbs",
+    
 
     // UI templates
     "systems/anyventure/templates/partials/npc-skills.hbs",

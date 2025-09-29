@@ -1,0 +1,83 @@
+{{!-- Songs Tab Content --}}
+<div class="songs-section">
+  <div class="section-header">
+    <h3>Songs</h3>
+    <div class="song-count">
+      <label>Songs Known: {{songs.length}}</label>
+    </div>
+    <a class="item-control item-create" title="Create song" data-type="song"><i class="fas fa-plus"></i></a>
+  </div>
+
+  <div class="songs-list">
+    {{#each songs as |item id|}}
+    <div class="anyventure-song-card {{#if item.system.used}}used{{/if}}" data-item-id="{{item._id}}">
+
+      {{!-- Song Icon --}}
+      <div class="song-icon">
+        <img src="{{item.img}}" title="{{item.name}}" alt="{{item.name}}"/>
+      </div>
+
+      {{!-- Song Content --}}
+      <div class="song-content">
+        <div class="song-header">
+          <div class="song-name">{{item.name}}</div>
+          <div class="song-tags">
+            {{#if item.system.magical}}
+            <span class="magical-badge">Magical</span>
+            {{/if}}
+            {{#if item.system.used}}
+            <span class="used-badge">Used</span>
+            {{/if}}
+          </div>
+        </div>
+
+        <div class="song-details">
+          <div class="song-harmonies">
+            {{#if item.system.harmony_1.instrument}}
+              <span class="harmony-tag">Harmony: {{item.system.harmony_1.instrument}}</span>
+            {{/if}}
+            {{#if item.system.harmony_2.instrument}}
+              <span class="harmony-tag">Harmony: {{item.system.harmony_2.instrument}}</span>
+            {{/if}}
+          </div>
+
+          <div class="song-performance">
+            {{#if item.system.used}}
+              <span class="performance-roll used">Used</span>
+            {{else if (not item.system.cantPerform)}}
+              <span class="performance-roll">{{item.system.performanceFormula}}</span>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+
+      {{!-- Song Check Side Column --}}
+      <div class="song-side">
+        <div class="song-check">
+          <div class="check-label">Check</div>
+          <div class="check-box">
+            {{#if item.system.cantPerform}}
+              N/A
+            {{else}}
+              {{item.system.difficulty}}
+            {{/if}}
+          </div>
+        </div>
+      </div>
+
+      {{!-- Controls --}}
+      <div class="song-controls" onclick="event.stopPropagation();">
+        <a class="item-control item-edit" title="Edit Song"><i class="fas fa-edit"></i></a>
+        <a class="item-control item-delete" title="Delete Song"><i class="fas fa-trash"></i></a>
+      </div>
+
+    </div>
+    {{/each}}
+
+    {{#unless songs}}
+    <div class="empty-message">
+      <p>No songs learned yet. Create a song to get started!</p>
+    </div>
+    {{/unless}}
+  </div>
+</div>

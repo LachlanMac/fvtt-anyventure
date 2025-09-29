@@ -418,7 +418,8 @@ export function applyParsedEffectsToCharacter(actor, delta) {
     immunities: dup(actor.system.immunities || []),
     conditionals: dup(actor.system.conditionals || {}),
     weaponModifications: dup(actor.system.weaponModifications || {}),
-    combatFeatures: dup(actor.system.combatFeatures || {})
+    combatFeatures: dup(actor.system.combatFeatures || {}),
+    spellSlots: actor.system.spellSlots || { current: 0, max: 10 }
   };
 
   // Ensure baseline resource maxima before applying deltas (so +X adds to defaults, not zero)
@@ -453,7 +454,8 @@ export function applyParsedEffectsToCharacter(actor, delta) {
     'system.immunities': character.immunities,
     'system.conditionals': character.conditionals,
     'system.weaponModifications': character.weaponModifications,
-    'system.combatFeatures': character.combatFeatures
+    'system.combatFeatures': character.combatFeatures,
+    'system.spellSlots': character.spellSlots
   };
 
   return updateData;
@@ -489,7 +491,8 @@ export function parseAndApplyCharacterEffectsInPlace(actor) {
       immunities: actor.system.immunities || [],
       conditionals: actor.system.conditionals || {},
       weaponModifications: actor.system.weaponModifications || {},
-      combatFeatures: actor.system.combatFeatures || {}
+      combatFeatures: actor.system.combatFeatures || {},
+      spellSlots: actor.system.spellSlots || { current: 0, max: 10 }
     };
 
     // Apply the delta directly
@@ -508,6 +511,7 @@ export function parseAndApplyCharacterEffectsInPlace(actor) {
     actor.system.conditionals = character.conditionals;
     actor.system.weaponModifications = character.weaponModifications;
     actor.system.combatFeatures = character.combatFeatures;
+    actor.system.spellSlots = character.spellSlots;
 
 
   } catch (error) {

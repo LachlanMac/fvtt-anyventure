@@ -2017,6 +2017,231 @@
   padding: 12px;
 }
 
+/* ----------------------------------------- */
+/* Songs Section                            */
+/* ----------------------------------------- */
+.songs-section {
+  background: rgba(26, 21, 37, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 6px;
+  padding: 8px;
+}
+.songs-section .section-header {
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(218, 165, 32, 0.3);
+  padding-bottom: 4px;
+}
+.songs-section .section-header h3 {
+  color: #daa520;
+  margin: 0;
+}
+.songs-section .section-header .song-count {
+  color: #c5bdd1;
+  font-size: 11px;
+}
+.songs-section .section-header .item-create {
+  color: #c5bdd1;
+  transition: all 0.15s ease;
+  padding: 2px;
+  border-radius: 4px;
+}
+.songs-section .section-header .item-create:hover {
+  color: #ffd700;
+  background: rgba(184, 134, 11, 0.2);
+}
+.songs-section .songs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.songs-section .anyventure-song-card {
+  display: grid;
+  grid-template-columns: 32px 1fr 80px auto;
+  align-items: stretch;
+  background: linear-gradient(135deg, #2d5a87, rgba(45, 90, 135, 0.9));
+  border: 1px solid rgba(218, 165, 32, 0.3);
+  border-radius: 4px;
+  padding: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.songs-section .anyventure-song-card:hover {
+  background: linear-gradient(135deg, rgba(45, 90, 135, 0.9), #2d5a87);
+  border-color: rgba(218, 165, 32, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(45, 90, 135, 0.3);
+}
+.songs-section .anyventure-song-card.used {
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.25), rgba(220, 53, 69, 0.15));
+  border-color: rgba(220, 53, 69, 0.6);
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.25);
+}
+.songs-section .anyventure-song-card.used .song-name {
+  color: #dc3545;
+}
+.songs-section .anyventure-song-card.used .check-box {
+  border-color: rgba(220, 53, 69, 0.6);
+  background: rgba(220, 53, 69, 0.15);
+  color: #dc3545;
+}
+.songs-section .anyventure-song-card .song-icon {
+  align-self: center;
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+}
+.songs-section .anyventure-song-card .song-icon img {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(218, 165, 32, 0.3);
+  border-radius: 2px;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.songs-section .anyventure-song-card .song-content {
+  min-width: 0;
+  padding-right: 8px;
+  padding-left: 6px;
+}
+.songs-section .anyventure-song-card .song-content .song-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+.songs-section .anyventure-song-card .song-content .song-header .song-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #daa520;
+  margin: 0;
+}
+.songs-section .anyventure-song-card .song-content .song-header .song-tags {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+.songs-section .anyventure-song-card .song-content .song-header .song-tags .magical-badge {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: rgba(147, 112, 219, 0.4);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.songs-section .anyventure-song-card .song-content .song-header .song-tags .used-badge {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: rgba(220, 53, 69, 0.4);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.songs-section .anyventure-song-card .song-content .song-details {
+  display: grid;
+  grid-template-columns: 1fr minmax(80px, auto) 110px;
+  align-items: center;
+  font-size: 11px;
+}
+.songs-section .anyventure-song-card .song-content .song-details .song-effect {
+  color: #c5bdd1;
+  font-weight: 500;
+}
+.songs-section .anyventure-song-card .song-content .song-details .song-harmonies {
+  justify-self: center;
+  display: flex;
+  gap: 6px;
+}
+.songs-section .anyventure-song-card .song-content .song-details .song-harmonies .harmony-tag {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: rgba(135, 206, 235, 0.2);
+  color: #87ceeb;
+  border: 1px solid rgba(135, 206, 235, 0.3);
+}
+.songs-section .anyventure-song-card .song-content .song-details .song-performance {
+  justify-self: end;
+  text-align: center;
+  width: 110px;
+}
+.songs-section .anyventure-song-card .song-content .song-details .song-performance .performance-roll {
+  background: linear-gradient(135deg, #4fa8db, #1e90ff);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 9px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: inline-block;
+  min-width: 60px;
+}
+.songs-section .anyventure-song-card .song-content .song-details .song-performance .performance-roll.used {
+  background: linear-gradient(135deg, #dc3545, #cc3232);
+}
+.songs-section .anyventure-song-card .song-content .song-details .song-performance .performance-roll.cant-perform {
+  background: linear-gradient(135deg, #666, #555);
+  border-color: #999;
+}
+.songs-section .anyventure-song-card .song-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+}
+.songs-section .anyventure-song-card .song-side .song-check {
+  text-align: center;
+  background: rgba(79, 168, 219, 0.3);
+  border: 1px solid rgba(79, 168, 219, 0.5);
+  border-radius: 4px;
+  padding: 6px 4px;
+  width: 70px;
+}
+.songs-section .anyventure-song-card .song-side .song-check .check-label {
+  font-size: 8px;
+  color: #e8e3f0;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.songs-section .anyventure-song-card .song-side .song-check .check-box {
+  font-size: 16px;
+  font-weight: 700;
+  color: #4fa8db;
+}
+.songs-section .anyventure-song-card .song-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 8px;
+}
+.songs-section .anyventure-song-card .song-controls .item-control {
+  color: #c5bdd1;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  padding: 2px;
+  border-radius: 2px;
+  text-align: center;
+}
+.songs-section .anyventure-song-card .song-controls .item-control:hover {
+  color: #ffd700;
+  background: rgba(184, 134, 11, 0.3);
+}
+.songs-section .empty-message {
+  text-align: center;
+  color: #c5bdd1;
+  font-style: italic;
+  padding: 12px;
+}
+
 /* ========================================= */
 /*  Global Chat Message Customization      */
 /* ========================================= */
@@ -3880,6 +4105,137 @@
 }
 @media (max-width: 600px) {
   .anyventure-spell-cast-dialog .spell-details {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.anyventure-song-performance-dialog {
+  width: 512px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.anyventure-song-performance-dialog .song-effect, .anyventure-song-performance-dialog .harmony-effects {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.anyventure-song-performance-dialog .song-effect img,
+.anyventure-song-performance-dialog .harmony-effects img {
+  max-width: 100%;
+  height: auto;
+}
+.anyventure-song-performance-dialog .song-effect pre,
+.anyventure-song-performance-dialog .harmony-effects pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.anyventure-song-performance-dialog .song-header {
+  margin-bottom: 8px;
+}
+.anyventure-song-performance-dialog .song-header h3 {
+  margin: 0 0 2px 0;
+  color: #ffd700;
+  font-size: 1.2em;
+}
+.anyventure-song-performance-dialog .song-header .song-type {
+  color: #c5bdd1;
+  font-size: 11px;
+  font-style: italic;
+}
+.anyventure-song-performance-dialog .song-details {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.anyventure-song-performance-dialog .song-details .details-column {
+  flex: 1;
+  min-width: 0;
+}
+.anyventure-song-performance-dialog .song-details .detail-group {
+  margin-bottom: 8px;
+}
+.anyventure-song-performance-dialog .song-details .detail-group h4 {
+  margin: 0 0 2px 0;
+  color: #cdaa3d;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+}
+.anyventure-song-performance-dialog .song-details .detail-group .detail-row {
+  padding: 2px 0;
+  color: #e8e3f0;
+}
+.anyventure-song-performance-dialog .song-details .detail-group .detail-row strong {
+  color: #cdaa3d;
+  margin-right: 2px;
+}
+.anyventure-song-performance-dialog .song-text-section {
+  margin-bottom: 8px;
+}
+.anyventure-song-performance-dialog .song-text-section h4 {
+  margin: 0 0 2px 0;
+  color: #cdaa3d;
+  font-size: 14px;
+}
+.anyventure-song-performance-dialog .song-text-section .song-effect,
+.anyventure-song-performance-dialog .song-text-section .harmony-effects {
+  background: rgba(26, 21, 37, 0.3);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  padding: 4px;
+  color: #e8e3f0;
+  line-height: 1.4;
+}
+.anyventure-song-performance-dialog .performance-options {
+  background: rgba(26, 21, 37, 0.4);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  padding: 8px;
+}
+.anyventure-song-performance-dialog .performance-options h4 {
+  margin: 0 0 4px 0;
+  color: #ffd700;
+  font-size: 14px;
+}
+.anyventure-song-performance-dialog .performance-options .roll-info {
+  margin-bottom: 4px;
+  color: #e8e3f0;
+}
+.anyventure-song-performance-dialog .performance-options .form-group {
+  margin-bottom: 4px;
+}
+.anyventure-song-performance-dialog .performance-options .form-group label {
+  display: block;
+  color: #cdaa3d;
+  margin-bottom: 2px;
+  font-size: 11px;
+}
+.anyventure-song-performance-dialog .performance-options .form-group input[type=number] {
+  width: 80px;
+  padding: 2px;
+  background: rgba(26, 21, 37, 0.8);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 4px;
+  color: #e8e3f0;
+}
+.anyventure-song-performance-dialog .performance-options .form-group input[type=number]:focus {
+  outline: none;
+  border-color: #cdaa3d;
+}
+.anyventure-song-performance-dialog .performance-options .roll-preview {
+  color: #e8e3f0;
+  font-weight: bold;
+}
+.anyventure-song-performance-dialog .performance-options .roll-preview #final-formula {
+  color: #ffd700;
+  font-family: monospace;
+}
+@media (max-width: 600px) {
+  .anyventure-song-performance-dialog .song-details {
     flex-direction: column;
     gap: 8px;
   }

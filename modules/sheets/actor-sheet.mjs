@@ -4,6 +4,7 @@ import { AnyventureRecoverResourcesDialog } from "./recover-resources-dialog.mjs
 import { AnyventureTakeDamageDialog } from "./take-damage-dialog.mjs";
 import { AnyventureRestDialog } from "./rest-dialog.mjs";
 import { AnyventureSpellCastDialog } from "./spell-cast-dialog.mjs";
+import { AnyventureSongPerformanceDialog } from "./song-performance-dialog.mjs";
 import { AnyventureAbilityUseDialog } from "./ability-use-dialog.mjs";
 import { parseAndApplyCharacterEffects } from "../utils/character-parser.js";
 
@@ -42,8 +43,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["anyventure", "sheet", "actor"],
       template: "systems/anyventure/templates/actor/actor-character-sheet.hbs",
-      width: 830,
-      height: 832,
+      width: 800,
+      height: 860,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "skills" }]
     });
   }
@@ -323,6 +324,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const gear = [];
     const modules = [];
     const spells = [];
+    const songs = [];
     const weapons = [];
     const armors = [];
     const shields = [];
@@ -376,7 +378,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         else if (itemType === 'boots' && !isEquipped) {
           boots.push(i);
         }
-        else if (itemType === 'ring' && !isEquipped) {
+        else if (itemType === 'accessory' && !isEquipped) {
           rings.push(i);
         }
         else if (slotType === 'cloaks' && !isEquipped) {
@@ -439,6 +441,11 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         const enhancedSpell = this._enhanceSpellData(i, context);
         spells.push(enhancedSpell);
       }
+      else if (i.type === 'song') {
+        // Enhance song data with performance information
+        const enhancedSong = this._enhanceSongData(i, context);
+        songs.push(enhancedSong);
+      }
       else if (i.type === 'injury') {
         // Injuries are always included regardless of equipped status - they represent temporary conditions
         injuries.push(i);
@@ -461,6 +468,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     context.gear = gear;
     context.modules = modules;
     context.spells = spells;
+    context.songs = songs;
     context.ancestry = ancestry;
     context.culture = culture;
     context.personality = personality;
@@ -668,7 +676,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
             secondaryDamage: Number(attackData.secondary_damage ?? 0),
             secondaryDamageExtra: Number(attackData.secondary_damage_extra ?? 0),
             secondaryDamageType: formatDamageType(attackData.secondary_damage_type || 'none'),
-            energy: this._calculateEnergyWithTraits(Number(attackData.energy ?? 0), weaponCategory),
+            energy: this._calculateEnergyWithTraits(Number(attackData.energy ?? 0), weaponCategory) + (slotName === 'offhand' ? 1 : 0),
             minRange,
             maxRange,
             rangeText: formatRange(minRange, maxRange),
@@ -1021,7 +1029,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       }
 
       // Regular item editing
-      const li = button.closest(".item, .inventory-row");
+      const li = button.closest(".item, .inventory-row, .anyventure-spell-card, .anyventure-song-card");
 
       // Try multiple ways to get the item ID
       let itemId = button.data("item-id") || button.data("itemId");
@@ -1044,6 +1052,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Spell casting clicks (available even in readonly mode)
     html.find('.anyventure-spell-card').click(this._onSpellRoll.bind(this));
+
+    // Song performance clicks (available even in readonly mode)
+    html.find('.anyventure-song-card').click(this._onSongPerform.bind(this));
 
     // Wonder and Woe token clicks (available even in readonly mode)
     html.find('[data-action="toggle-wonder"]').click(this._onToggleWonder.bind(this));
@@ -1068,7 +1079,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         itemId = button.dataset.itemId;
       } else {
         // Standard inventory items (find in parent)
-        const li = $(ev.currentTarget).parents(".item, .inventory-row");
+        const li = $(ev.currentTarget).parents(".item, .inventory-row, .anyventure-spell-card, .anyventure-song-card");
         itemId = li.data("itemId") || li.attr("data-item-id");
       }
 
@@ -3010,6 +3021,67 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
   /* -------------------------------------------- */
 
   /**
+   * Handle song performance click
+   * @param {Event} event   The triggering click event
+   * @private
+   */
+  async _onSongPerform(event) {
+    event.preventDefault();
+
+    // Prevent edit/delete buttons from triggering song perform
+    if ($(event.target).closest('.song-controls').length > 0) {
+      return;
+    }
+
+    const songCard = $(event.currentTarget);
+    const itemId = songCard.data("itemId");
+    const song = this.actor.items.get(itemId);
+
+    if (!song || song.type !== 'song') return;
+
+    // Get expression skill for performance
+    const expressionSkill = this.actor.system.basic?.expression;
+    if (!expressionSkill) {
+      ui.notifications.warn(`No Expression skill found for song performance`);
+      return;
+    }
+
+    const baseDice = expressionSkill.talent || 1;
+    const diceType = this._getDiceTypeForLevel(expressionSkill.value || 0);
+
+    // Prepare harmony effects text
+    let harmonyEffects = '';
+    if (song.system.harmony_1?.effect) {
+      harmonyEffects += `<strong>${song.system.harmony_1.instrument}:</strong> ${song.system.harmony_1.effect}<br>`;
+    }
+    if (song.system.harmony_2?.effect) {
+      harmonyEffects += `<strong>${song.system.harmony_2.instrument}:</strong> ${song.system.harmony_2.effect}`;
+    }
+
+    // Open song performance dialog
+    const dialog = await AnyventureSongPerformanceDialog.show({
+      title: `Perform: ${song.name}`,
+      actor: this.actor,
+      song: song,
+      songName: song.name,
+      difficulty: song.system.difficulty || 0,
+      energy: song.system.energy || 0,
+      magical: song.system.magical || false,
+      range: song.system.range,
+      duration: song.system.duration,
+      effect: song.system.effect,
+      harmonyEffects: harmonyEffects,
+      harmony1: song.system.harmony_1?.instrument,
+      harmony2: song.system.harmony_2?.instrument,
+      baseDice: baseDice,
+      diceType: diceType,
+      canPerform: !song.system.cantPerform
+    });
+  }
+
+  /* -------------------------------------------- */
+
+  /**
    * Handle toggling wonder token state
    * @param {Event} event   The triggering click event
    * @private
@@ -3138,6 +3210,38 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     return enhancedSpell;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Enhance song data with performance information
+   * @param {object} song - The song item to enhance
+   * @param {object} context - The actor sheet context
+   * @returns {object} - Enhanced song data
+   * @private
+   */
+  _enhanceSongData(song, context) {
+    const enhancedSong = foundry.utils.deepClone(song);
+
+    // For songs, we might use Expression skill for performance
+    const expressionSkill = context.system.basic?.expression;
+
+    if (expressionSkill) {
+      const talent = expressionSkill.talent || 1;
+      const skillLevel = expressionSkill.value || 0;
+      const diceType = this._getDiceTypeForLevel(skillLevel);
+      const maxRoll = parseInt(diceType.substring(1)); // Extract number from "d20" -> 20
+
+      enhancedSong.system.performanceFormula = `${talent}${diceType}`;
+      enhancedSong.system.maxPossibleRoll = maxRoll;
+      enhancedSong.system.cantPerform = maxRoll < song.system.difficulty;
+    } else {
+      enhancedSong.system.performanceFormula = "No Skill";
+      enhancedSong.system.cantPerform = true;
+    }
+
+    return enhancedSong;
   }
 
   /* -------------------------------------------- */

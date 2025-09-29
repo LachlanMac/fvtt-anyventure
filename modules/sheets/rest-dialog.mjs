@@ -78,8 +78,9 @@ export class AnyventureRestDialog extends foundry.applications.api.DialogV2 {
         logs.push(`Mana: fully restored (${cur} → ${max})`);
       }
     }
-    // Unfizzle all spells after resting
+    // Unfizzle all spells and restore all songs after resting
     let unfizzledSpells = 0;
+    let restoredSongs = 0;
     try {
       const fizzledSpells = this.actor.items.filter(item =>
         item.type === 'spell' && item.system?.fizzled === true
@@ -98,12 +99,30 @@ export class AnyventureRestDialog extends foundry.applications.api.DialogV2 {
       console.warn('[Anyventure] Failed to unfizzle spells after rest', e);
     }
 
+    try {
+      const usedSongs = this.actor.items.filter(item =>
+        item.type === 'song' && item.system?.used === true
+      );
+
+      if (usedSongs.length > 0) {
+        const updates = usedSongs.map(song => ({
+          _id: song.id,
+          'system.used': false
+        }));
+
+        await this.actor.updateEmbeddedDocuments('Item', updates);
+        restoredSongs = usedSongs.length;
+      }
+    } catch (e) {
+      console.warn('[Anyventure] Failed to restore songs after rest', e);
+    }
+
     if (Object.keys(up).length) {
       await this.actor.update(up);
       this.actor.sheet?.render(false);
 
       // Create rest recovery chat card
-      await this._createRestRecoveryChatCard(type, delta, up, unfizzledSpells);
+      await this._createRestRecoveryChatCard(type, delta, up, unfizzledSpells, restoredSongs);
     }
 
     this._applied = true;
@@ -112,7 +131,7 @@ export class AnyventureRestDialog extends foundry.applications.api.DialogV2 {
   /**
    * Create a rest recovery chat card instead of UI notification
    */
-  async _createRestRecoveryChatCard(restType, delta, updates, unfizzledSpells) {
+  async _createRestRecoveryChatCard(restType, delta, updates, unfizzledSpells, restoredSongs) {
     // Build chat card content using the established card styling
     let cardContent = `<div class="anyventure-rest-card">`;
 
@@ -167,11 +186,16 @@ export class AnyventureRestDialog extends foundry.applications.api.DialogV2 {
       cardContent += `</div>`;
     }
 
-    // Spell unfizzling
-    if (unfizzledSpells > 0) {
+    // Spell and song recovery
+    if (unfizzledSpells > 0 || restoredSongs > 0) {
       cardContent += `<div class="spell-section">`;
-      cardContent += `<div class="section-title">Spell Recovery</div>`;
-      cardContent += `<div class="recovery-line">${unfizzledSpells} spell${unfizzledSpells === 1 ? '' : 's'} unfizzled</div>`;
+      cardContent += `<div class="section-title">Ability Recovery</div>`;
+      if (unfizzledSpells > 0) {
+        cardContent += `<div class="recovery-line">${unfizzledSpells} spell${unfizzledSpells === 1 ? '' : 's'} unfizzled</div>`;
+      }
+      if (restoredSongs > 0) {
+        cardContent += `<div class="recovery-line">${restoredSongs} song${restoredSongs === 1 ? '' : 's'} restored</div>`;
+      }
       cardContent += `</div>`;
     }
 

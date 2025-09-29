@@ -804,7 +804,8 @@ export function applyDeltaToCharacter(character, delta) {
           }
           break;
         case 'spellCapacity':
-          character.spellSlots = (character.spellSlots || 10) + value;
+          if (!character.spellSlots) character.spellSlots = { current: 0, max: 10 };
+          character.spellSlots.max += value;
           break;
         case 'maxMorale':
           if (character.resources && character.resources.morale) {
