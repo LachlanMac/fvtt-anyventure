@@ -14,6 +14,54 @@
   /* ----------------------------------------- */
   /*  Window & Base Layout                    */
   /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Item Sheet Specific Styles              */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Left Sidebar                            */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Resources Section                       */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Mitigations Table                       */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Movement Table                           */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Main Content Area                       */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Tab Navigation (Bottom)                 */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Skills Page                             */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Specialized Skills                      */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Items Lists                             */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Biography Tab                           */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Roll Dialog Styles                      */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Scrollbar Styling                       */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Utility Classes                         */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Moves Tab                               */
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Spells Section                          */
+  /* ----------------------------------------- */
 }
 .anyventure .window-content {
   background: #1a1525;
@@ -22,11 +70,6 @@
   padding: 0;
   overflow: hidden;
   font-family: "Roboto", "Helvetica Neue", sans-serif;
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Item Sheet Specific Styles              */
-  /* ----------------------------------------- */
 }
 .anyventure.item .window-content {
   display: flex;
@@ -224,11 +267,6 @@
   gap: 0;
   position: relative;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Left Sidebar                            */
-  /* ----------------------------------------- */
-}
 .anyventure .left-sidebar {
   flex: 0 0 280px;
   background: #2d2438;
@@ -289,7 +327,8 @@
   border-radius: 50%;
   border: 3px solid #daa520;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7), 0 0 10px rgba(255, 215, 0, 0.4);
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -307,7 +346,8 @@
   border-radius: 50%;
   border: 3px solid #daa520;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6), 0 0 8px rgba(255, 215, 0, 0.4);
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
   transition: all 0.3s ease;
   cursor: pointer;
   filter: brightness(1) saturate(1);
@@ -365,11 +405,6 @@
 .anyventure .character-header .charname input:hover, .anyventure .character-header .charname input:focus {
   border-color: #ffd700;
   box-shadow: 0 2px 0 0 rgba(255, 215, 0, 0.4);
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Resources Section                       */
-  /* ----------------------------------------- */
 }
 .anyventure .resources-section {
   padding: 12px;
@@ -510,11 +545,6 @@
 .anyventure .resource-bar.morale .resource-fill {
   background: linear-gradient(90deg, #b8860b, rgb(228.5846153846, 166.4692307692, 13.6653846154));
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Mitigations Table                       */
-  /* ----------------------------------------- */
-}
 .anyventure .mitigations-container {
   padding: 8px;
   background: rgba(26, 21, 37, 0.2);
@@ -598,11 +628,6 @@
 .anyventure .mitigations-table td.resist-value {
   color: #cdaa3d;
   font-weight: bold;
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Movement Table                           */
-  /* ----------------------------------------- */
 }
 .anyventure .movement-container {
   padding: 8px;
@@ -693,11 +718,6 @@
   color: #cdaa3d;
   font-weight: bold;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Main Content Area                       */
-  /* ----------------------------------------- */
-}
 .anyventure .main-content {
   flex: 1;
   display: flex;
@@ -768,11 +788,6 @@
 .anyventure .tab.active {
   display: block;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Tab Navigation (Bottom)                 */
-  /* ----------------------------------------- */
-}
 .anyventure .module-points {
   padding: 8px;
   background: linear-gradient(135deg, rgba(74, 60, 92, 0.3), rgba(45, 36, 56, 0.3));
@@ -784,11 +799,6 @@
   color: #ffd700;
   font-weight: bold;
   font-size: 12px;
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Skills Page                             */
-  /* ----------------------------------------- */
 }
 .anyventure .skills-page, .anyventure .character-page {
   height: 100%;
@@ -823,7 +833,8 @@
 .anyventure .skills-page .character-essentials .character-essential-section .essential-icon img, .anyventure .character-page .character-essentials .character-essential-section .essential-icon img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .anyventure .skills-page .character-essentials .character-essential-section .essential-content, .anyventure .character-page .character-essentials .character-essential-section .essential-content {
   flex: 1;
@@ -1086,11 +1097,6 @@
 .anyventure .skill-row .skill-value-group .skill-die.skill-downgraded {
   color: #dc3545;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Specialized Skills                      */
-  /* ----------------------------------------- */
-}
 .anyventure .specialized-skills {
   margin-top: 8px;
 }
@@ -1231,11 +1237,6 @@
   pointer-events: none;
   opacity: 0;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Items Lists                             */
-  /* ----------------------------------------- */
-}
 .anyventure .items-list {
   list-style: none;
   margin: 0;
@@ -1326,11 +1327,6 @@
   flex: 0 0 200px;
   padding: 0 8px;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Biography Tab                           */
-  /* ----------------------------------------- */
-}
 .anyventure .biography-content {
   padding: 16px;
 }
@@ -1343,11 +1339,6 @@
   border-bottom: 1px solid #b8860b;
   padding-bottom: 4px;
   color: #ffd700;
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Roll Dialog Styles                      */
-  /* ----------------------------------------- */
 }
 .anyventure-roll-dialog {
   min-width: 400px;
@@ -1463,11 +1454,6 @@
   font-size: 16px;
   text-shadow: 0 0 4px rgba(255, 215, 0, 0.4);
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Scrollbar Styling                       */
-  /* ----------------------------------------- */
-}
 .anyventure ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -1486,11 +1472,6 @@
 .anyventure * {
   scrollbar-width: thin;
   scrollbar-color: #6b5980 #1a1525;
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Utility Classes                         */
-  /* ----------------------------------------- */
 }
 .anyventure .rollable:hover {
   color: #ffd700;
@@ -1531,11 +1512,6 @@
 }
 .anyventure button:active {
   transform: translateY(1px);
-}
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Moves Tab                               */
-  /* ----------------------------------------- */
 }
 .anyventure .moves-container {
   padding: 12px;
@@ -1650,7 +1626,8 @@
 .anyventure .moves-container .weapon-attack-item .weapon-attack-header .weapon-icon img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .anyventure .moves-container .weapon-attack-item .weapon-attack-header .weapon-info {
   flex: 1;
@@ -1793,11 +1770,6 @@
   font-style: italic;
   padding: 12px;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Spells Section                          */
-  /* ----------------------------------------- */
-}
 .anyventure .spells-section {
   background: rgba(26, 21, 37, 0.3);
   border: 1px solid rgba(155, 137, 179, 0.3);
@@ -1876,7 +1848,8 @@
   height: 32px;
   border: 1px solid rgba(218, 165, 32, 0.3);
   border-radius: 2px;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .anyventure .spells-section .anyventure-spell-card .spell-content {
   min-width: 0;
@@ -2249,6 +2222,9 @@
   box-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
   outline: none;
 }
+#chat-form #chat-message::-moz-placeholder {
+  color: #8b7a9e;
+}
 #chat-form #chat-message::placeholder {
   color: #8b7a9e;
 }
@@ -2369,6 +2345,9 @@
 /*  Item Sheet Styles (scoped to .anyventure) */
 /* ========================================= */
 .anyventure {
+  /* ----------------------------------------- */
+  /* ----------------------------------------- */
+  /*  Equipment Tab Styles                    */
   /* ----------------------------------------- */
 }
 .anyventure.item .window-content {
@@ -2595,11 +2574,6 @@
 .anyventure.item .form-group.stacked {
   margin-bottom: 8px;
 }
-.anyventure {
-  /* ----------------------------------------- */
-  /*  Equipment Tab Styles                    */
-  /* ----------------------------------------- */
-}
 .anyventure .equipment-top-row {
   display: flex;
   gap: 24px;
@@ -2696,6 +2670,8 @@
   justify-content: center;
   width: 100%;
   height: 100%;
+  /* Item Quantity Controls for stackable items */
+  /* Quantity display only (no controls) for equipped items */
 }
 .anyventure .slot-container-small .equipped-item img {
   width: 36px;
@@ -2703,10 +2679,8 @@
   border: none;
   outline: none;
   border-radius: 4px;
-  object-fit: cover;
-}
-.anyventure .slot-container-small .equipped-item {
-  /* Item Quantity Controls for stackable items */
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .anyventure .slot-container-small .equipped-item .item-quantity-controls {
   position: absolute;
@@ -2753,9 +2727,6 @@
   text-align: center;
   padding: 0 2px;
   line-height: 1;
-}
-.anyventure .slot-container-small .equipped-item {
-  /* Quantity display only (no controls) for equipped items */
 }
 .anyventure .slot-container-small .equipped-item .quantity-display-only {
   position: absolute;
@@ -2926,7 +2897,8 @@
   width: 24px;
   height: 24px;
   border-radius: 4px;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .anyventure .inventory-table .inventory-row .col-weight,
 .anyventure .inventory-table .inventory-row .col-encumbrance,
@@ -3084,7 +3056,8 @@
   height: 32px;
   border: 1px solid rgba(218, 165, 32, 0.3);
   border-radius: 2px;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .anyventure .moves-section .ability-item .ability-content {
   flex: 1;
@@ -3212,6 +3185,34 @@
   margin-bottom: 2px;
   text-align: center;
 }
+.anyventure-attack-card .skill-result-display,
+.anyventure-skill-card .skill-result-display,
+.anyventure-ability-card .skill-result-display {
+  text-align: center;
+  margin-bottom: 2px;
+}
+.anyventure-attack-card .skill-result,
+.anyventure-skill-card .skill-result,
+.anyventure-ability-card .skill-result {
+  background: linear-gradient(135deg, #ffd700 0%, #daa520 100%);
+  color: #1a1525;
+  font-size: 1em;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #ffd700;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  min-width: 24px;
+  text-align: center;
+  display: inline-block;
+}
+.anyventure-attack-card .skill-result.disadvantage,
+.anyventure-skill-card .skill-result.disadvantage,
+.anyventure-ability-card .skill-result.disadvantage {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  border-color: #dc3545;
+}
 .anyventure-attack-card .ability-name.charged,
 .anyventure-skill-card .ability-name.charged,
 .anyventure-ability-card .ability-name.charged {
@@ -3244,6 +3245,12 @@
   margin-bottom: 2px;
   text-align: center;
   font-style: italic;
+}
+.anyventure-attack-card .formula.disadvantage-formula,
+.anyventure-skill-card .formula.disadvantage-formula,
+.anyventure-ability-card .formula.disadvantage-formula {
+  color: #dc3545;
+  font-weight: bold;
 }
 .anyventure-attack-card .damage-info,
 .anyventure-skill-card .damage-info,
@@ -4002,7 +4009,8 @@
 .injuries-container .character-essential-section .essential-icon img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .injuries-container .character-essential-section .essential-content {
   flex: 1;
@@ -4138,7 +4146,8 @@
   height: 32px;
   border: 1px solid rgba(218, 165, 32, 0.3);
   border-radius: 2px;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .spells-container .spells-section .anyventure-spell-card .spell-content {
   min-width: 0;
@@ -4977,6 +4986,4 @@
   font-style: italic;
   margin-top: 2px;
   margin-bottom: 0;
-}
-
-/*# sourceMappingURL=anyventure.css.map */
+}/*# sourceMappingURL=anyventure.css.map */

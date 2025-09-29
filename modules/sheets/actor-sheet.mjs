@@ -646,7 +646,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         // Helper to build an attack entry from provided attack data
         const buildAttack = (attackData) => {
           if (!attackData) return null;
-          const diceInfo = this._calculateAttackDice({ system: { weapon_category: weaponCategory, weapon_data: wdata } }, attackData);
+          // Add weapon slot info for dual wield calculations
+          const attackDataWithSlot = { ...attackData, weaponSlot: slotName };
+          const diceInfo = this._calculateAttackDice({ system: { weapon_category: weaponCategory, weapon_data: wdata } }, attackDataWithSlot);
 
           // Calculate modified ranges with modifiers
           const baseMinRange = Number(attackData.min_range ?? 0);
@@ -654,7 +656,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
           const { minRange, maxRange } = this._calculateModifiedRanges(baseMinRange, baseMaxRange, weaponCategory, attackData.category);
 
           return {
-            weaponName: weapon.name,
+            weaponName: slotName === 'offhand' ? `Offhand ${weapon.name}` : weapon.name,
             weaponIcon: weapon.img || 'icons/weapons/swords/sword-broad-steel.webp',
             weaponCategory,
             attackType: this._getAttackType({ system: { weapon_category: weaponCategory, weapon_data: wdata } }, attackData),
@@ -675,7 +677,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
             attackKeepLowest: diceInfo.keepLowest,
             baseDice: diceInfo.baseDice,
             inherentPenalty: diceInfo.inherentPenalty,
-            slotName
+            slotName,
+            weaponSlot: slotName
           };
         };
 
@@ -733,7 +736,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
             attackKeepLowest: diceInfo.keepLowest,
             baseDice: diceInfo.baseDice,
             inherentPenalty: diceInfo.inherentPenalty,
-            slotName
+            slotName,
+            weaponSlot: slotName
           };
         };
 
@@ -886,23 +890,68 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Get the skill values from the actor
     const skill = this.actor.system[skillCategory]?.[skillKey] || { talent: 0, value: 0 };
-    const talent = Number(skill.talent) || 0;
+    let talent = Number(skill.talent) || 0;
     const skillValue = skill.value || 0;
+
+    // Check if this is an offhand weapon attack
+    const isOffhandAttack = attackData.weaponSlot === 'offhand';
+    const dualWieldTier = this.actor.system.combatFeatures?.dualWieldTier || 0;
+
+    // Apply dual wield rules for offhand attacks
+    if (isOffhandAttack) {
+      switch (dualWieldTier) {
+        case 0:
+          // Default: offhand attacks are limited to 1 base die (talent = 1)
+          talent = 1;
+          break;
+        case 1:
+          // Tier 1: offhand attacks use normal talent but with -1 penalty die
+          // (penalty handled below)
+          break;
+        case 2:
+          // Tier 2: offhand attacks use normal talent with no penalty
+          break;
+      }
+    }
 
     // Determine dice type based on skill value (0=d4, 1=d6, 2=d8, 3=d10, 4=d12, 5=d16, 6=d20)
     const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20'];
     const diceType = diceTypes[Math.min(skillValue, 6)] || 'd4';
 
     const baseDice = Math.max(talent, 1);
-    const inherentPenalty = talent <= 0 ? 1 : 0;
-    const penaltyResult = this._applyPenaltyRules(baseDice, inherentPenalty);
+    let totalPenalty = talent <= 0 ? 1 : 0;
+
+    // Add dual wield penalty for tier 1 offhand attacks
+    if (isOffhandAttack && dualWieldTier === 1) {
+      totalPenalty += 1;
+    }
+
+    // Add condition-based penalties for attack rolls
+    // Check for blinded condition (affects all attack rolls)
+    const blindedEffect = this.actor.effects.find(e => e.statuses?.has("blind"));
+    if (blindedEffect) {
+      totalPenalty += 1;
+    }
+
+    // Check for impaired condition (affects all attack rolls)
+    const impairedEffect = this.actor.effects.find(e => e.statuses?.has("impaired"));
+    if (impairedEffect) {
+      totalPenalty += 1;
+    }
+
+    const penaltyResult = this._applyPenaltyRules(baseDice, totalPenalty);
 
     return {
       baseDice,
       diceType,
-      inherentPenalty,
+      inherentPenalty: talent <= 0 ? 1 : 0,
+      conditionPenalty: totalPenalty - (talent <= 0 ? 1 : 0),
+      totalPenalty,
       dice: penaltyResult.diceCount,
-      keepLowest: penaltyResult.keepLowest
+      keepLowest: penaltyResult.keepLowest,
+      isOffhandAttack,
+      dualWieldTier,
+      extraEnergyCost: isOffhandAttack ? 1 : 0
     };
   }
 
@@ -952,13 +1001,44 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Render the item sheet for viewing/editing prior to the editable check.
     html.find('.item-edit').click(ev => {
       ev.stopPropagation(); // Prevent triggering parent clickable elements
-      const li = $(ev.currentTarget).closest(".item, .inventory-row");
-      const itemId = li.data("itemId") || li.data("item-id");
+      const button = $(ev.currentTarget);
+
+      // Special handling for condition edit buttons
+      if (button.hasClass('condition-edit-btn')) {
+        const conditionId = button.data("condition-id");
+        if (conditionId) {
+          // Import and show condition edit dialog
+          import('./condition-edit-dialog.mjs').then(module => {
+            module.AnyventureConditionEditDialog.show({
+              effectId: conditionId,
+              actor: this.actor
+            });
+          });
+        } else {
+          ui.notifications.error('Could not find condition ID');
+        }
+        return;
+      }
+
+      // Regular item editing
+      const li = button.closest(".item, .inventory-row");
+
+      // Try multiple ways to get the item ID
+      let itemId = button.data("item-id") || button.data("itemId");
+      if (!itemId) {
+        itemId = li.data("item-id") || li.data("itemId");
+      }
+
+      if (!itemId) {
+        ui.notifications.error('Could not find item ID');
+        return;
+      }
+
       const item = this.actor.items.get(itemId);
       if (item) {
         item.sheet.render(true);
       } else {
-        ui.notifications.error(`Item not found`);
+        ui.notifications.error(`Item not found: ${itemId}`);
       }
     });
 
@@ -1009,7 +1089,6 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
               const currentPoints = this.actor.system.modulePoints || 0;
               this.actor.update({ 'system.modulePoints': currentPoints + selectedCount });
             }
-            ui.notifications.info(`Refunded ${selectedCount} module point(s) for ${item.name}`);
           }
         }
 
@@ -1596,52 +1675,21 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     const attackData = equippedWeapons[attackIndex];
 
-    // Determine which skill to use based on weapon category and attack category
-    let skillCategory = 'weapon';
-    let skillKey = '';
+    // Use the centralized attack dice calculation (includes condition penalties)
+    const weapon = { system: { weapon_category: attackData.weaponCategory, weapon_data: {} } };
+    const diceInfo = this._calculateAttackDice(weapon, attackData);
 
-    // Check if the attack category is a magic type (overrides weapon skill)
-    const magicCategories = {
-      'primal_magic': 'primal',
-      'primal': 'primal',
-      'black_magic': 'black',
-      'black': 'black',
-      'metamagic': 'metamagic',
-      'divine_magic': 'divine',
-      'divine': 'divine',
-      'mysticism': 'mysticism'
-    };
+    const baseDice = diceInfo.baseDice;
+    const diceType = diceInfo.diceType;
+    const totalPenalty = diceInfo.totalPenalty;
+    const keepLowest = diceInfo.keepLowest;
 
-    if (magicCategories[attackData.rawCategory]) {
-      // Magic attack - use magic skill
-      skillCategory = 'magic';
-      skillKey = magicCategories[attackData.rawCategory];
-    } else {
-      // Physical weapon attack - use weapon skill based on weapon category
-      const weaponCategoryMap = {
-        'simpleMelee': 'simpleMeleeWeapons',
-        'simpleRanged': 'simpleRangedWeapons',
-        'complexMelee': 'complexMeleeWeapons',
-        'complexRanged': 'complexRangedWeapons'
-      };
-
-      const rawCat = attackData.weaponCategory || 'brawling';
-      skillKey = weaponCategoryMap[rawCat] || rawCat;
+    // Modify attack data to include extra energy cost for dual wield
+    const modifiedAttackData = { ...attackData };
+    if (diceInfo.extraEnergyCost > 0) {
+      const baseEnergy = Number(attackData.energy) || 0;
+      modifiedAttackData.energy = baseEnergy + diceInfo.extraEnergyCost;
     }
-
-    // Get the skill values from the actor
-    const skill = this.actor.system[skillCategory]?.[skillKey] || { talent: 0, value: 0 };
-    const talent = Number(skill.talent) || 0;
-    const skillValue = skill.value || 0;
-
-    // Determine dice type based on skill value (0=d4, 1=d6, 2=d8, 3=d10, 4=d12, 5=d16, 6=d20)
-    const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20'];
-    const diceType = diceTypes[Math.min(skillValue, 6)] || 'd4';
-
-    const baseDice = Number(attackData.baseDice) || Math.max(talent, 1);
-    const inherentPenalty = Number(attackData.inherentPenalty) || (talent <= 0 ? 1 : 0);
-    const previewPenaltyConfig = this._applyPenaltyRules(baseDice, inherentPenalty);
-    const keepLowest = previewPenaltyConfig.keepLowest || Boolean(attackData.attackKeepLowest);
 
     // Show the attack roll dialog
     AnyventureAttackRollDialog.show({
@@ -1649,10 +1697,15 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       weaponName: `${attackData.weaponName} (${attackData.attackType})`,
       baseDice,
       diceType,
-      attackData: attackData,
+      attackData: modifiedAttackData,
       actor: this.actor,
       keepLowest,
-      inherentPenalty,
+      inherentPenalty: totalPenalty, // Now includes condition penalties
+      dualWieldInfo: {
+        isOffhandAttack: diceInfo.isOffhandAttack,
+        dualWieldTier: diceInfo.dualWieldTier,
+        extraEnergyCost: diceInfo.extraEnergyCost
+      },
       rollCallback: async (roll, data) => {
         await this._consumeEquippedConsumableWeapon(attackData);
       }
@@ -2969,9 +3022,6 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     await this.actor.update({
       'system.wonder': !currentState
     });
-
-    // Visual feedback
-    ui.notifications.info(`Wonder token ${!currentState ? 'activated' : 'deactivated'}`);
   }
 
   /* -------------------------------------------- */
@@ -2989,9 +3039,6 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     await this.actor.update({
       'system.woe': !currentState
     });
-
-    // Visual feedback
-    ui.notifications.info(`Woe token ${!currentState ? 'activated' : 'deactivated'}`);
   }
 
   /* -------------------------------------------- */
@@ -3018,17 +3065,13 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     event.preventDefault();
     const li = event.currentTarget.closest('.inventory-row');
     const itemId = li?.dataset?.itemId;
-
-    console.log('Edit item clicked:', { li, itemId, actorItems: this.actor.items });
-
     if (!itemId) {
       ui.notifications.error('Could not find item ID');
       return;
     }
 
     const item = this.actor.items.get(itemId);
-    console.log('Found item:', item);
-
+  
     if (item) {
       item.sheet.render(true);
     } else {
@@ -3204,7 +3247,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
           'flags.anyventure.turnsActive': (effect.flags.anyventure.turnsActive || 0) + 1
         });
 
-        ui.notifications.info(`Recovery failed. DC reduced to ${newDC} for next attempt.`);
+        ui.notifications.info(`Recovery failed. Required Check reduced to ${newDC}.`);
         this.render(false); // Refresh to show updated DC
       }
     }

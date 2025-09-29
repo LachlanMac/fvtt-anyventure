@@ -76,7 +76,7 @@ export class AnyventureConditionEditDialog extends foundry.applications.api.Dial
   }
 
   async handleSave(event, button, dialog) {
-    const formData = new FormData(dialog.querySelector('form'));
+    const formData = new FormData(dialog.element.querySelector('form'));
 
     const updates = {
       'flags.anyventure.currentCheck': parseInt(formData.get('currentCheck')) || 10,
@@ -87,7 +87,7 @@ export class AnyventureConditionEditDialog extends foundry.applications.api.Dial
 
     try {
       await this.effect.update(updates);
-      ui.notifications.info(`Updated ${this.effect.label || "condition"} settings.`);
+      //ui.notifications.info(`Updated ${this.effect.label || "condition"} settings.`);
       this.close();
     } catch (error) {
       ui.notifications.error("Failed to update condition.");

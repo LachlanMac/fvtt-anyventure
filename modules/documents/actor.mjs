@@ -537,6 +537,24 @@ export class AnyventureActor extends Actor {
     if (systemData.movement.swim === undefined) systemData.movement.swim = 0;
     if (systemData.movement.climb === undefined) systemData.movement.climb = 0;
     if (systemData.movement.fly === undefined) systemData.movement.fly = 0;
+
+    // Apply condition-based movement overrides at the end
+    if (this.effects) {
+      // Conditions that set walk speed to 0
+      const immobilizingConditions = ['stasis', 'incapacitated', 'impaired', 'stunned', 'paralyzed', 'unconscious', 'frozen'];
+      const hasImmobilizingCondition = immobilizingConditions.some(condition =>
+        this.effects.find(e => e.statuses?.has(condition))
+      );
+
+      // Prone condition: walk speed becomes 2 (but only if not immobilized)
+      const proneEffect = this.effects.find(e => e.statuses?.has('prone'));
+
+      if (hasImmobilizingCondition) {
+        systemData.movement.walk = 0;
+      } else if (proneEffect) {
+        systemData.movement.walk = 2;
+      }
+    }
   }
 
   /**
@@ -681,7 +699,8 @@ export class AnyventureActor extends Actor {
       ['d8', 'd10', 'd12'], // Level 3
       ['d10', 'd12', 'd16'], // Level 4
       ['d12', 'd16', 'd20'], // Level 5
-      ['d16', 'd20', 'd30']  // Level 6
+      ['d16', 'd20', 'd24']  // Level 6
+      ['d20', 'd24', 'd30']  // Level 7
     ];
 
     const skillLevel = Math.min(Math.max(skill.value || 0, 0), 6);
@@ -689,6 +708,64 @@ export class AnyventureActor extends Actor {
     const upgradeLevel = Math.min(Math.max(tierModifier + 1, 0), 2); // Convert -1,0,1 to 0,1,2
     const diceType = diceTable[skillLevel][upgradeLevel];
     const baseDice = skill.talent || 1;
+
+    // Calculate condition-based penalties
+    let initialPenaltyDice = 0;
+    let conditionNotes = [];
+
+    // Check for conditions affecting defense skills (evasion/deflection)
+    if (skillName.toLowerCase() === "evasion" || skillName.toLowerCase() === "deflection") {
+      // Check for dazed condition (first defense only)
+      const dazedEffect = this.effects.find(e => e.statuses?.has("dazed"));
+      if (dazedEffect) {
+        const penaltyApplied = dazedEffect.getFlag("anyventure", "penaltyApplied");
+
+        if (!penaltyApplied) {
+          initialPenaltyDice += 1;
+          conditionNotes.push("Dazed: -1 die (first defense)");
+
+          // Mark the penalty as applied
+          await dazedEffect.setFlag("anyventure", "penaltyApplied", true);
+        }
+      }
+
+      // Check for blinded condition (always applies)
+      const blindedEffect = this.effects.find(e => e.statuses?.has("blind"));
+      if (blindedEffect) {
+        initialPenaltyDice += 1;
+        conditionNotes.push("Blinded: -1 die (defense)");
+      }
+
+      const impaired = this.effects.find(e => e.statuses?.has("impaired"));
+      if (impaired) {
+        initialPenaltyDice += 1;
+        conditionNotes.push("Impaired: -1 die (defense)");
+      }
+
+      const prone = this.effects.find(e => e.statuses?.has("prone"));
+      if (prone) {
+        initialPenaltyDice += 1;
+        conditionNotes.push("Impaired: -1 die (defense)");
+      }
+    }
+
+    // Check for broken condition on Mind, Knowledge, and Social skills
+    const brokenAffectedSkills = [
+      // Mind skills
+      'resilience', 'concentration', 'senses', 'logic',
+      // Knowledge skills
+      'wildcraft', 'academics', 'magic', 'medicine',
+      // Social skills
+      'expression', 'presence', 'insight', 'persuasion'
+    ];
+
+    if (brokenAffectedSkills.includes(skillName.toLowerCase())) {
+      const brokenEffect = this.effects.find(e => e.statuses?.has("broken"));
+      if (brokenEffect) {
+        initialPenaltyDice += 1;
+        conditionNotes.push("Broken: -1 die (mental checks)");
+      }
+    }
 
     // Import the roll dialog
     const { AnyventureRollDialog } = await import('../sheets/roll-dialog.mjs');
@@ -700,6 +777,8 @@ export class AnyventureActor extends Actor {
       baseDice: baseDice,
       diceType: diceType,
       actor: this,
+      initialPenaltyDice: initialPenaltyDice,
+      conditionNotes: conditionNotes,
       rollCallback: (roll, data) => {
         // Optional callback for additional processing
       }
@@ -792,7 +871,8 @@ export class AnyventureActor extends Actor {
       'd10',  // Level 3
       'd12',  // Level 4
       'd16',  // Level 5
-      'd20'   // Level 6
+      'd20',   // Level 6
+      'd24'    // Level 7
     ];
 
     // Handle dice tier modifier if needed (upgrade/downgrade)
@@ -803,7 +883,8 @@ export class AnyventureActor extends Actor {
       ['d8', 'd10', 'd12'], // Level 3
       ['d10', 'd12', 'd16'], // Level 4
       ['d12', 'd16', 'd20'], // Level 5
-      ['d16', 'd20', 'd30']  // Level 6
+      ['d16', 'd20', 'd24']  // Level 6
+      ['d20', 'd24', 'd30']  // Level 7
     ];
 
     const skillLevel = Math.min(Math.max(coordination.value || 0, 0), 6);

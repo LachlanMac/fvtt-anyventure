@@ -210,7 +210,6 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
         canChannel: this.canChannel
       });
     } catch (_e) {}
-    ui.notifications?.info?.(`[Anyventure] ${this.spellName}: ${mode} clicked`);
     // Energy/Mana check
     const currentEnergy = this.actor?.system?.resources?.energy?.value ?? 0;
     const currentMana = this.actor?.system?.resources?.mana?.value ?? 0;
@@ -365,7 +364,6 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
     try {
       if (this.spell?.update) {
         await this.spell.update({ 'system.fizzled': false });
-        ui.notifications?.info?.('Spell unfizzled.');
         this.isFizzled = false;
       }
     } catch (e) {

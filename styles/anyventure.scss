@@ -3789,6 +3789,31 @@
     text-align: center;
   }
 
+  .skill-result-display {
+    text-align: center;
+    margin-bottom: $spacing-xs;
+  }
+
+  .skill-result {
+    background: linear-gradient(135deg, $gold-bright 0%, $gold-medium 100%);
+    color: $purple-darkest;
+    font-size: 1em;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid $gold-bright;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    min-width: 24px;
+    text-align: center;
+    display: inline-block;
+
+    &.disadvantage {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+      color: white;
+      border-color: #dc3545;
+    }
+  }
+
   // Metallic panel background + border for charged spells
   .ability-name.charged {
     background: linear-gradient(135deg, #dcdcdc 0%, #bfbfbf 25%, #f0e2a2 50%, #bfbfbf 75%, #f5f5f5 100%);
@@ -3815,6 +3840,11 @@
     margin-bottom: $spacing-xs;
     text-align: center;
     font-style: italic;
+
+    &.disadvantage-formula {
+      color: #dc3545;
+      font-weight: bold;
+    }
   }
 
   .damage-info {

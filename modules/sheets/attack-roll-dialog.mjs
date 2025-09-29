@@ -28,7 +28,9 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
     const diceType = options.diceType || "d6";
     const inherentPenalty = Math.max(Number(options.inherentPenalty) || 0, 0);
     const baseConfig = computePenaltyDiceConfig(baseDice, inherentPenalty);
-    const baseRollFormula = `${baseConfig.diceCount}${diceType}${baseConfig.keepLowest ? 'kl1' : ''}`;
+    // Clean formula display - no "kl1" for disadvantage
+    const baseRollFormula = `${baseConfig.diceCount}${diceType}`;
+    const formulaClass = baseConfig.keepLowest ? ' class="disadvantage-formula"' : '';
     const penaltyNote = inherentPenalty > 0
       ? `<p class="penalty-note"><strong>Base Penalty Dice:</strong> ${inherentPenalty}</p>`
       : '';
@@ -45,7 +47,7 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
           <div class="roll-info">
             <h3>${options.weaponName || "Weapon"} Attack</h3>
             <div class="energy-warning" style="display:none;"></div>
-            <p><strong>Base Roll:</strong> ${baseRollFormula}</p>
+            <p><strong>Base Roll:</strong> <span${formulaClass}>${baseRollFormula}</span></p>
             ${penaltyNote}
           </div>
 
@@ -93,6 +95,7 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
     this.actor = options.actor;
     this.inherentPenalty = inherentPenalty;
     this.rollCallback = options.rollCallback;
+    this.dualWieldInfo = options.dualWieldInfo || { isOffhandAttack: false, dualWieldTier: 0, extraEnergyCost: 0 };
   }
 
   /** @override */
@@ -108,7 +111,14 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
       const bonus = parseInt(bonusInput.value) || 0;
       const penalty = parseInt(penaltyInput.value) || 0;
       const formula = this.calculateFormula(this.baseDice, bonus, penalty);
+
+      // Check if this is a disadvantage roll
+      const totalPenalty = this.inherentPenalty + penalty;
+      const baseWithBonus = Math.max(this.baseDice + bonus, 1);
+      const config = computePenaltyDiceConfig(baseWithBonus, totalPenalty);
+
       formulaDisplay.textContent = formula;
+      formulaDisplay.className = config.keepLowest ? 'disadvantage-formula' : '';
     };
 
     bonusInput.addEventListener('input', updateFormula);
@@ -136,11 +146,31 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
    * Calculate the final dice formula based on bonus/penalty dice
    */
   calculateFormula(baseDice, bonusDice, penaltyDice) {
-    const totalPenalty = this.inherentPenalty + penaltyDice;
-    const baseWithBonus = Math.max(baseDice + bonusDice, 1);
-    const config = computePenaltyDiceConfig(baseWithBonus, totalPenalty);
-    const suffix = config.keepLowest ? 'kl1' : '';
-    return `${config.diceCount}${this.diceType}${suffix}`;
+    // Apply dual wield modifications to baseDice for display
+    let adjustedBaseDice = baseDice;
+    let adjustedPenalty = this.inherentPenalty + penaltyDice;
+
+    // Apply dual wield rules for display calculations
+    if (this.dualWieldInfo.isOffhandAttack) {
+      switch (this.dualWieldInfo.dualWieldTier) {
+        case 0:
+          // Force talent to 1 for offhand attacks
+          adjustedBaseDice = 1;
+          break;
+        case 1:
+          // Add dual wield penalty for tier 1
+          adjustedPenalty += 1;
+          break;
+        case 2:
+          // No additional penalty for tier 2
+          break;
+      }
+    }
+
+    const baseWithBonus = Math.max(adjustedBaseDice + bonusDice, 1);
+    const config = computePenaltyDiceConfig(baseWithBonus, adjustedPenalty);
+    // Return clean formula without "kl1"
+    return `${config.diceCount}${this.diceType}`;
   }
 
   /**
@@ -275,7 +305,8 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
           case 'd12': return 12;
           case 'd16': return 15;
           case 'd20': return 18;
-          case 'd30': return 25;
+          case 'd24': return 20;
+          case 'd30': return 24;
           default: return null;
         }
       };

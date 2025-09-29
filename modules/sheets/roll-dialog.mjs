@@ -3,8 +3,12 @@
  * Handles bonus/penalty dice mechanics
  */
 export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
-  
+
   constructor(options = {}) {
+    // Use penalty values passed from rollSkill
+    const initialPenaltyDice = options.initialPenaltyDice || 0;
+    const conditionNotes = options.conditionNotes || [];
+
     super({
       window: {
         title: options.title || "Roll Check",
@@ -24,12 +28,21 @@ export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
           
           <div class="form-group">
             <label for="penalty-dice">Penalty Dice:</label>
-            <input type="number" id="penalty-dice" name="penaltyDice" value="0" min="0" max="10" />
+            <input type="number" id="penalty-dice" name="penaltyDice" value="${initialPenaltyDice}" min="0" max="10" />
           </div>
           
           <div class="roll-preview">
             <p><strong>Final Roll:</strong> <span id="final-formula">${options.baseDice}${options.diceType}kh1</span></p>
           </div>
+
+          ${conditionNotes && conditionNotes.length > 0 ? `
+          <div class="condition-notes">
+            <p><strong>Conditions:</strong></p>
+            <ul>
+              ${conditionNotes.map(note => `<li>${note}</li>`).join('')}
+            </ul>
+          </div>
+          ` : ''}
         </form>
       `,
       buttons: [
@@ -63,9 +76,9 @@ export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
   }
 
   /** @override */
-  _onRender(context, options) {
+  async _onRender(context, options) {
     super._onRender(context, options);
-    
+
     // Add event listeners for real-time formula updates
     const bonusInput = this.element.querySelector('#bonus-dice');
     const penaltyInput = this.element.querySelector('#penalty-dice');
@@ -110,7 +123,7 @@ export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
     const formData = new FormData(dialog.element.querySelector('form'));
     const bonusDice = parseInt(formData.get('bonusDice')) || 0;
     const penaltyDice = parseInt(formData.get('penaltyDice')) || 0;
-    
+
     const formula = this.calculateFormula(this.baseDice, bonusDice, penaltyDice);
     
     // Create the roll
@@ -128,18 +141,32 @@ export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
     // Sort dice results in descending order for easier reading (match attack card)
     diceResults.sort((a, b) => b - a);
 
+    // Calculate total dice first
+    let totalDice = this.baseDice + bonusDice - penaltyDice;
+
     // Build structured flavor text similar to attack card
     let flavorText = `<div class="anyventure-skill-card">`;
 
-    // 1. Skill name/title
+    // 1. Skill name/title with prominent result
+    const finalResult = roll.total;
+    const isDisadvantage = totalDice <= 0;
     flavorText += `<div class="skill-name"><strong>${this.skillName} Check</strong></div>`;
+    flavorText += `<div class="skill-result-display"><span class="skill-result ${isDisadvantage ? 'disadvantage' : ''}">${finalResult}</span></div>`;
 
     // 2. Dice Results
     flavorText += `<div class=\"dice-results\"><strong>Results:</strong> [${diceResults.join(', ')}]</div>`;
 
     // 3. Formula summary (mirrors attack formatting and ordering)
-    let totalDice = this.baseDice + bonusDice - penaltyDice;
-    let formulaText = `${totalDice}${this.diceType}`;
+    let formulaText;
+    let formulaClass = "";
+
+    if (totalDice <= 0) {
+      // Disadvantage: show actual dice rolled (penalty dice) in red
+      formulaText = `${penaltyDice}${this.diceType}`;
+      formulaClass = " class=\"disadvantage-formula\"";
+    } else {
+      formulaText = `${totalDice}${this.diceType}`;
+    }
 
     if (bonusDice > 0 && penaltyDice === 0) {
       formulaText += ` (+${bonusDice} bonus)`;
@@ -155,10 +182,13 @@ export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
         formulaText += ` (net +${net})`;
       } else if (net < 0) {
         formulaText += ` (net ${net})`;
+        if (totalDice <= 0) {
+          formulaClass = " class=\"disadvantage-formula\"";
+        }
       }
     }
 
-    flavorText += `<div class=\"formula\">Formula: ${formulaText}</div>`;
+    flavorText += `<div class=\"formula\"${formulaClass}>Formula: ${formulaText}</div>`;
 
     flavorText += `</div>`;
 
@@ -203,8 +233,10 @@ export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
     // Build structured flavor text
     let flavorText = `<div class="anyventure-skill-card">`;
 
-    // 1. Skill name/title
+    // 1. Skill name/title with prominent result
+    const finalResult = roll.total;
     flavorText += `<div class="skill-name"><strong>${this.skillName} Check (Single Die)</strong></div>`;
+    flavorText += `<div class="skill-result-display"><span class="skill-result">${finalResult}</span></div>`;
 
     // 2. Dice Results
     flavorText += `<div class=\"dice-results\"><strong>Result:</strong> ${diceResults[0]}</div>`;

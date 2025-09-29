@@ -166,153 +166,155 @@ Hooks.once('ready', async function() {
   try { initializeConditions(); } catch (e) { console.warn('[Anyventure] Failed to initialize conditions system', e); }
 
 CONFIG.statusEffects = [
-    {
-      id: "dead",
-      label: "Dead",
-      img: "systems/anyventure/images/conditions/dead.svg",
-    },
-    {
-      id: "unconscious",
-      label: "Unconscious",
-      img: "systems/anyventure/images/conditions/unconscious.svg",
-    },
-    {
-      id: "sleeping",
-      label: "Sleeping",
-      img: "systems/anyventure/images/conditions/sleeping.svg",
-    },
-    {
-      id: "alert",
-      label: "Alert",
-      img: "systems/anyventure/images/conditions/alert.svg",
-    },
-    {
-      id: "dazed",
-      label: "Dazed",
-      img: "systems/anyventure/images/conditions/dazed.svg",
-    },
-    {
-      id: "stunned",
-      label: "Stunned",
-      img: "systems/anyventure/images/conditions/stunned.svg",
-    },
-    {
-      id: "confused",
-      label: "Confused",
-      img: "systems/anyventure/images/conditions/confused.svg",
-    },
-    {
-      id: "prone",
-      label: "Prone",
-      img: "systems/anyventure/images/conditions/prone.svg",
-    },
-    {
-      id: "impaired",
-      label: "Impaired",
-      img: "systems/anyventure/images/conditions/grappled.svg",
-      
-    },
-    {
-      id: "incapacitated",
-      label: "Incapacitated",
-      img: "systems/anyventure/images/conditions/paralyzed.svg",
-    },
-    {
-      id: "charmed",
-      label: "Charmed",
-      img: "systems/anyventure/images/conditions/charmed.svg",
-    },
-    {
-      id: "blind",
-      label: "Blinded",
-      img: "systems/anyventure/images/conditions/blind.svg",
-    },
-    {
-      id: "deafened",
-      label: "Deafened",
-      img: "systems/anyventure/images/conditions/deafened.svg",
-    },
-    {
-      id: "maddened",
-      label: "Maddened",
-      img: "systems/anyventure/images/conditions/maddened.svg",
-    },
-    {
-      id: "muted",
-      label: "Muted",
-      img: "systems/anyventure/images/conditions/muted.svg",
-    },
-    {
-      id: "stasis",
-      label: "Stasis",
-      img: "systems/anyventure/images/conditions/stasis.svg",
-    },
-       {
-      id: "winded",
-      label: "Winded",
-      img: "systems/anyventure/images/conditions/exhaustT1.svg",
-    },
-    {
-      id: "afraid",
-      label: "Afraid",
-      img: "systems/anyventure/images/conditions/afraid.svg",
-    },
-    {
-      id: "ignited",
-      label: "Ignited",
-      img: "systems/anyventure/images/conditions/ignited.svg",
-    },
-    {
-      id: "bleeding",
-      label: "Bleeding",
-      img: "systems/anyventure/images/conditions/bleeding.svg",
-    },
-    {
-      id: "poisoned",
-      label: "Poisoned",
-      img: "systems/anyventure/images/conditions/poisoned.svg",
-    },
-    {
-      id: "invisible",
-      label: "Invisible",
-      img: "systems/anyventure/images/conditions/invisible.svg",
-    },
-    {
-      id: "hidden",
-      label: "Hidden",
-      img: "systems/anyventure/images/conditions/hidden.svg",
-    },
-    {
-      id: "numbed",
-      label: "Numbed",
-      img: "systems/anyventure/images/conditions/numbed.svg",
-    },
-        {
-      id: "broken",
-      label: "Broken",
-      img: "systems/anyventure/images/conditions/broken.svg",
-    },
-    {
-      id: "partialcover",
-      label: "Partial Cover",
-      img: "systems/anyventure/images/conditions/partialcover.svg",
-    },
-    {
-      id: "fullcover",
-      label: "Full Cover",
-      img: "systems/anyventure/images/conditions/fullcover.svg",
-    },
-    {
-      id: "concentrating",
-      label: "Concentrating",
-      img: "systems/anyventure/images/conditions/focus.svg",
-      
-    },
-    {
-      id: "lightsource",
-      label: "Light Source",
-      img: "systems/anyventure/images/conditions/light.svg",
-    }];
+  // 🧠 MENTAL CONDITIONS
+  {
+    id: "afraid",
+    label: "Afraid",
+    img: "systems/anyventure/images/conditions/afraid.svg",
+  },
+  {
+    id: "alert",
+    label: "Alert",
+    img: "systems/anyventure/images/conditions/alert.svg",
+  },
+  {
+    id: "broken",
+    label: "Broken",
+    img: "systems/anyventure/images/conditions/broken.svg",
+  },
+  {
+    id: "charmed",
+    label: "Charmed",
+    img: "systems/anyventure/images/conditions/charmed.svg",
+  },
+  {
+    id: "confused",
+    label: "Confused",
+    img: "systems/anyventure/images/conditions/confused.svg",
+  },
+  {
+    id: "dazed",
+    label: "Dazed",
+    img: "systems/anyventure/images/conditions/dazed.svg",
+  },
+  {
+    id: "maddened",
+    label: "Maddened",
+    img: "systems/anyventure/images/conditions/maddened.svg",
+  },
+  {
+    id: "numbed",
+    label: "Numbed",
+    img: "systems/anyventure/images/conditions/numbed.svg",
+  },
+  {
+    id: "stunned",
+    label: "Stunned",
+    img: "systems/anyventure/images/conditions/stunned.svg",
+  },
+  {
+    id: "bleeding",
+    label: "Bleeding",
+    img: "systems/anyventure/images/conditions/bleeding.svg",
+  },
+  {
+    id: "blind",
+    label: "Blinded",
+    img: "systems/anyventure/images/conditions/blind.svg",
+  },
+  {
+    id: "deafened",
+    label: "Deafened",
+    img: "systems/anyventure/images/conditions/deafened.svg",
+  },
+  {
+    id: "ignited",
+    label: "Ignited",
+    img: "systems/anyventure/images/conditions/ignited.svg",
+  },
+  {
+    id: "impaired",
+    label: "Impaired",
+    img: "systems/anyventure/images/conditions/grappled.svg",
+  },
+  {
+    id: "incapacitated",
+    label: "Incapacitated",
+    img: "systems/anyventure/images/conditions/paralyzed.svg",
+  },
+  {
+    id: "muted",
+    label: "Muted",
+    img: "systems/anyventure/images/conditions/muted.svg",
+  },
+  {
+    id: "poisoned",
+    label: "Poisoned",
+    img: "systems/anyventure/images/conditions/poisoned.svg",
+  },
+  {
+    id: "prone",
+    label: "Prone",
+    img: "systems/anyventure/images/conditions/prone.svg",
+  },
+  {
+    id: "stasis",
+    label: "Stasis",
+    img: "systems/anyventure/images/conditions/stasis.svg",
+  },
+  {
+    id: "unconscious",
+    label: "Unconscious",
+    img: "systems/anyventure/images/conditions/unconscious.svg",
+  },
+  {
+    id: "winded",
+    label: "Winded",
+    img: "systems/anyventure/images/conditions/exhaustT1.svg",
+  },
+
+  {
+    id: "dead",
+    label: "Dead",
+    img: "systems/anyventure/images/conditions/dead.svg",
+  },
+  {
+    id: "sleeping",
+    label: "Sleeping",
+    img: "systems/anyventure/images/conditions/sleeping.svg",
+  },
+  {
+    id: "invisible",
+    label: "Invisible",
+    img: "systems/anyventure/images/conditions/invisible.svg",
+  },
+  {
+    id: "hidden",
+    label: "Hidden",
+    img: "systems/anyventure/images/conditions/hidden.svg",
+  },
+  {
+    id: "partialcover",
+    label: "Partial Cover",
+    img: "systems/anyventure/images/conditions/partialcover.svg",
+  },
+  {
+    id: "fullcover",
+    label: "Full Cover",
+    img: "systems/anyventure/images/conditions/fullcover.svg",
+  },
+  {
+    id: "concentrating",
+    label: "Concentrating",
+    img: "systems/anyventure/images/conditions/focus.svg",
+  },
+  {
+    id: "lightsource",
+    label: "Light Source",
+    img: "systems/anyventure/images/conditions/light.svg",
+  },
+];
+
 
   Handlebars.registerHelper('concat', function() {
     var outStr = '';
@@ -372,7 +374,8 @@ CONFIG.statusEffects = [
       ['d8', 'd10', 'd12'], // Level 3
       ['d10', 'd12', 'd16'], // Level 4
       ['d12', 'd16', 'd20'], // Level 5
-      ['d16', 'd20', 'd30']  // Level 6
+      ['d16', 'd20', 'd24']  // Level 6
+      ['d20', 'd24', 'd30']  // Level 7
     ];
 
     const nlevel = Number(level);
