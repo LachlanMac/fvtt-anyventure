@@ -31,6 +31,18 @@
           }
         },
         "resources": {
+          "pain":{
+            "value":0,
+            "threshold_modifier":0,
+            "modifier":0,
+            "calculated":0
+          },
+          "stress":{
+            "value":0,
+            "threshold_modifier":0,
+            "modifier":0,
+            "calculated":0
+          },
           "health": {
             "value": 0,
             "max": 0,
@@ -87,6 +99,12 @@
           "tremorsense": 0,
           "truesight": 0,
           "aethersight": 0
+        },
+        "substances":{
+          "alcohol":0,
+          "painkillers":0,
+          "depressants":0,
+          "euphorics":0
         },
         "immunity": {
           "afraid": false,
@@ -380,8 +398,8 @@
     },
     "npc": {
       "templates": ["base", "skills"],
-      "npcType": "foe",
-      "creatureTier": "foe",
+      "npcType": "standard",
+      "creatureTier": "standard",
       "challengeRating": 1,
       "modules": [],
       "actions": [],
@@ -411,7 +429,7 @@
     }
   },
   "Item": {
-    "types": ["module", "ancestry", "culture", "trait", "item", "spell", "song", "language", "action", "reaction", "passive", "injury"],
+    "types": ["module", "ancestry", "culture", "trait", "item", "spell", "song", "language", "action", "reaction", "passive", "injury", "training"],
     "templates": {
       "base": {
         "description": "",
@@ -594,6 +612,7 @@
       "stack_limit": 0,
       "holdable": false,
       "shield_category": "",
+      "substance": {},
       "consumable_category": "",
       "bonus_attack": 0,
       "primary": {
@@ -606,7 +625,8 @@
         "secondary_damage_type": "",
         "category": "slash",
         "min_range": 1,
-        "max_range": 1
+        "max_range": 1,
+        "energy": 0
       },
       "secondary": {
         "roll": "2d6",
@@ -618,7 +638,8 @@
         "secondary_damage_type": "",
         "category": "slash",
         "min_range": 1,
-        "max_range": 1
+        "max_range": 1,
+        "energy": 0
       },
       "encumbrance_penalty": 0,
       "health": {
@@ -651,7 +672,8 @@
       "talent": 0
     },
     "action": {
-      "templates": ["base", "ability", "attackData"]
+      "templates": ["base", "ability", "attackData"],
+      "abilityType": "action"
     },
     "reaction": {
       "templates": ["base", "ability", "attackData"]
@@ -663,6 +685,14 @@
       "templates": ["base"],
       "injuryType": "cosmetic_injury",
       "cause": "",
+      "recovery_check":0,
+      "recovery_skill":"resilience",
+      "pain":0,
+      "stress":0,
+      "data": ""
+    },
+     "training": {
+      "templates": ["base"],
       "data": ""
     }
   }

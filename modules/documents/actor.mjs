@@ -1,6 +1,7 @@
 // Baseline and overlays approach: parsing happens during Recalculate only.
 
 import { logError, logWarning, logInfo } from '../utils/logger.js';
+import { parseDataCode } from '../utils/data-parser.js';
 
 /**
  * Extend the base Actor document to implement the Anyventure system
@@ -99,6 +100,8 @@ export class AnyventureActor extends Actor {
     this._normalizeSkillTiers(systemData);
     // Calculate skill talents based on attributes
     this._calculateSkillTalents(systemData);
+    // Apply training skill bonuses from training items
+    this._calculateTrainingSkills(systemData);
     // Apply equipment bonuses (weapons, armor, etc.)
     this._applyEquipmentBonuses(systemData);
     // Apply injury effects
@@ -138,9 +141,9 @@ export class AnyventureActor extends Actor {
         movement: 0,
         attributes: {},
         basic: {},
-        weapon: {},
-        magic: {},
-        craft: {},
+        weapon: { bonuses: {}, talents: {} },
+        magic: { bonuses: {}, talents: {} },
+        craft: { bonuses: {}, talents: {} },
         mitigation: {},
         detections: {},
         immunities: [],
@@ -206,13 +209,12 @@ export class AnyventureActor extends Actor {
             }
           }
 
-          // Helper function to process skill bonuses
-          const processSkillBonuses = (skillData, bonusCategory) => {
+          // Helper function to process basic skill bonuses (only have bonuses, no talents)
+          const processBasicSkillBonuses = (skillData, bonusCategory) => {
             if (skillData && typeof skillData === 'object') {
               for (const [skill, data] of Object.entries(skillData)) {
                 if (data && typeof data === 'object') {
                   const addBonus = Number(data.add_bonus || 0);
-                  // For now, just use add_bonus (talents and set_bonus need different handling)
                   if (addBonus !== 0) {
                     bonusCategory[skill] = (bonusCategory[skill] || 0) + addBonus;
                   }
@@ -221,11 +223,30 @@ export class AnyventureActor extends Actor {
             }
           };
 
+          // Helper function to process weapon/magic/craft skill bonuses (have both bonuses and talents)
+          const processAdvancedSkillBonuses = (skillData, bonusCategory) => {
+            if (skillData && typeof skillData === 'object') {
+              for (const [skill, data] of Object.entries(skillData)) {
+                if (data && typeof data === 'object') {
+                  const addBonus = Number(data.add_bonus || 0);
+                  const addTalent = Number(data.add_talent || 0);
+
+                  if (addBonus !== 0) {
+                    bonusCategory.bonuses[skill] = (bonusCategory.bonuses[skill] || 0) + addBonus;
+                  }
+                  if (addTalent !== 0) {
+                    bonusCategory.talents[skill] = (bonusCategory.talents[skill] || 0) + addTalent;
+                  }
+                }
+              }
+            }
+          };
+
           // Process all skill categories
-          processSkillBonuses(itemSystem.basic, equipmentBonuses.basic);
-          processSkillBonuses(itemSystem.weapon, equipmentBonuses.weapon);
-          processSkillBonuses(itemSystem.magic, equipmentBonuses.magic);
-          processSkillBonuses(itemSystem.craft, equipmentBonuses.craft);
+          processBasicSkillBonuses(itemSystem.basic, equipmentBonuses.basic);
+          processAdvancedSkillBonuses(itemSystem.weapon, equipmentBonuses.weapon);
+          processAdvancedSkillBonuses(itemSystem.magic, equipmentBonuses.magic);
+          processAdvancedSkillBonuses(itemSystem.craft, equipmentBonuses.craft);
 
           // Mitigation bonuses (flat numeric values)
           if (itemSystem.mitigation && typeof itemSystem.mitigation === 'object') {
@@ -342,9 +363,14 @@ export class AnyventureActor extends Actor {
       // Apply bonuses to all categories
       applyBonuses(equipmentBonuses.attributes, systemData.attributes, systemData._base.attributes, 'Attribute');
       applyBonuses(equipmentBonuses.basic, systemData.basic, systemData._base.basic, 'Basic skill');
-      applyBonuses(equipmentBonuses.weapon, systemData.weapon, systemData._base.weapon, 'Weapon skill');
-      applyBonuses(equipmentBonuses.magic, systemData.magic, systemData._base.magic, 'Magic skill');
-      applyBonuses(equipmentBonuses.craft, systemData.craft, systemData._base.craft, 'Craft skill');
+
+      // Apply weapon/magic/craft bonuses (both skill bonuses and talent bonuses)
+      applyBonuses(equipmentBonuses.weapon.bonuses, systemData.weapon, systemData._base.weapon, 'Weapon skill', 'value');
+      applyBonuses(equipmentBonuses.weapon.talents, systemData.weapon, systemData._base.weapon, 'Weapon skill', 'talent');
+      applyBonuses(equipmentBonuses.magic.bonuses, systemData.magic, systemData._base.magic, 'Magic skill', 'value');
+      applyBonuses(equipmentBonuses.magic.talents, systemData.magic, systemData._base.magic, 'Magic skill', 'talent');
+      applyBonuses(equipmentBonuses.craft.bonuses, systemData.crafting, systemData._base.crafting, 'Craft skill', 'value');
+      applyBonuses(equipmentBonuses.craft.talents, systemData.crafting, systemData._base.crafting, 'Craft skill', 'talent');
 
       // Mitigation
       for (const [type, bonus] of Object.entries(equipmentBonuses.mitigation)) {
@@ -357,12 +383,98 @@ export class AnyventureActor extends Actor {
         }
       }
 
+      // Apply conditional bonuses based on equipped gear
+      this._applyConditionalBonuses(systemData, equipment);
+
       // Store equipment bonuses for reference
       systemData._equipmentBonuses = equipmentBonuses;
       systemData.encumbrance_penalty = encumbrancePenalty;
 
     } catch (err) {
       logWarning('Equipment parsing encountered an error:', err);
+    }
+  }
+
+  /**
+   * Apply conditional bonuses from modules based on equipped gear
+   * @param {Object} systemData - The actor's system data
+   * @param {Object} equipment - The equipment slots
+   * @private
+   */
+  _applyConditionalBonuses(systemData, equipment) {
+    if (!systemData.conditionals) {
+      return;
+    }
+
+    // Check for shields (any type)
+    const hasShield = ['offhand', 'mainhand'].some(slot => {
+      const item = equipment[slot]?.item;
+      return item?.system?.itemType === 'shield';
+    });
+
+    // Check for light shield specifically
+    const hasLightShield = ['offhand', 'mainhand'].some(slot => {
+      const item = equipment[slot]?.item;
+      return item?.system?.itemType === 'shield' && item?.system?.shieldType === 'light';
+    });
+
+    // Check for heavy shield specifically
+    const hasHeavyShield = ['offhand', 'mainhand'].some(slot => {
+      const item = equipment[slot]?.item;
+      return item?.system?.itemType === 'shield' && item?.system?.shieldType === 'heavy';
+    });
+
+    // Apply shield-based conditional bonuses
+    const conditionalGroups = [
+      { condition: hasShield, key: 'anyShield' },
+      { condition: hasLightShield, key: 'lightShield' },
+      { condition: hasHeavyShield, key: 'heavyShield' }
+    ];
+
+    for (const { condition, key } of conditionalGroups) {
+      if (condition && Array.isArray(systemData.conditionals[key])) {
+        for (const effect of systemData.conditionals[key]) {
+          this._applyConditionalEffect(effect, systemData);
+        }
+      }
+    }
+
+    // TODO: Add armor-based conditionals (noArmor, lightArmor, heavyArmor, anyArmor)
+  }
+
+  /**
+   * Apply a single conditional effect to the actor
+   * @param {Object} effect - The conditional effect object {type, subtype, value}
+   * @param {Object} systemData - The actor's system data
+   * @private
+   */
+  _applyConditionalEffect(effect, systemData) {
+    if (!effect || !effect.type) return;
+
+    const { type, subtype, value } = effect;
+
+    switch (type) {
+      case 'skill':
+        // Apply skill bonus (basic skills like deflection)
+        // NOTE: Use CURRENT value, not base, because equipment bonuses were already applied
+        if (systemData.basic?.[subtype] !== undefined) {
+          const currentValue = systemData.basic[subtype].value;
+          const newValue = currentValue + value;
+          systemData.basic[subtype].value = newValue;
+        }
+        break;
+
+      case 'mitigation':
+        // Apply mitigation bonus
+        // NOTE: Use CURRENT value, not base, because equipment bonuses were already applied
+        if (systemData.mitigation?.[subtype] !== undefined) {
+          const currentValue = systemData.mitigation[subtype];
+          const newValue = currentValue + value;
+          systemData.mitigation[subtype] = newValue;
+        }
+        break;
+
+      // Add more cases as needed for other effect types
     }
   }
 
@@ -375,8 +487,10 @@ export class AnyventureActor extends Actor {
       // Get all injury items on the character
       const injuries = this.items.filter(item => item.type === 'injury');
 
-      // Count cosmetic injuries
+      // Count cosmetic injuries and calculate total pain/stress
       let cosmeticInjuryCount = 0;
+      let totalPain = 0;
+      let totalStress = 0;
 
       // Loop through all injuries
       for (const injury of injuries) {
@@ -387,8 +501,71 @@ export class AnyventureActor extends Actor {
           cosmeticInjuryCount++;
         }
 
-        // TODO: Add other injury type effects here as needed
-        // For now, we only handle cosmetic injuries for Badge of Honor
+        // Add pain from this injury
+        const painValue = Number(injury.system?.pain || 0);
+        if (!Number.isNaN(painValue)) {
+          totalPain += painValue;
+        }
+
+        // Add stress from this injury
+        const stressValue = Number(injury.system?.stress || 0);
+        if (!Number.isNaN(stressValue)) {
+          totalStress += stressValue;
+        }
+      }
+
+      // Update pain resource value
+      if (systemData.resources?.pain) {
+        // Set pain value from injuries
+        systemData.resources.pain.value = totalPain;
+
+        // Add pain from health thresholds
+        let healthPainBonus = 0;
+        const currentHealth = systemData.resources.health?.value || 0;
+        const maxHealth = systemData.resources.health?.max || 1;
+
+        if (currentHealth < 5) {
+          healthPainBonus = 4; // Below 5 health: +4 pain
+        } else if (currentHealth < (maxHealth / 2)) {
+          healthPainBonus = 2; // Below half health: +2 pain
+        }
+
+        // Get the pain modifier (for testing/manual adjustment)
+        const painModifier = Number(systemData.resources.pain.modifier) || 0;
+
+        // Calculate final pain = value (from injuries) + health threshold bonus + modifier
+        const calculatedPain = totalPain + healthPainBonus + painModifier;
+        systemData.resources.pain.calculated = Math.max(0, calculatedPain); // Don't go negative
+
+        // Don't create active effects for now - just display the value
+        // this._updatePainCondition(calculatedPain, systemData.resources.pain.threshold_modifier || 0);
+      }
+
+      // Update stress resource value (similar to pain)
+      if (systemData.resources?.stress) {
+        // Set stress value from injuries
+        systemData.resources.stress.value = totalStress;
+
+        // Add stress from resolve thresholds
+        let resolveStressBonus = 0;
+        const currentResolve = systemData.resources.resolve?.value || 0;
+        const maxResolve = systemData.resources.resolve?.max || 1;
+
+        if (currentResolve < 3) {
+          resolveStressBonus = 4; // Below 3 resolve: +4 stress
+        } else if (currentResolve < (maxResolve / 2)) {
+          resolveStressBonus = 2; // Below half resolve: +2 stress
+        }
+
+        // Get the stress modifier (for testing/manual adjustment)
+        const stressModifier = Number(systemData.resources.stress.modifier) || 0;
+
+        // Calculate final stress = value (from sources) + resolve threshold bonus + modifier
+        const calculatedStress = totalStress + resolveStressBonus + stressModifier;
+        systemData.resources.stress.calculated = Math.max(0, calculatedStress); // Don't go negative
+
+        // Don't create active effects for now - just display the value
+        // this._updateStressCondition(calculatedStress, systemData.resources.stress.threshold_modifier || 0);
       }
 
       // Check for Badge of Honor trait and apply morale bonus
@@ -407,6 +584,132 @@ export class AnyventureActor extends Actor {
 
     } catch (err) {
       logWarning('Injury parsing encountered an error:', err);
+    }
+  }
+
+  /**
+   * Calculate penalty dice from pain
+   * Pain Thresholds (adjusted by threshold_modifier):
+   * - 0: No effect
+   * - 1-5: Mild Pain (no effect)
+   * - 6-10: Moderate Pain (+1 penalty die)
+   * - 11-15: Severe Pain (+2 penalty dice)
+   * - 16+: Critical Pain (+2 penalty dice)
+   * @returns {number} Number of penalty dice to apply
+   */
+  calculatePainPenaltyDice() {
+    const painValue = this.system.resources?.pain?.calculated || 0;
+    const thresholdModifier = Number(this.system.resources?.pain?.threshold_modifier) || 0;
+
+    // Apply threshold modifier to each tier's minimum value
+    const moderateThreshold = 6 + thresholdModifier;
+    const severeThreshold = 11 + thresholdModifier;
+    const criticalThreshold = 16 + thresholdModifier;
+
+    if (painValue >= criticalThreshold) return 2; // Critical Pain
+    if (painValue >= severeThreshold) return 2; // Severe Pain
+    if (painValue >= moderateThreshold) return 1;  // Moderate Pain
+    return 0; // Mild or no pain
+  }
+
+  /**
+   * Calculate penalty dice from stress
+   * Stress Thresholds (adjusted by threshold_modifier):
+   * - 0: No effect
+   * - 1-5: Mild Stress (no effect)
+   * - 6-10: Moderate Stress (+1 penalty die)
+   * - 11-15: Severe Stress (+2 penalty dice)
+   * - 16+: Critical Stress (+2 penalty dice)
+   * @returns {number} Number of penalty dice to apply
+   */
+  calculateStressPenaltyDice() {
+    const stressValue = this.system.resources?.stress?.calculated || 0;
+    const thresholdModifier = Number(this.system.resources?.stress?.threshold_modifier) || 0;
+
+    // Apply threshold modifier to each tier's minimum value
+    const moderateThreshold = 6 + thresholdModifier;
+    const severeThreshold = 11 + thresholdModifier;
+    const criticalThreshold = 16 + thresholdModifier;
+
+    if (stressValue >= criticalThreshold) return 2; // Critical Stress
+    if (stressValue >= severeThreshold) return 2; // Severe Stress
+    if (stressValue >= moderateThreshold) return 1;  // Moderate Stress
+    return 0; // Mild or no stress
+  }
+
+  /**
+   * Calculate pain tier and apply appropriate pain condition
+   * @param {number} totalPain - Total pain value from all injuries
+   * @param {number} thresholdModifier - Threshold modifier from character
+   * @private
+   */
+  async _updatePainCondition(totalPain, thresholdModifier = 0) {
+    try {
+      // Pain tier thresholds (adjusted by threshold_modifier)
+      const modifier = Number(thresholdModifier) || 0;
+
+      // Base thresholds: 1-2 Minor, 3-4 Moderate, 5-7 Severe, 8+ Extreme
+      // Threshold modifier shifts these ranges up
+      const minorMin = 1 + modifier;
+      const minorMax = 2 + modifier;
+      const moderateMin = 3 + modifier;
+      const moderateMax = 4 + modifier;
+      const severeMin = 5 + modifier;
+      const severeMax = 7 + modifier;
+      const extremeMin = 8 + modifier;
+
+      // Determine which pain tier we're in
+      let targetPainCondition = null;
+      if (totalPain >= extremeMin) {
+        targetPainCondition = 'pain_4'; // Extreme Pain
+      } else if (totalPain >= severeMin && totalPain <= severeMax) {
+        targetPainCondition = 'pain_3'; // Severe Pain
+      } else if (totalPain >= moderateMin && totalPain <= moderateMax) {
+        targetPainCondition = 'pain_2'; // Moderate Pain
+      } else if (totalPain >= minorMin && totalPain <= minorMax) {
+        targetPainCondition = 'pain_1'; // Minor Pain
+      }
+
+      // Get current pain conditions
+      const painConditions = ['pain_1', 'pain_2', 'pain_3', 'pain_4'];
+      const currentPainEffects = this.effects.filter(e =>
+        painConditions.some(condition => e.statuses?.has(condition))
+      );
+
+      // Remove all pain conditions if no pain or below threshold
+      if (!targetPainCondition) {
+        for (const effect of currentPainEffects) {
+          await effect.delete();
+        }
+        return;
+      }
+
+      // Check if we already have the correct pain condition
+      const hasCorrectCondition = currentPainEffects.some(e => e.statuses?.has(targetPainCondition));
+
+      if (!hasCorrectCondition) {
+        // Remove all existing pain conditions
+        for (const effect of currentPainEffects) {
+          await effect.delete();
+        }
+
+        // Add the new pain condition
+        const painConfig = CONFIG.statusEffects.find(s => s.id === targetPainCondition);
+        if (painConfig) {
+          await this.createEmbeddedDocuments('ActiveEffect', [{
+            label: painConfig.label,
+            icon: painConfig.img,
+            statuses: [targetPainCondition],
+            flags: {
+              core: {
+                statusId: targetPainCondition
+              }
+            }
+          }]);
+        }
+      }
+    } catch (err) {
+      logWarning('Pain condition update encountered an error:', err);
     }
   }
 
@@ -459,6 +762,109 @@ export class AnyventureActor extends Actor {
           skill.talent = systemData.attributes[skill.attribute].value;
         }
       }
+    }
+  }
+
+  /**
+   * Calculate training skill bonuses from training items
+   * Runs after _calculateSkillTalents to apply training bonuses on top of base values
+   * @param {Object} systemData - The actor's system data
+   * @private
+   */
+  _calculateTrainingSkills(systemData) {
+    try {
+      // Get all training items on the character
+      const trainingItems = this.items.filter(item => item.type === 'training');
+
+      if (trainingItems.length === 0) {
+        return; // No training items to process
+      }
+
+      // Process each training item
+      for (const trainingItem of trainingItems) {
+        const dataString = trainingItem.system?.data;
+
+        if (!dataString || typeof dataString !== 'string' || dataString.trim() === '') {
+          continue; // Skip empty data strings
+        }
+
+        // Parse the data string into a delta
+        const delta = parseDataCode(dataString);
+
+        // Apply basic skill bonuses
+        Object.entries(delta.skills || {}).forEach(([skill, value]) => {
+          if (value !== 0 && systemData.basic?.[skill] !== undefined) {
+            systemData.basic[skill].value += value;
+          }
+        });
+
+        // Apply basic skill tier modifiers
+        Object.entries(delta.skillTierModifiers || {}).forEach(([skill, modifier]) => {
+          if (modifier !== 0 && systemData.basic?.[skill] !== undefined) {
+            if (!systemData.basic[skill].tier) {
+              systemData.basic[skill].tier = 0;
+            }
+            systemData.basic[skill].tier += modifier;
+          }
+        });
+
+        // Apply weapon skill bonuses
+        Object.entries(delta.weaponSkills || {}).forEach(([weaponSkill, data]) => {
+          if (systemData.weapon?.[weaponSkill] !== undefined) {
+            if (data.skill !== 0) {
+              systemData.weapon[weaponSkill].value += data.skill;
+            }
+            if (data.talent !== 0) {
+              systemData.weapon[weaponSkill].talent += data.talent;
+            }
+            if (data.tier !== 0) {
+              if (!systemData.weapon[weaponSkill].tier) {
+                systemData.weapon[weaponSkill].tier = 0;
+              }
+              systemData.weapon[weaponSkill].tier += data.tier;
+            }
+          }
+        });
+
+        // Apply magic skill bonuses
+        Object.entries(delta.magicSkills || {}).forEach(([magicSkill, data]) => {
+          if (systemData.magic?.[magicSkill] !== undefined) {
+            if (data.skill !== 0) {
+              systemData.magic[magicSkill].value += data.skill;
+            }
+            if (data.talent !== 0) {
+              systemData.magic[magicSkill].talent += data.talent;
+            }
+            if (data.tier !== 0) {
+              if (!systemData.magic[magicSkill].tier) {
+                systemData.magic[magicSkill].tier = 0;
+              }
+              systemData.magic[magicSkill].tier += data.tier;
+            }
+          }
+        });
+
+        // Apply crafting skill bonuses
+        Object.entries(delta.craftingSkills || {}).forEach(([craftSkill, data]) => {
+          if (systemData.crafting?.[craftSkill] !== undefined) {
+            if (data.skill !== 0) {
+              systemData.crafting[craftSkill].value += data.skill;
+            }
+            if (data.talent !== 0) {
+              systemData.crafting[craftSkill].talent += data.talent;
+            }
+            if (data.tier !== 0) {
+              if (!systemData.crafting[craftSkill].tier) {
+                systemData.crafting[craftSkill].tier = 0;
+              }
+              systemData.crafting[craftSkill].tier += data.tier;
+            }
+          }
+        });
+      }
+
+    } catch (err) {
+      logWarning('Training skills parsing encountered an error:', err);
     }
   }
 
@@ -690,11 +1096,11 @@ export class AnyventureActor extends Actor {
       ['d8', 'd10', 'd12'], // Level 3
       ['d10', 'd12', 'd16'], // Level 4
       ['d12', 'd16', 'd20'], // Level 5
-      ['d16', 'd20', 'd24']  // Level 6
+      ['d16', 'd20', 'd24'], // Level 6
       ['d20', 'd24', 'd30']  // Level 7
     ];
 
-    const skillLevel = Math.min(Math.max(skill.value || 0, 0), 6);
+    const skillLevel = Math.min(Math.max(skill.value || 0, 0), 7);
     const tierModifier = Number(skill.tier) || 0;
     const upgradeLevel = Math.min(Math.max(tierModifier + 1, 0), 2); // Convert -1,0,1 to 0,1,2
     const diceType = diceTable[skillLevel][upgradeLevel];
@@ -703,6 +1109,20 @@ export class AnyventureActor extends Actor {
     // Calculate condition-based penalties
     let initialPenaltyDice = 0;
     let conditionNotes = [];
+
+    // Add pain/stress penalties (applies to ALL rolls)
+    const painPenalty = this.calculatePainPenaltyDice();
+    const stressPenalty = this.calculateStressPenaltyDice();
+    initialPenaltyDice += painPenalty + stressPenalty;
+
+    if (painPenalty > 0) {
+      const painLevel = this.system.resources?.pain?.calculated || 0;
+      conditionNotes.push(`Pain (${painLevel}): -${painPenalty} ${painPenalty === 1 ? 'die' : 'dice'}`);
+    }
+    if (stressPenalty > 0) {
+      const stressLevel = this.system.resources?.stress?.calculated || 0;
+      conditionNotes.push(`Stress (${stressLevel}): -${stressPenalty} ${stressPenalty === 1 ? 'die' : 'dice'}`);
+    }
 
     // Check for conditions affecting defense skills (evasion/deflection)
     if (skillName.toLowerCase() === "evasion" || skillName.toLowerCase() === "deflection") {
@@ -798,10 +1218,12 @@ export class AnyventureActor extends Actor {
       'd10',  // Level 3
       'd12',  // Level 4
       'd16',  // Level 5
-      'd20'   // Level 6
+      'd20',  // Level 6
+      'd24',  // Level 7
+      'd30'   // Level 8
     ];
 
-    const skillLevel = Math.min(Math.max(coordination.value || 0, 0), 6);
+    const skillLevel = Math.min(Math.max(coordination.value || 0, 0), 8);
     const diceType = diceTable[skillLevel] || 'd4';
     const talent = Math.max(finesse.value || 1, 1);
 
@@ -843,9 +1265,6 @@ export class AnyventureActor extends Actor {
     const coordination = this.system.basic?.coordination;
     const finesse = this.system.attributes?.finesse;
 
-    console.log('[Anyventure] Coordination:', coordination);
-    console.log('[Anyventure] Finesse:', finesse);
-
     if (!coordination || !finesse) {
       ui.notifications.warn('Cannot roll initiative: coordination skill or finesse attribute not found');
       // Fall back to default d20 roll
@@ -862,8 +1281,9 @@ export class AnyventureActor extends Actor {
       'd10',  // Level 3
       'd12',  // Level 4
       'd16',  // Level 5
-      'd20',   // Level 6
-      'd24'    // Level 7
+      'd20',  // Level 6
+      'd24',  // Level 7
+      'd30'   // Level 8
     ];
 
     // Handle dice tier modifier if needed (upgrade/downgrade)
@@ -874,11 +1294,11 @@ export class AnyventureActor extends Actor {
       ['d8', 'd10', 'd12'], // Level 3
       ['d10', 'd12', 'd16'], // Level 4
       ['d12', 'd16', 'd20'], // Level 5
-      ['d16', 'd20', 'd24']  // Level 6
+      ['d16', 'd20', 'd24'], // Level 6
       ['d20', 'd24', 'd30']  // Level 7
     ];
 
-    const skillLevel = Math.min(Math.max(coordination.value || 0, 0), 6);
+    const skillLevel = Math.min(Math.max(coordination.value || 0, 0), 7);
     const tierModifier = Number(coordination.tier) || 0;
 
     let diceType;
@@ -899,8 +1319,6 @@ export class AnyventureActor extends Actor {
     } else {
       formula = `1${diceType}`;
     }
-
-    console.log(`[Anyventure] Initiative formula: ${formula} (${talent} dice of ${diceType}${talent > 1 ? ', keep highest' : ''})`);
 
     try {
       // Create and evaluate the roll
@@ -940,7 +1358,15 @@ export class AnyventureActor extends Actor {
       const combat = game.combat;
       if (!combat) return roll;
 
-      const combatant = combat.combatants.find(c => c.actor?.id === this.id);
+      // Use the combatantId from options if provided, otherwise find by actor ID
+      let combatant;
+      if (options.combatantId) {
+        combatant = combat.combatants.get(options.combatantId);
+      } else {
+        // Fallback: find by actor ID (may be incorrect for duplicate actors)
+        combatant = combat.combatants.find(c => c.actor?.id === this.id);
+      }
+
       if (!combatant) return roll;
 
       // Update the combatant's initiative

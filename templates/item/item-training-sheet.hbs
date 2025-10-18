@@ -1,0 +1,45 @@
+<form class="{{cssClass}} {{item.type}} flexcol" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  {{> "systems/anyventure/templates/partials/items/item-header.hbs"}}
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item active" data-tab="details">Details</a>
+    <a class="item" data-tab="description">Description</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    {{!-- Details Tab --}}
+    <div class="tab active" data-group="primary" data-tab="details">
+      <div class="training-details">
+
+        <div class="form-group">
+          <label>Training Data String</label>
+          <input type="text" name="system.data" value="{{system.data}}" placeholder="e.g., SSA=1:SSE=2"/>
+          <p class="hint">Use data codes to define training bonuses (e.g., SSA=1 for Fitness skill +1)</p>
+        </div>
+
+        <div class="info-box">
+          <h4>Common Data Codes</h4>
+          <ul>
+            <li><strong>Basic Skills:</strong> SSA-SST (e.g., SSA=1 for Fitness +1)</li>
+            <li><strong>Weapon Skills:</strong> WS1-WS6 (e.g., WS3=1 for Simple Melee +1)</li>
+            <li><strong>Magic Skills:</strong> YS1-YS5 (e.g., YS2=1 for Primal +1)</li>
+            <li><strong>Crafting Skills:</strong> CS1-CS6 (e.g., CS3=1 for Alchemy +1)</li>
+            <li><strong>Skill Tier:</strong> Add X or Y (e.g., SSA=X for Fitness dice upgrade)</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    {{!-- Description Tab --}}
+    <div class="tab" data-group="primary" data-tab="description">
+      {{> "systems/anyventure/templates/partials/items/description.hbs"}}
+    </div>
+
+  </section>
+</form>

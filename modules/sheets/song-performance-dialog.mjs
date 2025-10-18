@@ -198,10 +198,21 @@ export class AnyventureSongPerformanceDialog extends foundry.applications.api.Di
     if (die?.results) diceResults.push(...die.results.map(r => r.result));
     diceResults.sort((a, b) => b - a);
 
+    // Get targeted tokens
+    const targets = Array.from(game.user.targets);
+    let targetInfo = '';
+    if (targets.length > 0) {
+      const targetNames = targets.map(t => t.document.name).join(', ');
+      targetInfo = `<div class="song-targets" style="text-align: center;"><strong>Target${targets.length > 1 ? 's' : ''}:</strong> ${targetNames}</div>`;
+    }
+
     // Build chat card content using ability card styling
     let flavorText = `<div class="anyventure-ability-card">`;
     const harmonyClass = mode === 'harmony' ? ' harmony' : '';
     flavorText += `<div class="ability-name${harmonyClass}"><strong>${this.songName}</strong> ${mode === 'harmony' ? '(Harmony)' : ''}</div>`;
+
+    // Target info
+    flavorText += targetInfo;
 
     // Energy line
     if (this.energyCost > 0) {

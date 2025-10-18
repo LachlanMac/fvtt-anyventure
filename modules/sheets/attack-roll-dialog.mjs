@@ -238,13 +238,24 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
 
     const keptResultsSorted = [...keptResults].sort((a, b) => b - a);
 
+    // Get targeted tokens
+    const targets = Array.from(game.user.targets);
+    let targetInfo = '';
+    if (targets.length > 0) {
+      const targetNames = targets.map(t => t.document.name).join(', ');
+      targetInfo = `<div class="attack-targets" style="text-align: center;"><strong>Target${targets.length > 1 ? 's' : ''}:</strong> ${targetNames}</div>`;
+    }
+
     // Build structured flavor text with proper hierarchy
     let flavorText = `<div class="anyventure-attack-card">`;
 
     // 1. Weapon name (most important - bold and larger)
     flavorText += `<div class="weapon-name"><strong>${this.weaponName}</strong></div>`;
 
-    // 2. Energy cost line (below name, above results)
+    // 2. Target info (if any)
+    flavorText += targetInfo;
+
+    // 3. Energy cost line (below name/targets, above results)
     if (this.attackData.energy !== undefined) {
       const e = Number(this.attackData.energy) || 0;
       flavorText += `<div class="energy-cost">Energy: `;
@@ -341,21 +352,43 @@ export class AnyventureAttackRollDialog extends foundry.applications.api.DialogV
         const crits = allResultsSorted.filter(result => critThreshold && result >= critThreshold);
 
         if (hits.length > 0) {
+          // Primary damage calculation
           // First hit does main damage, others do extra damage
-          let totalDamage = mainDamage;
+          let totalPrimaryDamage = mainDamage;
           if (hits.length > 1) {
-            totalDamage += (hits.length - 1) * extraDamage;
+            totalPrimaryDamage += (hits.length - 1) * extraDamage;
           }
 
           // Add extra damage for crits
-          totalDamage += crits.length * extraDamage;
+          totalPrimaryDamage += crits.length * extraDamage;
 
-          // Get damage type and CSS class
+          // Get primary damage type and CSS class
           const damageType = this.attackData.damageType?.text || this.attackData.damageType || 'physical';
           const damageTypeLower = damageType.toLowerCase();
           const damageClass = `damage-type-${damageTypeLower}`;
 
-          damageOutput = `<br><span class="damage-type ${damageClass}">${totalDamage} ${damageType}</span>`;
+          damageOutput = `<br><span class="damage-type ${damageClass}">${totalPrimaryDamage} ${damageType}</span>`;
+
+          // Secondary damage calculation (if exists)
+          if (this.attackData.secondaryDamage !== undefined && this.attackData.secondaryDamage > 0) {
+            const secondaryMain = Number(this.attackData.secondaryDamage) || 0;
+            const secondaryExtra = Number(this.attackData.secondaryDamageExtra) || 0;
+
+            // Same calculation for secondary
+            let totalSecondaryDamage = secondaryMain;
+            if (hits.length > 1) {
+              totalSecondaryDamage += (hits.length - 1) * secondaryExtra;
+            }
+
+            // Add extra damage for crits
+            totalSecondaryDamage += crits.length * secondaryExtra;
+
+            const secondaryType = this.attackData.secondaryDamageType?.text || this.attackData.secondaryDamageType || 'physical';
+            const secondaryTypeLower = secondaryType.toLowerCase();
+            const secondaryClass = `damage-type-${secondaryTypeLower}`;
+
+            damageOutput += `<br><span class="damage-type ${secondaryClass}">${totalSecondaryDamage} ${secondaryType}</span>`;
+          }
         }
       }
 

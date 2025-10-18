@@ -164,10 +164,17 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Prepare conditions for display
     try {
       context.conditionCards = this._prepareConditions();
-      console.log("DEBUG: conditionCards in context:", context.conditionCards);
     } catch (error) {
       console.warn("Error preparing conditions:", error);
       context.conditionCards = [];
+    }
+
+    // Prepare injuries for display
+    try {
+      context.injuryCards = this._prepareInjuries();
+    } catch (error) {
+      console.warn("Error preparing injuries:", error);
+      context.injuryCards = [];
     }
 
     return context;
@@ -296,9 +303,11 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const allActions = context.items.filter(i => i.type === 'action');
     const reactions = context.items.filter(i => i.type === 'reaction');
 
-    // Separate attack actions from regular actions
-    const attackActions = allActions.filter(i => i.system.abilityType === 'attack');
-    const regularActions = allActions.filter(i => i.system.abilityType !== 'attack');
+    // Separate simple_attack actions (basic attacks) from regular actions (including 'attack' type)
+    // simple_attack -> Attacks section
+    // attack -> Actions section (along with all other action types)
+    const attackActions = allActions.filter(i => i.system.abilityType === 'simple_attack');
+    const regularActions = allActions.filter(i => i.system.abilityType !== 'simple_attack');
 
     // Sort by name for better organization
     const sortByName = (a, b) => a.name.localeCompare(b.name);
@@ -343,6 +352,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const tools = [];
     const runes = [];
     const injuries = [];
+    const trainingItems = [];
 
     // Get list of equipped item IDs to filter out from inventory
     const equippedItemIds = this._getEquippedItemIds(context);
@@ -450,6 +460,10 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         // Injuries are always included regardless of equipped status - they represent temporary conditions
         injuries.push(i);
       }
+      else if (i.type === 'training') {
+        // Training items are always included
+        trainingItems.push(i);
+      }
       else {
         // Fallback to general gear for unknown types
         gear.push(i);
@@ -473,6 +487,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     context.culture = culture;
     context.personality = personality;
     context.trait = trait;
+    context.trainingItems = trainingItems;
     context.weapons = weapons;
     context.armors = armors;
     context.shields = shields;
@@ -557,12 +572,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Safety check for actor effects
     if (!this.actor?.effects) {
-      console.log("DEBUG: No actor effects found");
       return conditions;
     }
-
-    console.log("DEBUG: Actor effects:", this.actor.effects);
-    console.log("DEBUG: Number of effects:", this.actor.effects.size);
 
     // Get condition descriptions lookup
     const conditionDescriptions = {
@@ -586,20 +597,12 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     for (const effect of this.actor.effects) {
       try {
-        console.log("DEBUG: Processing effect:", effect);
-        console.log("DEBUG: Effect statuses:", effect.statuses);
-        console.log("DEBUG: Effect flags:", effect.flags);
-
         if (!effect || !effect.statuses || effect.statuses.size === 0) {
-          console.log("DEBUG: Skipping effect - no statuses");
           continue; // Skip effects without status
         }
 
         const statusId = effect.statuses.first();
         const flags = (effect.flags && effect.flags.anyventure) || {};
-
-        console.log("DEBUG: Status ID:", statusId);
-        console.log("DEBUG: Anyventure flags:", flags);
 
         // Use status ID for name if available, otherwise use effect label
         const conditionName = statusId ? statusId.charAt(0).toUpperCase() + statusId.slice(1) : (effect.label || "Unknown Condition");
@@ -618,7 +621,6 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
           isEditable: true
         };
 
-        console.log("DEBUG: Created condition data:", conditionData);
         conditions.push(conditionData);
       } catch (error) {
         console.warn("Error processing condition effect:", effect, error);
@@ -626,8 +628,48 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       }
     }
 
-    console.log("DEBUG: Final conditions array:", conditions);
     return conditions;
+  }
+
+  /**
+   * Prepare injury cards for display in the Injuries tab
+   * @returns {Array} Array of injury cards with recovery check data
+   * @private
+   */
+  _prepareInjuries() {
+    const injuries = [];
+
+    // Get all injury items from the actor
+    const injuryItems = this.actor.items.filter(item => item.type === 'injury');
+
+    for (const injury of injuryItems) {
+      try {
+        const injuryData = injury.system;
+        const recoveryCheck = Number(injuryData.recovery_check) || 0;
+        const recoverySkill = injuryData.recovery_skill || 'resilience';
+
+        const injuryCard = {
+          id: injury.id,
+          name: injury.name,
+          icon: injury.img || "icons/svg/blood.svg",
+          injuryType: injuryData.injuryType || "cosmetic_injury",
+          cause: injuryData.cause || "",
+          pain: Number(injuryData.pain) || 0,
+          stress: Number(injuryData.stress) || 0,
+          recoveryCheck: recoveryCheck,
+          recoverySkill: recoverySkill,
+          canRoll: recoveryCheck > 0,
+          isEditable: true
+        };
+
+        injuries.push(injuryCard);
+      } catch (error) {
+        console.warn("Error processing injury item:", injury, error);
+        continue;
+      }
+    }
+
+    return injuries;
   }
 
   /**
@@ -656,7 +698,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
           if (!attackData) return null;
           // Add weapon slot info for dual wield calculations
           const attackDataWithSlot = { ...attackData, weaponSlot: slotName };
-          const diceInfo = this._calculateAttackDice({ system: { weapon_category: weaponCategory, weapon_data: wdata } }, attackDataWithSlot);
+          // Pass the actual weapon object so bonus_attack is available
+          const diceInfo = this._calculateAttackDice(weapon, attackDataWithSlot);
 
           // Calculate modified ranges with modifiers
           const baseMinRange = Number(attackData.min_range ?? 0);
@@ -667,7 +710,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
             weaponName: slotName === 'offhand' ? `Offhand ${weapon.name}` : weapon.name,
             weaponIcon: weapon.img || 'icons/weapons/swords/sword-broad-steel.webp',
             weaponCategory,
-            attackType: this._getAttackType({ system: { weapon_category: weaponCategory, weapon_data: wdata } }, attackData),
+            attackType: this._getAttackType(weapon, attackData),
             category: formatCategory(attackData.category || 'slash'),
             rawCategory: attackData.category || 'slash',
             damage: Number(attackData.damage ?? 0),
@@ -686,7 +729,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
             baseDice: diceInfo.baseDice,
             inherentPenalty: diceInfo.inherentPenalty,
             slotName,
-            weaponSlot: slotName
+            weaponSlot: slotName,
+            weaponItem: weapon  // Store reference to actual weapon for rolling
           };
         };
 
@@ -715,7 +759,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         // Helper to build an attack entry from provided attack data
         const buildWearableAttack = (attackData) => {
           if (!attackData) return null;
-          const diceInfo = this._calculateAttackDice({ system: { weapon_category: weaponCategory, weapon_data: {} } }, attackData);
+          // Pass the actual item object so bonus_attack is available
+          const diceInfo = this._calculateAttackDice(item, attackData);
 
           // Calculate modified ranges with modifiers
           const baseMinRange = Number(attackData.min_range ?? 0);
@@ -726,7 +771,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
             weaponName: item.name,
             weaponIcon: item.img || 'icons/equipment/hand/gauntlet-armored-steel.webp',
             weaponCategory,
-            attackType: this._getAttackType({ system: { weapon_category: weaponCategory, weapon_data: {} } }, attackData),
+            attackType: this._getAttackType(item, attackData),
             category: formatCategory(attackData.category || 'blunt'),
             rawCategory: attackData.category || 'blunt',
             damage: Number(attackData.damage ?? 0),
@@ -745,7 +790,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
             baseDice: diceInfo.baseDice,
             inherentPenalty: diceInfo.inherentPenalty,
             slotName,
-            weaponSlot: slotName
+            weaponSlot: slotName,
+            weaponItem: item  // Store reference to actual item for rolling
           };
         };
 
@@ -772,7 +818,10 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     };
 
     // Create fake weapon object for brawling attack dice calculation
-    const brawlingWeapon = { system: { weapon_category: 'brawling', weapon_data: { category: 'brawling' } } };
+    const brawlingWeapon = {
+      name: 'Brawling',
+      system: { weapon_category: 'brawling', weapon_data: { category: 'brawling' } }
+    };
 
     const brawlingDiceInfo = this._calculateAttackDice(brawlingWeapon, brawlingAttackData);
 
@@ -877,10 +926,13 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       'mysticism': 'mysticism'
     };
 
-    if (magicCategories[attackData.category]) {
+    // Use rawCategory if available (unformatted), otherwise use category
+    const categoryToCheck = (attackData?.rawCategory || attackData?.category || '').toLowerCase();
+
+    if (magicCategories[categoryToCheck]) {
       // Magic attack - use magic skill
       skillCategory = 'magic';
-      skillKey = magicCategories[attackData.category];
+      skillKey = magicCategories[categoryToCheck];
     } else {
       // Physical weapon attack - use weapon skill based on weapon category
       const weaponCategoryMap = {
@@ -900,6 +952,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const skill = this.actor.system[skillCategory]?.[skillKey] || { talent: 0, value: 0 };
     let talent = Number(skill.talent) || 0;
     const skillValue = skill.value || 0;
+
+    // Get bonus attack dice from the weapon itself
+    const bonusAttack = Number(weapon.system?.bonus_attack || 0);
 
     // Check if this is an offhand weapon attack
     const isOffhandAttack = attackData.weaponSlot === 'offhand';
@@ -922,17 +977,23 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       }
     }
 
-    // Determine dice type based on skill value (0=d4, 1=d6, 2=d8, 3=d10, 4=d12, 5=d16, 6=d20)
-    const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20'];
-    const diceType = diceTypes[Math.min(skillValue, 6)] || 'd4';
+    // Determine dice type based on skill value (0=d4, 1=d6, 2=d8, 3=d10, 4=d12, 5=d16, 6=d20, 7=d24, 8=d30)
+    const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20', 'd24', 'd30'];
+    const diceType = diceTypes[Math.min(skillValue, 8)] || 'd4';
 
-    const baseDice = Math.max(talent, 1);
+    // Base dice = talent + bonus attack dice from weapon
+    const baseDice = Math.max(talent + bonusAttack, 1);
     let totalPenalty = talent <= 0 ? 1 : 0;
 
     // Add dual wield penalty for tier 1 offhand attacks
     if (isOffhandAttack && dualWieldTier === 1) {
       totalPenalty += 1;
     }
+
+    // Add pain/stress penalties (affects all attacks)
+    const painPenalty = this.actor.calculatePainPenaltyDice();
+    const stressPenalty = this.actor.calculateStressPenaltyDice();
+    totalPenalty += painPenalty + stressPenalty;
 
     // Add condition-based penalties for attack rolls
     // Check for blinded condition (affects all attack rolls)
@@ -951,6 +1012,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     return {
       baseDice,
+      bonusAttack,
       diceType,
       inherentPenalty: talent <= 0 ? 1 : 0,
       conditionPenalty: totalPenalty - (talent <= 0 ? 1 : 0),
@@ -1024,6 +1086,22 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
           });
         } else {
           ui.notifications.error('Could not find condition ID');
+        }
+        return;
+      }
+
+      // Special handling for injury edit buttons
+      if (button.hasClass('injury-edit-btn')) {
+        const injuryId = button.data("injury-id");
+        if (injuryId) {
+          const injury = this.actor.items.get(injuryId);
+          if (injury) {
+            injury.sheet.render(true);
+          } else {
+            ui.notifications.error('Could not find injury');
+          }
+        } else {
+          ui.notifications.error('Could not find injury ID');
         }
         return;
       }
@@ -1145,6 +1223,10 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     html.find('.condition-remove-btn').click(this._onConditionRemove.bind(this));
     html.find('.condition-edit-btn').click(this._onConditionEdit.bind(this));
     html.find('.editable-field').change(this._onConditionFieldChange.bind(this));
+
+    // Injury management
+    html.find('.injury-roll-btn').click(this._onInjuryRoll.bind(this));
+    html.find('.injury-remove-btn').click(this._onInjuryRemove.bind(this));
 
     // Resource quick actions
     html.find('.quick-action-btn').off('click').on('click', this._onQuickAction.bind(this));
@@ -1407,12 +1489,28 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   /**
-   * Start Turn - restore energy based on regen
+   * Start Turn - restore energy based on regen, deduct resolve if at 0 health
    */
   async _onStartTurn() {
     const base_energy_regen = 3;
     const resources = this.actor.system.resources || {};
     const energyRegen = (resources.energy?.regen || 0) + base_energy_regen;
+
+    // Check if at 0 health
+    const currentHealth = resources.health?.value || 0;
+    const atZeroHealth = currentHealth === 0;
+    let resolveDeducted = 0;
+
+    // Deduct resolve if at 0 health
+    if (atZeroHealth && resources.resolve) {
+      const currentResolve = resources.resolve.value || 0;
+      const newResolve = Math.max(currentResolve - 2, 0);
+      resolveDeducted = currentResolve - newResolve;
+
+      if (resolveDeducted > 0) {
+        await this.actor.update({ 'system.resources.resolve.value': newResolve });
+      }
+    }
 
     if (resources.energy && energyRegen > 0) {
       const current = resources.energy.value || 0;
@@ -1423,16 +1521,19 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         await this.actor.update({ 'system.resources.energy.value': newValue });
         this.render(false);
 
-        // Create energy restoration chat card
-        await this._createEnergyRestorationChatCard(newValue - current, current, newValue, energyRegen);
+        // Create energy restoration chat card with resolve info
+        await this._createEnergyRestorationChatCard(newValue - current, current, newValue, energyRegen, atZeroHealth, resolveDeducted);
       }
+    } else if (atZeroHealth && resolveDeducted > 0) {
+      // If no energy regen but resolve was deducted, still show a card
+      await this._createEnergyRestorationChatCard(0, 0, 0, 0, atZeroHealth, resolveDeducted);
     }
   }
 
   /**
    * Create an energy restoration chat card for start turn
    */
-  async _createEnergyRestorationChatCard(energyRestored, previousValue, newValue, totalRegen) {
+  async _createEnergyRestorationChatCard(energyRestored, previousValue, newValue, totalRegen, atZeroHealth = false, resolveDeducted = 0) {
     const baseRegen = 2;
     const bonusRegen = totalRegen - baseRegen;
 
@@ -1442,10 +1543,14 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     // Main header
     cardContent += `<div class="energy-header">`;
     cardContent += `<div class="character-name"><strong>${this.actor.name}</strong> starts turn</div>`;
-    cardContent += `<div class="energy-amount">`;
-    cardContent += `<span class="energy-restored">+${energyRestored} Energy</span>`;
-    cardContent += ` (${previousValue} → ${newValue})`;
-    cardContent += `</div>`;
+
+    if (energyRestored > 0) {
+      cardContent += `<div class="energy-amount">`;
+      cardContent += `<span class="energy-restored">+${energyRestored} Energy</span>`;
+      cardContent += ` (${previousValue} → ${newValue})`;
+      cardContent += `</div>`;
+    }
+
     cardContent += `</div>`;
 
     // Details section - show breakdown if there are bonuses
@@ -1453,6 +1558,15 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       cardContent += `<div class="energy-details">`;
       cardContent += `<div class="detail-line">Base Regeneration: ${baseRegen}</div>`;
       cardContent += `<div class="detail-line">Bonus Regeneration: ${bonusRegen}</div>`;
+      cardContent += `</div>`;
+    }
+
+    // Show resolve deduction if at 0 health
+    if (atZeroHealth && resolveDeducted > 0) {
+      cardContent += `<div class="energy-details" style="margin-top: 8px; border-top: 1px solid rgba(255,215,0,0.3); padding-top: 8px;">`;
+      cardContent += `<div class="detail-line" style="color: #f87171; font-weight: bold;">`;
+      cardContent += `⚠️ At 0 Health: -${resolveDeducted} Resolve`;
+      cardContent += `</div>`;
       cardContent += `</div>`;
     }
 
@@ -1688,7 +1802,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const attackData = equippedWeapons[attackIndex];
 
     // Use the centralized attack dice calculation (includes condition penalties)
-    const weapon = { system: { weapon_category: attackData.weaponCategory, weapon_data: {} } };
+    // Use the stored weapon item if available, otherwise create a minimal object for brawling
+    const weapon = attackData.weaponItem || { system: { weapon_category: attackData.weaponCategory, weapon_data: {} } };
     const diceInfo = this._calculateAttackDice(weapon, attackData);
 
     const baseDice = diceInfo.baseDice;
@@ -1787,11 +1902,18 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       return;
     }
 
-    // If this ability has attack data, route through the attack dialog workflow
-    if (abilityType === 'attack') {
-      console.debug('[Anyventure|AbilityUse] Attack ability detected', {
+    // Only use attack dialog for NPCs with attack abilities
+    // Player characters always use the simple ability-use dialog
+    const isNPC = this.actor.type === 'npc';
+    const hasAttackType = (abilityType === 'attack' || abilityType === 'simple_attack');
+    const hasAttackData = !!(item.system?.attackData?.roll || item.system?.roll);
+
+    if (isNPC && (hasAttackType || hasAttackData)) {
+      console.debug('[Anyventure|AbilityUse] NPC attack ability detected', {
         itemId,
         abilityType,
+        hasAttackType,
+        hasAttackData,
         attackData: item.system?.attackData,
         legacyAttackFields: {
           roll: item.system?.roll,
@@ -1807,9 +1929,11 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         await AnyventureAttackRollDialog.show(attackDialogOptions);
         return;
       }
-      console.warn('[Anyventure|AbilityUse] Ability marked as attack but no valid attack options produced.', {
+      console.warn('[Anyventure|AbilityUse] NPC ability has attack data but no valid attack options produced.', {
         itemId,
         abilityType,
+        hasAttackType,
+        hasAttackData,
         parsedAttackData: item.system?.attackData
       });
     }
@@ -1840,11 +1964,13 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
    * @private
    */
   _buildAbilityAttackRollOptions(item, abilityType) {
+    // Since attackData is a template, fields are directly on system, not nested
+    // But some items might have it nested, so check both
     let rawAttack = item.system?.attackData;
 
-    // Support legacy flat placement of attack fields before the attackData template was enforced
-    const legacyRoll = item.system?.roll;
-    if (!rawAttack && typeof legacyRoll === 'string') {
+    // Check if attack fields exist directly on system (template pattern)
+    const directRoll = item.system?.roll;
+    if (!rawAttack && typeof directRoll === 'string' && directRoll.trim()) {
       console.debug('[Anyventure|AbilityUse] Promoting legacy attack fields to attackData', {
         itemId: item.id,
         legacy: {
@@ -2993,6 +3119,22 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const baseDice = magicSkill.talent || 1;
     const diceType = this._getDiceTypeForLevel(magicSkill.value || 0);
 
+    // Calculate initial penalty dice from pain/stress
+    const painPenalty = this.actor.calculatePainPenaltyDice();
+    const stressPenalty = this.actor.calculateStressPenaltyDice();
+    const initialPenaltyDice = painPenalty + stressPenalty;
+
+    // Build condition notes for display
+    const conditionNotes = [];
+    if (painPenalty > 0) {
+      const painLevel = this.actor.system.resources?.pain?.calculated || 0;
+      conditionNotes.push(`Pain (${painLevel}): -${painPenalty} ${painPenalty === 1 ? 'die' : 'dice'}`);
+    }
+    if (stressPenalty > 0) {
+      const stressLevel = this.actor.system.resources?.stress?.calculated || 0;
+      conditionNotes.push(`Stress (${stressLevel}): -${stressPenalty} ${stressPenalty === 1 ? 'die' : 'dice'}`);
+    }
+
     // Format spell range if it's a number
     let formattedRange = spell.system.range;
     if (typeof spell.system.range === 'number' || (typeof spell.system.range === 'string' && !isNaN(parseInt(spell.system.range)))) {
@@ -3016,6 +3158,8 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       isFizzled: spell.system.fizzled || false,
       spell: spell,
       actor: this.actor,
+      initialPenaltyDice: initialPenaltyDice,
+      conditionNotes: conditionNotes,
       // Pass all spell data for display
       description: spell.system.description,
       charge: spell.system.charge,
@@ -3132,13 +3276,13 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
   /**
    * Helper method to convert skill level to dice type
-   * @param {number} level - The skill level (0-6)
-   * @returns {string} - The dice type (d4-d20)
+   * @param {number} level - The skill level (0-8)
+   * @returns {string} - The dice type (d4-d30)
    * @private
    */
   _getDiceTypeForLevel(level) {
-    const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20'];
-    return diceTypes[Math.min(Math.max(level, 0), 6)] || 'd4';
+    const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20', 'd24', 'd30'];
+    return diceTypes[Math.min(Math.max(level, 0), 8)] || 'd4';
   }
 
   /* -------------------------------------------- */
@@ -3355,19 +3499,35 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
         ui.notifications.info(`${this.actor.name} recovers from ${effect.label || checkType}!`);
       }
     } else {
-      // Failed - potentially reduce DC if it's a progressive condition
+      // Failed - reduce DC by 1 each failed attempt (or by custom reduceBy amount)
+      // BUT only if reduceBy > 0 (static checks have reduceBy: 0)
       const effect = this.actor.effects.get(conditionId);
-      if (effect && effect.flags.anyventure?.reduceBy) {
-        const currentDC = effect.flags.anyventure.currentCheck;
-        const newDC = Math.max(1, currentDC - (effect.flags.anyventure.reduceBy || 1));
+      if (effect && effect.flags.anyventure?.currentCheck) {
+        const reduceBy = effect.flags.anyventure.reduceBy !== undefined
+          ? effect.flags.anyventure.reduceBy
+          : 1; // Default to 1 if not specified
 
-        await effect.update({
-          'flags.anyventure.currentCheck': newDC,
-          'flags.anyventure.turnsActive': (effect.flags.anyventure.turnsActive || 0) + 1
-        });
+        if (reduceBy === 0) {
+          // Static check - DC doesn't reduce (like ignited)
+          await effect.update({
+            'flags.anyventure.turnsActive': (effect.flags.anyventure.turnsActive || 0) + 1
+          });
+          ui.notifications.warn(`Recovery failed. Roll ${dc} or higher to recover.`);
+        } else {
+          // Progressive check - DC reduces each failure
+          const currentDC = effect.flags.anyventure.currentCheck;
+          const newDC = Math.max(1, currentDC - reduceBy);
 
-        ui.notifications.info(`Recovery failed. Required Check reduced to ${newDC}.`);
+          await effect.update({
+            'flags.anyventure.currentCheck': newDC,
+            'flags.anyventure.turnsActive': (effect.flags.anyventure.turnsActive || 0) + 1
+          });
+
+          ui.notifications.info(`Recovery failed. Required Check reduced to ${newDC}.`);
+        }
         this.render(false); // Refresh to show updated DC
+      } else {
+        ui.notifications.warn(`Recovery failed. Roll ${dc} or higher to recover.`);
       }
     }
   }
@@ -3432,6 +3592,139 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const { AnyventureConditionEditDialog } = await import('./condition-edit-dialog.mjs');
     AnyventureConditionEditDialog.show(effect);
   }
+
+  /* -------------------------------------------- */
+  /*  Injury Event Handlers                      */
+  /* -------------------------------------------- */
+
+  /**
+   * Handle rolling a recovery check for an injury
+   * @param {Event} event The triggering click event
+   * @private
+   */
+  async _onInjuryRoll(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const button = event.currentTarget;
+    const injuryId = button.dataset.injuryId;
+    const recoverySkill = button.dataset.recoverySkill;
+    const dc = parseInt(button.dataset.dc);
+
+    if (!injuryId || !recoverySkill || !dc) {
+      ui.notifications.warn("Missing injury data for recovery check.");
+      return;
+    }
+
+    // Map recovery skills to their skill categories
+    const skillCategoryMap = {
+      'resilience': 'basic',
+      'endurance': 'basic',
+      'concentration': 'basic',
+      'fitness': 'basic'
+    };
+
+    const skillCategory = skillCategoryMap[recoverySkill] || 'basic';
+    const skillName = recoverySkill.charAt(0).toUpperCase() + recoverySkill.slice(1);
+
+    // Get the skill and prepare roll data
+    const skill = this.actor.system[skillCategory]?.[recoverySkill];
+    if (!skill) {
+      ui.notifications.warn(`Skill ${recoverySkill} not found in ${skillCategory} category.`);
+      return;
+    }
+
+    // Import and use the roll dialog directly with a promise wrapper
+    const { AnyventureRollDialog } = await import('./roll-dialog.mjs');
+
+    // Create a promise that resolves when the dialog completes
+    const result = await new Promise((resolve) => {
+      const dialog = new AnyventureRollDialog({
+        title: `${skillName} Recovery Check`,
+        skillName: skillName,
+        baseDice: skill.talent || 1,
+        diceType: this._getDiceTypeForLevel(skill.value || 0),
+        actor: this.actor,
+        rollCallback: (roll, data) => {
+          // Resolve with the roll result
+          resolve({ total: roll.total, roll: roll });
+        }
+      });
+
+      dialog.render({ force: true });
+
+      // Also handle cancel case
+      dialog.addEventListener('close', () => {
+        resolve(null); // Resolve with null if dialog is closed without rolling
+      });
+    });
+
+    if (!result) {
+      // Dialog was cancelled
+      return;
+    }
+
+    if (result.total >= dc) {
+      // Success! Remove the injury
+      const injury = this.actor.items.get(injuryId);
+      if (injury) {
+        await injury.delete();
+        ui.notifications.info(`${this.actor.name} recovers from ${injury.name}!`);
+        this.render(false); // Refresh to update pain/stress
+      }
+    } else {
+      // Failed - reduce DC by 1 each failed attempt
+      const injury = this.actor.items.get(injuryId);
+      if (injury) {
+        const currentDC = injury.system.recovery_check;
+        const newDC = Math.max(1, currentDC - 1);
+
+        await injury.update({
+          'system.recovery_check': newDC
+        });
+
+        ui.notifications.info(`Recovery failed. Required Check reduced to ${newDC}.`);
+        this.render(false); // Refresh to show updated DC
+      }
+    }
+  }
+
+  /**
+   * Handle removing an injury
+   * @param {Event} event The triggering click event
+   * @private
+   */
+  async _onInjuryRemove(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const injuryId = event.currentTarget.dataset.injuryId;
+
+    if (!injuryId) {
+      ui.notifications.warn("Missing injury ID for removal.");
+      return;
+    }
+
+    const injury = this.actor.items.get(injuryId);
+    if (!injury) {
+      ui.notifications.warn("Injury not found.");
+      return;
+    }
+
+    const confirmed = await Dialog.confirm({
+      title: "Remove Injury",
+      content: `<p>Remove <strong>${injury.name}</strong>?</p>`,
+      defaultYes: false
+    });
+
+    if (confirmed) {
+      await injury.delete();
+      ui.notifications.info(`Removed ${injury.name}.`);
+      this.render(false); // Refresh to update pain/stress
+    }
+  }
+
+  /* -------------------------------------------- */
 
   /**
    * Handle changing editable condition fields

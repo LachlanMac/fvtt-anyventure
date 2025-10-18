@@ -7,6 +7,10 @@ import { formatDamageType } from '../utils/formatters.mjs';
 export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2 {
 
   constructor(options = {}) {
+    // Get initial penalty dice and condition notes
+    const initialPenaltyDice = options.initialPenaltyDice || 0;
+    const conditionNotes = options.conditionNotes || [];
+
     // Check if actor has mana available
     const hasMana = options.actor?.system?.resources?.mana?.value > 0;
 
@@ -122,12 +126,21 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
 
             <div class="form-group">
               <label for="penalty-dice">Penalty Dice:</label>
-              <input type="number" id="penalty-dice" name="penaltyDice" value="0" min="0" max="10" />
+              <input type="number" id="penalty-dice" name="penaltyDice" value="${initialPenaltyDice}" min="0" max="10" />
             </div>
 
             <div class="roll-preview">
               <p><strong>Final Roll:</strong> <span id="final-formula">${options.baseDice}${options.diceType}kh1</span></p>
             </div>
+
+            ${conditionNotes && conditionNotes.length > 0 ? `
+            <div class="condition-notes">
+              <p><strong>Conditions:</strong></p>
+              <ul>
+                ${conditionNotes.map(note => `<li>${note}</li>`).join('')}
+              </ul>
+            </div>
+            ` : ''}
           </div>
         </form>
       `,
@@ -265,10 +278,22 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
     if (die?.results) diceResults.push(...die.results.map(r => r.result));
     diceResults.sort((a, b) => b - a);
 
+    // Get targeted tokens
+    const targets = Array.from(game.user.targets);
+    let targetInfo = '';
+    if (targets.length > 0) {
+      const targetNames = targets.map(t => t.document.name).join(', ');
+      targetInfo = `<div class="spell-targets" style="text-align: center;"><strong>Target${targets.length > 1 ? 's' : ''}:</strong> ${targetNames}</div>`;
+    }
+
     // Build chat card content using ability card styling
     let flavorText = `<div class="anyventure-ability-card">`;
     const chargedClass = mode === 'charge' ? ' charged' : '';
     flavorText += `<div class="ability-name${chargedClass}"><strong>${this.spellName}</strong></div>`;
+
+    // Target info
+    flavorText += targetInfo;
+
     // Energy/Mana line
     if (mode === 'mana-channel') {
       flavorText += `<div class="energy-cost">Mana: 1</div>`;
@@ -379,21 +404,59 @@ export class AnyventureSpellCastDialog extends foundry.applications.api.DialogV2
 
 function calculateSkillFormula(baseDice, bonusDice, penaltyDice, diceType) {
   const netDice = (baseDice || 1) + (bonusDice || 0) - (penaltyDice || 0);
-  if (netDice > 0) return `${netDice}${diceType}kh1`;
-  if ((penaltyDice || 0) > 0) return `${penaltyDice}${diceType}kl1`;
-  return `1${diceType}`;
+
+  // Case 1: Net dice > 1 - roll multiple, keep highest
+  if (netDice > 1) {
+    return `${netDice}${diceType}kh1`;
+  }
+
+  // Case 2: Net dice is exactly 1 - roll 1 die
+  if (netDice === 1) {
+    return `1${diceType}`;
+  }
+
+  // Case 3: Net dice is 0 - roll 1 die (can't go below 1)
+  if (netDice === 0) {
+    return `1${diceType}`;
+  }
+
+  // Case 4: Net dice is negative - roll penalty dice, keep lowest
+  const penaltiesPastFloor = (penaltyDice || 0) - ((baseDice || 1) + (bonusDice || 0) - 1);
+  const diceToRoll = 1 + penaltiesPastFloor;
+
+  if (diceToRoll === 1) {
+    return `1${diceType}`;
+  }
+  return `${diceToRoll}${diceType}kl1`;
 }
 
 function describeSkillFormula(base, diceType, bonus, penalty) {
-  const total = (base || 1) + (bonus || 0) - (penalty || 0);
-  let s = `${total}${diceType}`;
-  if ((bonus || 0) > 0 && (penalty || 0) === 0) s += ` (+${bonus} bonus)`;
-  else if ((penalty || 0) > 0 && (bonus || 0) === 0) s += total >= 1 ? ` (-${penalty} penalty)` : ` (disadvantage)`;
-  else if ((bonus || 0) > 0 && (penalty || 0) > 0) {
-    const net = (bonus || 0) - (penalty || 0);
-    if (net > 0) s += ` (net +${net})`;
-    else if (net < 0) s += ` (net ${net})`;
+  const netDice = (base || 1) + (bonus || 0) - (penalty || 0);
+  let s;
+
+  // Determine what was actually rolled
+  if (netDice > 1) {
+    // Multiple dice
+    s = `${netDice}${diceType}`;
+  } else if (netDice >= 0) {
+    // Single die (net was 0 or 1)
+    s = `1${diceType}`;
+  } else {
+    // Keep lowest scenario
+    const penaltiesPastFloor = (penalty || 0) - ((base || 1) + (bonus || 0) - 1);
+    const totalDiceRolled = 1 + penaltiesPastFloor;
+    s = `${totalDiceRolled}${diceType} (keep lowest)`;
   }
+
+  // Add bonus/penalty notation
+  if ((bonus || 0) > 0 && (penalty || 0) === 0) {
+    s += ` | +${bonus} bonus`;
+  } else if ((penalty || 0) > 0 && (bonus || 0) === 0) {
+    s += ` | -${penalty} penalty`;
+  } else if ((bonus || 0) > 0 && (penalty || 0) > 0) {
+    s += ` | +${bonus} bonus, -${penalty} penalty`;
+  }
+
   return s;
 }
 

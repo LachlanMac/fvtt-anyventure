@@ -86,6 +86,9 @@ export class AnyventureItemSheet extends foundry.appv1.sheets.ItemSheet {
       case 'item':
         this._prepareItemData(context);
         break;
+      case 'injury':
+        this._prepareInjuryData(context);
+        break;
     }
   }
 
@@ -268,6 +271,14 @@ export class AnyventureItemSheet extends foundry.appv1.sheets.ItemSheet {
       'physical', 'heat', 'cold', 'electric', 'dark',
       'divine', 'aether', 'psychic', 'toxic'
     ];
+  }
+
+  /**
+   * Prepare injury-specific data
+   */
+  _prepareInjuryData(context) {
+    // No additional context needed for injuries
+    // All data is provided by the template and base context
   }
 
   /* -------------------------------------------- */

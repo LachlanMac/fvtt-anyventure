@@ -41,7 +41,8 @@ Hooks.once('init', async function() {
     for (const combatant of combatants) {
       if (combatant.actor?.rollInitiative) {
         // Let the Actor handle the initiative roll with proper skill check formatting
-        await combatant.actor.rollInitiative(options);
+        // IMPORTANT: Pass the combatantId so the actor knows which combatant to update
+        await combatant.actor.rollInitiative({ ...options, combatantId: combatant.id });
       } else {
         // Fallback to original method for this combatant
         await originalRollInitiative.call(this, [combatant.id], options);
@@ -111,6 +112,10 @@ Hooks.once('init', async function() {
     const numA = Number(a) || 0;
     const numB = Number(b) || 0;
     return numA - numB;
+  });
+
+  Handlebars.registerHelper('lowercase', function(str) {
+    return typeof str === 'string' ? str.toLowerCase() : '';
   });
 
   Handlebars.registerHelper('eq', function(a, b) {
@@ -273,6 +278,28 @@ CONFIG.statusEffects = [
     img: "systems/anyventure/images/conditions/exhaustT1.svg",
   },
 
+  // 🩹 PAIN CONDITIONS
+  {
+    id: "pain_1",
+    label: "Minor Pain",
+    img: "systems/anyventure/images/conditions/pain_1.svg",
+  },
+  {
+    id: "pain_2",
+    label: "Moderate Pain",
+    img: "systems/anyventure/images/conditions/pain_2.svg",
+  },
+  {
+    id: "pain_3",
+    label: "Severe Pain",
+    img: "systems/anyventure/images/conditions/pain_3.svg",
+  },
+  {
+    id: "pain_4",
+    label: "Extreme Pain",
+    img: "systems/anyventure/images/conditions/pain_4.svg",
+  },
+
   {
     id: "dead",
     label: "Dead",
@@ -358,10 +385,10 @@ CONFIG.statusEffects = [
     return localized;
   });
 
-  // Helper for skill dice conversion (0=d4, 1=d6, 2=d8, 3=d10, 4=d12, 5=d16, 6=d20)
+  // Helper for skill dice conversion (0=d4, 1=d6, 2=d8, 3=d10, 4=d12, 5=d16, 6=d20, 7=d24, 8=d30)
   Handlebars.registerHelper('skillDie', function(level) {
-    const dice = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20'];
-    return dice[Math.min(level, 6)] || 'd4';
+    const dice = ['d4', 'd6', 'd8', 'd10', 'd12', 'd16', 'd20', 'd24', 'd30'];
+    return dice[Math.min(level, 8)] || 'd4';
   });
 
   // Helper for skill dice with upgrade/downgrade support (using tier modifiers)
@@ -374,12 +401,12 @@ CONFIG.statusEffects = [
       ['d8', 'd10', 'd12'], // Level 3
       ['d10', 'd12', 'd16'], // Level 4
       ['d12', 'd16', 'd20'], // Level 5
-      ['d16', 'd20', 'd24']  // Level 6
+      ['d16', 'd20', 'd24'], // Level 6
       ['d20', 'd24', 'd30']  // Level 7
     ];
 
     const nlevel = Number(level);
-    const skillLevel = Math.min(Math.max(isNaN(nlevel) ? 0 : nlevel, 0), 6);
+    const skillLevel = Math.min(Math.max(isNaN(nlevel) ? 0 : nlevel, 0), 7);
     const tierModifier = Number.isFinite(Number(tier)) ? Number(tier) : 0;
     const upgradeLevel = Math.min(Math.max(tierModifier + 1, 0), 2); // Convert -1,0,1 to 0,1,2
 

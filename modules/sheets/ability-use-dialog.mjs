@@ -91,6 +91,19 @@ export class AnyventureAbilityUseDialog extends foundry.applications.api.DialogV
       await this.item.update({ 'system.used': true });
     }
 
+    // Get targeted tokens
+    const targets = Array.from(game.user.targets);
+    let targetInfo = '';
+
+    if (targets.length > 0) {
+      const targetNames = targets.map(t => t.document.name).join(', ');
+      targetInfo = `
+        <div class="ability-targets" style="text-align: center;">
+          <strong>Target${targets.length > 1 ? 's' : ''}:</strong> ${targetNames}
+        </div>
+      `;
+    }
+
     // Build formatted chat message with styling
     let chatContent = `
       <div class="anyventure-ability-card ${this.abilityType}-card">
@@ -102,6 +115,8 @@ export class AnyventureAbilityUseDialog extends foundry.applications.api.DialogV
             ${this.abilityType === 'reaction' ? 'Reaction' : 'Action'}
           </div>
         </div>
+
+        ${targetInfo}
 
         ${this.energyCost > 0 ? `
         <div class="ability-cost">

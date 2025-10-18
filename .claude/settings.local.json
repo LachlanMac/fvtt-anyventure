@@ -11,7 +11,12 @@
       "Bash(git log:*)",
       "Bash(find:*)",
       "Bash(cat:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Read(//mnt/c/Users/lachl/AppData/Local/FoundryVTT/Data/modules/**)",
+      "Bash(curl -s http://192.168.1.170:1234/v1/models)",
+      "Bash(curl -s -X POST http://192.168.1.170:1234/v1/chat/completions )",
+      "Bash(curl:*)",
+      "Read(//mnt/c/Users/lachl/OneDrive/Desktop/**)"
     ],
     "deny": []
   }

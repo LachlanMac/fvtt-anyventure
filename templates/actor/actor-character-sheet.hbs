@@ -1,6 +1,6 @@
 <form class="{{cssClass}} {{actor.type}}" autocomplete="off">
   <div class="sheet-wrapper">
-    
+
     {{!-- Left Sidebar - Always Visible --}}
     <aside class="left-sidebar">
       {{!-- Character Header --}}
@@ -54,6 +54,19 @@
             </div>
             <div class="resource-fill" style="width: {{percentage system.resources.health.value system.resources.health.max}}%"></div>
           </div>
+          <div class="resource-bar pain" data-pain="{{system.resources.pain.calculated}}">
+            <label>Pain</label>
+            <div class="resource-controls">
+              <div class="resource-values pain-display">
+                {{#if (eq system.resources.pain.calculated 0)}}No Pain{{/if}}
+                {{#if (and (gte system.resources.pain.calculated 1) (lte system.resources.pain.calculated 5))}}Mild Pain{{/if}}
+                {{#if (and (gte system.resources.pain.calculated 6) (lte system.resources.pain.calculated 10))}}Moderate Pain{{/if}}
+                {{#if (and (gte system.resources.pain.calculated 11) (lte system.resources.pain.calculated 15))}}Severe Pain{{/if}}
+                {{#if (gte system.resources.pain.calculated 16)}}Critical Pain{{/if}}
+                <span class="pain-value">({{system.resources.pain.calculated}})</span>
+              </div>
+            </div>
+          </div>
           <div class="resource-bar resolve">
             <label>Resolve</label>
             <div class="resource-controls">
@@ -70,6 +83,19 @@
               </button>
             </div>
             <div class="resource-fill" style="width: {{percentage system.resources.resolve.value system.resources.resolve.max}}%"></div>
+          </div>
+          <div class="resource-bar stress" data-stress="{{system.resources.stress.calculated}}">
+            <label>Stress</label>
+            <div class="resource-controls">
+              <div class="resource-values stress-display">
+                {{#if (eq system.resources.stress.calculated 0)}}No Stress{{/if}}
+                {{#if (and (gte system.resources.stress.calculated 1) (lte system.resources.stress.calculated 5))}}Mild Stress{{/if}}
+                {{#if (and (gte system.resources.stress.calculated 6) (lte system.resources.stress.calculated 10))}}Moderate Stress{{/if}}
+                {{#if (and (gte system.resources.stress.calculated 11) (lte system.resources.stress.calculated 15))}}Severe Stress{{/if}}
+                {{#if (gte system.resources.stress.calculated 16)}}Critical Stress{{/if}}
+                <span class="stress-value">({{system.resources.stress.calculated}})</span>
+              </div>
+            </div>
           </div>
           <div class="resource-bar morale">
             <label>Morale</label>
@@ -155,7 +181,7 @@
         <a class="item" data-tab="songs">Songs</a>
         <a class="item" data-tab="biography">Biography</a>
       </nav>
-      
+
       {{!-- Sheet Body for Tab Content --}}
       <section class="sheet-body">
         {{!-- Skills Tab --}}

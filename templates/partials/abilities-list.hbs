@@ -30,6 +30,21 @@
             {{/if}}
           </div>
         </div>
+        {{#if (or (eq ability.system.abilityType "attack") (eq ability.system.abilityType "simple_attack"))}}
+        <div class="ability-damage-info">
+          {{#if ability.system.roll}}
+          <span class="attack-dice-small">{{ability.system.roll}}</span>
+          {{/if}}
+          {{#if ability.system.damage}}
+          <span class="damage-dice">[{{ability.system.damage}}/{{ability.system.damage_extra}}]</span>
+          <span class="damage-type-box damage-type-{{lowercase ability.system.damage_type}}">{{ability.system.damage_type}}</span>
+          {{/if}}
+          {{#if (gt ability.system.secondary_damage 0)}}
+          <span class="secondary-damage-dice">[{{ability.system.secondary_damage}}/{{ability.system.secondary_damage_extra}}]</span>
+          <span class="damage-type-box damage-type-{{lowercase ability.system.secondary_damage_type}}">{{ability.system.secondary_damage_type}}</span>
+          {{/if}}
+        </div>
+        {{/if}}
         {{#if ability.system.description}}
         <p class="ability-description">{{ability.system.description}}</p>
         {{/if}}

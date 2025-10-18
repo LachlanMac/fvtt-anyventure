@@ -103,6 +103,22 @@
       </div>
     </div>
     {{/if}}
+
+    {{!-- Training Items Section --}}
+    {{#each trainingItems as |training|}}
+    <div class="character-essential-section training-section">
+      <div class="essential-icon">
+        <img src="{{training.img}}" alt="{{training.name}}" />
+      </div>
+      <div class="essential-content">
+        <h4 class="essential-title">{{training.name}}</h4>
+      </div>
+      <div class="essential-controls">
+        <a class="item-control item-edit" data-item-id="{{training._id}}" title="Edit"><i class="fas fa-edit"></i></a>
+        <a class="item-control item-delete" data-item-id="{{training._id}}" title="Delete"><i class="fas fa-trash"></i></a>
+      </div>
+    </div>
+    {{/each}}
   </div>
 
   {{/unless}}
@@ -349,30 +365,81 @@
 
     {{!-- Injuries Tab --}}
     <div class="tab injuries" data-group="character-secondary" data-tab="injuries">
+      {{!-- Combined Pain/Stress Modifier Card --}}
+      <div class="character-essential-section modifier-card">
+        <div class="essential-content" style="flex: 1;">
+          <div class="modifier-row-container">
+            <div class="modifier-col pain-col">
+              <label for="system.resources.pain.modifier" style="font-weight: bold;">Pain Modifier:</label>
+              <input type="number" name="system.resources.pain.modifier" value="{{system.resources.pain.modifier}}" data-dtype="Number" style="width: 80px;"/>
+            </div>
+            <div class="modifier-col stress-col">
+              <label for="system.resources.stress.modifier" style="font-weight: bold;">Stress Modifier:</label>
+              <input type="number" name="system.resources.stress.modifier" value="{{system.resources.stress.modifier}}" data-dtype="Number" style="width: 80px;"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {{!-- Injuries List --}}
-      <div class="injuries-container">
-        {{#each injuries as |injury id|}}
-        <div class="character-essential-section injury-section {{injury.system.injuryType}}" data-item-id="{{injury._id}}">
-          <div class="essential-icon">
-            <img src="{{injury.img}}" alt="{{injury.name}}" />
-          </div>
-          <div class="essential-content">
-            <h4 class="essential-title">{{injury.name}}</h4>
-            <p class="injury-description">{{injury.system.description}}</p>
-          </div>
-          <div class="essential-controls">
-            <a class="item-control item-edit" data-item-id="{{injury._id}}" title="Edit"><i class="fas fa-edit"></i></a>
-            <a class="item-control item-delete" data-item-id="{{injury._id}}" title="Delete"><i class="fas fa-trash"></i></a>
-          </div>
+      <div class="moves-section">
+        <div class="section-header">
+          <h3>Active Injuries</h3>
         </div>
-        {{else}}
-        <div class="injuries-empty">
-          <div class="essential-drop-zone" data-essential-type="injury">
-            <i class="fas fa-upload"></i>
-            <span>No injuries (drag and drop injuries here)</span>
+        <div class="moves-list">
+          {{#each injuryCards as |injury|}}
+          <div class="ability-item injury-item" data-injury-id="{{injury.id}}">
+            <div class="ability-icon">
+              <img src="{{injury.icon}}" alt="{{injury.name}}" />
+            </div>
+            <div class="ability-content">
+              <div class="ability-header">
+                <h4 class="ability-name">{{injury.name}}</h4>
+                {{#if injury.canRoll}}
+                <div class="injury-check-info">
+                  <span class="check-label">RC: {{capitalize injury.recoverySkill}} {{injury.recoveryCheck}}</span>
+                </div>
+                {{/if}}
+                <div class="injury-effects">
+                  {{#if (gt injury.pain 0)}}
+                  <span class="injury-pain">Pain: +{{injury.pain}}</span>
+                  {{/if}}
+                  {{#if (gt injury.stress 0)}}
+                  <span class="injury-stress">Stress: +{{injury.stress}}</span>
+                  {{/if}}
+                </div>
+              </div>
+            </div>
+            <div class="ability-controls">
+              {{#if injury.canRoll}}
+              <a class="injury-roll-btn"
+                 data-recovery-skill="{{injury.recoverySkill}}"
+                 data-dc="{{injury.recoveryCheck}}"
+                 data-injury-id="{{injury.id}}"
+                 title="Roll {{capitalize injury.recoverySkill}} Check">
+                <i class="fas fa-dice-d20"></i>
+              </a>
+              {{/if}}
+              <a class="item-control item-edit injury-edit-btn"
+                 data-injury-id="{{injury.id}}"
+                 title="Edit Injury">
+                <i class="fas fa-edit"></i>
+              </a>
+              <a class="item-control item-delete injury-remove-btn"
+                 data-injury-id="{{injury.id}}"
+                 title="Remove Injury">
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
           </div>
+          {{else}}
+          <div class="empty-message">
+            <i class="fas fa-band-aid"></i>
+            <p>No active injuries</p>
+            <p class="empty-hint">Injuries will appear here when applied to this character</p>
+          </div>
+          {{/each}}
         </div>
-        {{/each}}
       </div>
     </div>
   </div>

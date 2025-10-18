@@ -1,0 +1,76 @@
+<form class="{{cssClass}} {{item.type}} flexcol" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  {{> "systems/anyventure/templates/partials/items/item-header.hbs"}}
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item active" data-tab="details">Details</a>
+    <a class="item" data-tab="description">Description</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    {{!-- Details Tab --}}
+    <div class="tab active" data-group="primary" data-tab="details">
+      <div class="injury-details">
+
+        <div class="form-group">
+          <label>Injury Type</label>
+          <select name="system.injuryType">
+            <option value="cosmetic_injury" {{#if (eq system.injuryType "cosmetic_injury")}}selected{{/if}}>Cosmetic Injury</option>
+            <option value="minor_injury" {{#if (eq system.injuryType "minor_injury")}}selected{{/if}}>Minor Injury</option>
+            <option value="major_injury" {{#if (eq system.injuryType "major_injury")}}selected{{/if}}>Major Injury</option>
+            <option value="severe_injury" {{#if (eq system.injuryType "severe_injury")}}selected{{/if}}>Severe Injury</option>
+            <option value="permanent_injury" {{#if (eq system.injuryType "permanent_injury")}}selected{{/if}}>Permanent Injury</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Cause</label>
+          <input type="text" name="system.cause" value="{{system.cause}}" placeholder="How was this injury sustained?"/>
+        </div>
+
+        <div class="form-group-row">
+          <div class="form-group">
+            <label>Pain</label>
+            <input type="number" name="system.pain" value="{{system.pain}}" min="0" step="1"/>
+          </div>
+
+          <div class="form-group">
+            <label>Stress</label>
+            <input type="number" name="system.stress" value="{{system.stress}}" min="0" step="1"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Recovery Skill</label>
+          <select name="system.recovery_skill">
+            <option value="resilience" {{#if (eq system.recovery_skill "resilience")}}selected{{/if}}>Resilience</option>
+            <option value="endurance" {{#if (eq system.recovery_skill "endurance")}}selected{{/if}}>Endurance</option>
+            <option value="concentration" {{#if (eq system.recovery_skill "concentration")}}selected{{/if}}>Concentration</option>
+            <option value="fitness" {{#if (eq system.recovery_skill "fitness")}}selected{{/if}}>Fitness</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Recovery Check DC (0 = no recovery check)</label>
+          <input type="number" name="system.recovery_check" value="{{system.recovery_check}}" min="0" step="1"/>
+        </div>
+
+        <div class="form-group">
+          <label>Additional Data</label>
+          <input type="text" name="system.data" value="{{system.data}}" placeholder="Optional mechanical data string"/>
+        </div>
+
+      </div>
+    </div>
+
+    {{!-- Description Tab --}}
+    <div class="tab" data-group="primary" data-tab="description">
+      {{> "systems/anyventure/templates/partials/items/description.hbs"}}
+    </div>
+
+  </section>
+</form>
