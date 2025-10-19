@@ -353,7 +353,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     const runes = [];
     const injuries = [];
     const trainingItems = [];
-    return;
+    
     // Get list of equipped item IDs to filter out from inventory
     const equippedItemIds = this._getEquippedItemIds(context);
 

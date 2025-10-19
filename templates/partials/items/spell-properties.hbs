@@ -66,24 +66,26 @@
       <input type="text" name="system.ritualDuration" value="{{system.ritualDuration}}" placeholder="1 hour"/>
     </div>
 
-    <div class="form-group">
-      <label>Concentration</label>
-      <input type="checkbox" name="system.concentration" {{#if system.concentration}}checked{{/if}}/>
-    </div>
-
-    <div class="form-group">
-      <label>Reaction</label>
-      <input type="checkbox" name="system.reaction" {{#if system.reaction}}checked{{/if}}/>
-    </div>
-
-    <div class="form-group">
-      <label>Fizzled</label>
-      <input type="checkbox" name="system.fizzled" {{#if system.fizzled}}checked{{/if}}/>
-    </div>
-
-    <div class="form-group">
-      <label>Foundry Icon</label>
-      <input type="text" name="system.foundry_icon" value="{{system.foundry_icon}}" placeholder="icons/magic/..."/>
+    {{!-- Checkboxes on one line --}}
+    <div class="spell-checkboxes">
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" name="system.concentration" {{#if system.concentration}}checked{{/if}}/>
+          Concentration
+        </label>
+      </div>
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" name="system.reaction" {{#if system.reaction}}checked{{/if}}/>
+          Reaction
+        </label>
+      </div>
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" name="system.fizzled" {{#if system.fizzled}}checked{{/if}}/>
+          Fizzled
+        </label>
+      </div>
     </div>
   </div>
 

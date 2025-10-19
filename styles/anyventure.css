@@ -161,6 +161,12 @@
   gap: 8px;
   margin-bottom: 12px;
 }
+.anyventure.item .spell-properties-section .spell-checkboxes {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
 .anyventure.item .spell-properties-section h3 {
   color: #ffd700;
   margin: 0 0 8px 0;

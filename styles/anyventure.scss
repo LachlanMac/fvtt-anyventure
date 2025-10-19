@@ -213,6 +213,13 @@
         margin-bottom: $spacing-lg;
       }
 
+      .spell-checkboxes {
+        display: flex;
+        gap: $spacing-lg;
+        margin-top: $spacing-sm;
+        margin-bottom: $spacing-md;
+      }
+
       h3 {
         color: $gold-bright;
         margin: 0 0 $spacing-md 0;
