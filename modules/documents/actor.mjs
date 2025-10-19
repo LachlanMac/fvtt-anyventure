@@ -136,9 +136,10 @@ export class AnyventureActor extends Actor {
         resources: {
           health: { max: 0, recovery: 0 },
           energy: { max: 0, recovery: 0 },
-          resolve: { max: 0, recovery: 0 }
+          resolve: { max: 0, recovery: 0 },
+          morale: { max: 0, recovery: 0 }
         },
-        movement: 0,
+        movement: { walk: 0, swim: 0, climb: 0, fly: 0 },
         attributes: {},
         basic: {},
         weapon: { bonuses: {}, talents: {} },
@@ -148,6 +149,16 @@ export class AnyventureActor extends Actor {
         detections: {},
         immunities: [],
         effects: []
+      };
+
+      // Track "Set To" overrides separately - these override final values after all additions
+      // Highest value wins if multiple items have "Set To" for the same skill
+      const setToOverrides = {
+        attributes: {},        // attr -> highest set_talent value
+        basic: {},             // skill -> highest set_bonus value
+        weapon: { bonuses: {}, talents: {} },  // skill -> highest set_bonus/set_talent values
+        magic: { bonuses: {}, talents: {} },
+        craft: { bonuses: {}, talents: {} }
       };
 
       // Parse equipped items
@@ -189,10 +200,23 @@ export class AnyventureActor extends Actor {
             equipmentBonuses.resources.resolve.recovery += resolveRecovery;
           }
 
-          // Movement bonus
-          if (itemSystem.movement) {
-            const movementBonus = Number(itemSystem.movement || 0);
-            equipmentBonuses.movement += movementBonus;
+          // Morale bonuses
+          if (itemSystem.morale) {
+            const moraleMax = Number(itemSystem.morale.max || 0);
+            const moraleRecovery = Number(itemSystem.morale.recovery || 0);
+            equipmentBonuses.resources.morale.max += moraleMax;
+            equipmentBonuses.resources.morale.recovery += moraleRecovery;
+          }
+
+          // Movement bonuses (object with walk/swim/climb/fly)
+          if (itemSystem.movement && typeof itemSystem.movement === 'object') {
+            const movementTypes = ['walk', 'swim', 'climb', 'fly'];
+            for (const moveType of movementTypes) {
+              const bonus = Number(itemSystem.movement[moveType] || 0);
+              if (bonus !== 0) {
+                equipmentBonuses.movement[moveType] += bonus;
+              }
+            }
           }
 
           // Attribute bonuses (nested objects with add_talent/set_talent)
@@ -201,22 +225,36 @@ export class AnyventureActor extends Actor {
               if (attrData && typeof attrData === 'object') {
                 const addTalent = Number(attrData.add_talent || 0);
                 const setTalent = Number(attrData.set_talent || 0);
-                // For now, just use add_talent (we can implement set_talent logic later)
+
+                // Accumulate additive bonuses
                 if (addTalent !== 0) {
                   equipmentBonuses.attributes[attr] = (equipmentBonuses.attributes[attr] || 0) + addTalent;
+                }
+
+                // Track "Set To" values - highest one wins
+                if (setTalent !== 0) {
+                  setToOverrides.attributes[attr] = Math.max(setToOverrides.attributes[attr] || 0, setTalent);
                 }
               }
             }
           }
 
           // Helper function to process basic skill bonuses (only have bonuses, no talents)
-          const processBasicSkillBonuses = (skillData, bonusCategory) => {
+          const processBasicSkillBonuses = (skillData, bonusCategory, setToCategory) => {
             if (skillData && typeof skillData === 'object') {
               for (const [skill, data] of Object.entries(skillData)) {
                 if (data && typeof data === 'object') {
                   const addBonus = Number(data.add_bonus || 0);
+                  const setBonus = Number(data.set_bonus || 0);
+
+                  // Accumulate additive bonuses
                   if (addBonus !== 0) {
                     bonusCategory[skill] = (bonusCategory[skill] || 0) + addBonus;
+                  }
+
+                  // Track "Set To" values - highest one wins
+                  if (setBonus !== 0) {
+                    setToCategory[skill] = Math.max(setToCategory[skill] || 0, setBonus);
                   }
                 }
               }
@@ -224,18 +262,29 @@ export class AnyventureActor extends Actor {
           };
 
           // Helper function to process weapon/magic/craft skill bonuses (have both bonuses and talents)
-          const processAdvancedSkillBonuses = (skillData, bonusCategory) => {
+          const processAdvancedSkillBonuses = (skillData, bonusCategory, setToCategory) => {
             if (skillData && typeof skillData === 'object') {
               for (const [skill, data] of Object.entries(skillData)) {
                 if (data && typeof data === 'object') {
                   const addBonus = Number(data.add_bonus || 0);
+                  const setBonus = Number(data.set_bonus || 0);
                   const addTalent = Number(data.add_talent || 0);
+                  const setTalent = Number(data.set_talent || 0);
 
+                  // Accumulate additive bonuses
                   if (addBonus !== 0) {
                     bonusCategory.bonuses[skill] = (bonusCategory.bonuses[skill] || 0) + addBonus;
                   }
                   if (addTalent !== 0) {
                     bonusCategory.talents[skill] = (bonusCategory.talents[skill] || 0) + addTalent;
+                  }
+
+                  // Track "Set To" values - highest one wins
+                  if (setBonus !== 0) {
+                    setToCategory.bonuses[skill] = Math.max(setToCategory.bonuses[skill] || 0, setBonus);
+                  }
+                  if (setTalent !== 0) {
+                    setToCategory.talents[skill] = Math.max(setToCategory.talents[skill] || 0, setTalent);
                   }
                 }
               }
@@ -243,10 +292,10 @@ export class AnyventureActor extends Actor {
           };
 
           // Process all skill categories
-          processBasicSkillBonuses(itemSystem.basic, equipmentBonuses.basic);
-          processAdvancedSkillBonuses(itemSystem.weapon, equipmentBonuses.weapon);
-          processAdvancedSkillBonuses(itemSystem.magic, equipmentBonuses.magic);
-          processAdvancedSkillBonuses(itemSystem.craft, equipmentBonuses.craft);
+          processBasicSkillBonuses(itemSystem.basic, equipmentBonuses.basic, setToOverrides.basic);
+          processAdvancedSkillBonuses(itemSystem.weapon, equipmentBonuses.weapon, setToOverrides.weapon);
+          processAdvancedSkillBonuses(itemSystem.magic, equipmentBonuses.magic, setToOverrides.magic);
+          processAdvancedSkillBonuses(itemSystem.craft, equipmentBonuses.craft, setToOverrides.craft);
 
           // Mitigation bonuses (flat numeric values)
           if (itemSystem.mitigation && typeof itemSystem.mitigation === 'object') {
@@ -340,19 +389,27 @@ export class AnyventureActor extends Actor {
       const resolveBonus = equipmentBonuses.resources.resolve.max;
       systemData.resources.resolve.max = baseResolveMax + resolveBonus;
 
-      // Movement (apply to walk speed as base)
-      if (systemData.movement?.walk !== undefined) {
-        const baseWalk = systemData._base.movement?.walk || 5;
-        const walkBonus = equipmentBonuses.movement;
-        systemData.movement.walk = baseWalk + walkBonus;
+      const baseMoraleMax = systemData._base.resources.morale?.max || 0;
+      const moraleBonus = equipmentBonuses.resources.morale.max;
+      systemData.resources.morale = systemData.resources.morale || { max: 0, recovery: 0 };
+      systemData.resources.morale.max = baseMoraleMax + moraleBonus;
+
+      // Movement (apply bonuses to all movement types)
+      if (systemData.movement && typeof systemData.movement === 'object') {
+        const movementTypes = ['walk', 'swim', 'climb', 'fly'];
+        for (const moveType of movementTypes) {
+          const baseValue = systemData._base.movement?.[moveType] || 0;
+          const bonus = equipmentBonuses.movement[moveType] || 0;
+          systemData.movement[moveType] = baseValue + bonus;
+        }
       }
 
       // Helper function to apply bonuses to skill categories
       const applyBonuses = (bonusCategory, systemCategory, baseCategory, categoryName, valueProperty = 'value') => {
         for (const [key, bonus] of Object.entries(bonusCategory)) {
           if (systemCategory?.[key] !== undefined && baseCategory?.[key] !== undefined) {
-            const baseValue = baseCategory[key][valueProperty];
-            const newValue = baseValue + bonus;
+            const currentValue = systemCategory[key][valueProperty];
+            const newValue = currentValue + bonus;
             systemCategory[key][valueProperty] = newValue;
           } else {
             logWarning(`${categoryName} ${key} not found in systemData or _base`);
@@ -371,6 +428,57 @@ export class AnyventureActor extends Actor {
       applyBonuses(equipmentBonuses.magic.talents, systemData.magic, systemData._base.magic, 'Magic skill', 'talent');
       applyBonuses(equipmentBonuses.craft.bonuses, systemData.crafting, systemData._base.crafting, 'Craft skill', 'value');
       applyBonuses(equipmentBonuses.craft.talents, systemData.crafting, systemData._base.crafting, 'Craft skill', 'talent');
+
+      // Apply "Set To" overrides - these override the final calculated values
+      // Attributes
+      for (const [attr, setValue] of Object.entries(setToOverrides.attributes)) {
+        if (systemData.attributes?.[attr] !== undefined) {
+          systemData.attributes[attr].value = setValue;
+        }
+      }
+
+      // Basic skills
+      for (const [skill, setValue] of Object.entries(setToOverrides.basic)) {
+        if (systemData.basic?.[skill] !== undefined) {
+          systemData.basic[skill].value = setValue;
+        }
+      }
+
+      // Weapon skills
+      for (const [skill, setValue] of Object.entries(setToOverrides.weapon.bonuses)) {
+        if (systemData.weapon?.[skill] !== undefined) {
+          systemData.weapon[skill].value = setValue;
+        }
+      }
+      for (const [skill, setValue] of Object.entries(setToOverrides.weapon.talents)) {
+        if (systemData.weapon?.[skill] !== undefined) {
+          systemData.weapon[skill].talent = setValue;
+        }
+      }
+
+      // Magic skills
+      for (const [skill, setValue] of Object.entries(setToOverrides.magic.bonuses)) {
+        if (systemData.magic?.[skill] !== undefined) {
+          systemData.magic[skill].value = setValue;
+        }
+      }
+      for (const [skill, setValue] of Object.entries(setToOverrides.magic.talents)) {
+        if (systemData.magic?.[skill] !== undefined) {
+          systemData.magic[skill].talent = setValue;
+        }
+      }
+
+      // Craft skills
+      for (const [skill, setValue] of Object.entries(setToOverrides.craft.bonuses)) {
+        if (systemData.crafting?.[skill] !== undefined) {
+          systemData.crafting[skill].value = setValue;
+        }
+      }
+      for (const [skill, setValue] of Object.entries(setToOverrides.craft.talents)) {
+        if (systemData.crafting?.[skill] !== undefined) {
+          systemData.crafting[skill].talent = setValue;
+        }
+      }
 
       // Mitigation
       for (const [type, bonus] of Object.entries(equipmentBonuses.mitigation)) {

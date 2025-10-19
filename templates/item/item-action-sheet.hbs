@@ -1,0 +1,79 @@
+<form class="{{cssClass}} {{item.type}} flexcol" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  {{> "systems/anyventure/templates/partials/items/item-header.hbs"}}
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item active" data-tab="basic">Basic</a>
+    <a class="item" data-tab="properties">Properties</a>
+    <a class="item" data-tab="roll">Roll / Attack</a>
+    <a class="item" data-tab="description">Description</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    {{!-- Basic Tab --}}
+    <div class="tab active" data-group="primary" data-tab="basic">
+      <div class="ability-basic-section">
+        <h3>Basic Info</h3>
+
+        <div class="ability-basic-fields">
+          <div class="form-group">
+            <label>Source</label>
+            <input type="text" name="system.source" value="{{system.source}}" placeholder="Default Actions"/>
+          </div>
+
+          <div class="form-group">
+            <label>Anyventure ID</label>
+            <input type="text" name="system.anyventure_id" value="{{system.anyventure_id}}" placeholder="default_action_sprint"/>
+            <small>Unique identifier for this ability</small>
+          </div>
+
+          <div class="form-group">
+            <label>Energy Cost</label>
+            <input type="number" name="system.energy" value="{{system.energy}}" data-dtype="Number" min="0" max="10" placeholder="0"/>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label>
+              <input type="checkbox" name="system.daily" {{#if system.daily}}checked{{/if}}/>
+              Daily Use (Limited to once per day)
+            </label>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label>
+              <input type="checkbox" name="system.used" {{#if system.used}}checked{{/if}}/>
+              Used (Track if daily ability was used)
+            </label>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label>
+              <input type="checkbox" name="system.magic" {{#if system.magic}}checked{{/if}}/>
+              Magical Ability
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Properties Tab --}}
+    <div class="tab" data-group="primary" data-tab="properties">
+      {{> "systems/anyventure/templates/partials/items/ability-properties.hbs"}}
+    </div>
+
+    {{!-- Roll / Attack Tab --}}
+    <div class="tab" data-group="primary" data-tab="roll">
+      {{> "systems/anyventure/templates/partials/items/ability-roll-attack.hbs"}}
+    </div>
+
+    {{!-- Description Tab --}}
+    <div class="tab" data-group="primary" data-tab="description">
+      {{> "systems/anyventure/templates/partials/items/description.hbs"}}
+    </div>
+
+  </section>
+</form>

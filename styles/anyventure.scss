@@ -3367,6 +3367,118 @@
           }
         }
       }
+
+      // New compact bonus grid styles
+      .bonus-grid-4col {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: $spacing-md;
+      }
+
+      .bonus-grid-compact {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: $spacing-md;
+      }
+
+      .bonus-card {
+        background: rgba($purple-dark, 0.3);
+        padding: $spacing-sm;
+        border-radius: $border-radius-sm;
+        border: 1px solid rgba($border-light, 0.2);
+
+        h4 {
+          color: $gold-bright;
+          margin: 0 0 $spacing-sm 0;
+          font-size: $font-size-normal;
+          text-align: center;
+          border-bottom: 1px solid rgba($border-light, 0.3);
+          padding-bottom: $spacing-xs;
+        }
+
+        .bonus-fields {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-xs;
+
+          .field-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: $spacing-sm;
+
+            label {
+              font-size: $font-size-small;
+              color: $text-light;
+              flex: 0 0 auto;
+              min-width: 50px;
+            }
+
+            input {
+              flex: 1;
+              min-width: 0;
+              text-align: center;
+            }
+          }
+        }
+      }
+  }
+
+  // Resource bonuses section
+  .resource-bonuses-section {
+    margin-bottom: $spacing-lg;
+
+    h3 {
+      color: $gold-bright;
+      border-bottom: 2px solid rgba($border-light, 0.3);
+      padding-bottom: $spacing-xs;
+      margin-bottom: $spacing-md;
+    }
+  }
+
+  .resource-grid-3col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-md;
+  }
+
+  .resource-card {
+    background: rgba($purple-dark, 0.3);
+    padding: $spacing-sm;
+    border-radius: $border-radius-sm;
+    border: 1px solid rgba($border-light, 0.2);
+
+    h4 {
+      color: $gold-bright;
+      text-align: center;
+      border-bottom: 1px solid rgba($border-light, 0.3);
+      padding-bottom: $spacing-xs;
+      margin-bottom: $spacing-sm;
+    }
+  }
+
+  .resource-fields {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+  }
+
+  // Movement bonuses section
+  .movement-bonuses-section {
+    margin-bottom: $spacing-lg;
+
+    h3 {
+      color: $gold-bright;
+      border-bottom: 2px solid rgba($border-light, 0.3);
+      padding-bottom: $spacing-xs;
+      margin-bottom: $spacing-md;
+    }
+  }
+
+  .movement-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $spacing-md;
   }
 
   // Mitigation grid
@@ -3440,7 +3552,127 @@
       &.stacked {
         margin-bottom: $spacing-md;
       }
+
+      &.checkbox-group {
+        flex-direction: row;
+        align-items: center;
+
+        label {
+          display: flex;
+          align-items: center;
+          gap: $spacing-xs;
+          cursor: pointer;
+          text-transform: none;
+          font-size: $font-size-normal;
+
+          input[type="checkbox"] {
+            margin: 0;
+            cursor: pointer;
+          }
+        }
+      }
+
+      small {
+        color: rgba($text-light, 0.7);
+        font-size: $font-size-small;
+        font-style: italic;
+      }
   }
+  }
+
+  /* ----------------------------------------- */
+  /*  Ability (Action/Reaction) Sheet Styles  */
+  /* ----------------------------------------- */
+
+  .ability-basic-section,
+  .ability-properties-section,
+  .ability-roll-attack-section {
+    h3 {
+      color: $gold-bright;
+      border-bottom: 2px solid rgba($border-light, 0.3);
+      padding-bottom: $spacing-xs;
+      margin-bottom: $spacing-md;
+    }
+
+    h4 {
+      color: $gold-dark;
+      border-bottom: 1px solid rgba($border-light, 0.2);
+      padding-bottom: $spacing-xs;
+      margin-top: $spacing-md;
+      margin-bottom: $spacing-sm;
+    }
+
+    h5 {
+      color: $text-light;
+      margin-top: $spacing-sm;
+      margin-bottom: $spacing-xs;
+      font-size: $font-size-normal;
+    }
+  }
+
+  .ability-basic-fields,
+  .ability-fields {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  .roll-type-selector {
+    margin-bottom: $spacing-md;
+    padding-bottom: $spacing-md;
+    border-bottom: 1px solid rgba($border-light, 0.2);
+  }
+
+  .attack-data-section,
+  .skill-check-section {
+    margin-top: $spacing-md;
+    padding: $spacing-md;
+    background: rgba($purple-dark, 0.2);
+    border-radius: $border-radius-sm;
+    border: 1px solid rgba($border-light, 0.2);
+
+    &.hidden {
+      display: none;
+    }
+  }
+
+  .damage-subsection {
+    margin-top: $spacing-md;
+    padding: $spacing-sm;
+    background: rgba($purple-darkest, 0.3);
+    border-radius: $border-radius-sm;
+  }
+
+  .damage-fields {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .range-section {
+    margin-top: $spacing-md;
+  }
+
+  .range-fields {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-sm;
+  }
+
+  .skill-check-fields {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  // Utility class for hiding elements
+  .hidden {
+    display: none !important;
   }
 
   /* ----------------------------------------- */

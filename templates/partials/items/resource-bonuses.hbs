@@ -1,22 +1,73 @@
 {{!-- Resource Bonuses Partial --}}
 <div class="resource-bonuses-section">
   <h3>Resource Bonuses</h3>
-  <div class="resource-grid">
-    <div class="form-group">
-      <label for="system.health.max">Health</label>
-      <input type="number" name="system.health.max" value="{{system.health.max}}" placeholder="0"/>
+  <div class="resource-grid-3col">
+    {{!-- Health --}}
+    <div class="resource-card">
+      <h4>Health</h4>
+      <div class="resource-fields">
+        <div class="field-row">
+          <label>Max</label>
+          <input type="number" name="system.health.max" value="{{system.health.max}}" placeholder="0"/>
+        </div>
+        <div class="field-row">
+          <label>Regen</label>
+          <input type="number" name="system.health.recovery" value="{{system.health.recovery}}" placeholder="0"/>
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="system.energy.max">Energy</label>
-      <input type="number" name="system.energy.max" value="{{system.energy.max}}" placeholder="0"/>
+
+    {{!-- Resolve --}}
+    <div class="resource-card">
+      <h4>Resolve</h4>
+      <div class="resource-fields">
+        <div class="field-row">
+          <label>Max</label>
+          <input type="number" name="system.resolve.max" value="{{system.resolve.max}}" placeholder="0"/>
+        </div>
+        <div class="field-row">
+          <label>Regen</label>
+          <input type="number" name="system.resolve.recovery" value="{{system.resolve.recovery}}" placeholder="0"/>
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="system.resolve.max">Resolve</label>
-      <input type="number" name="system.resolve.max" value="{{system.resolve.max}}" placeholder="0"/>
+
+    {{!-- Morale --}}
+    <div class="resource-card">
+      <h4>Morale</h4>
+      <div class="resource-fields">
+        <div class="field-row">
+          <label>Max</label>
+          <input type="number" name="system.morale.max" value="{{system.morale.max}}" placeholder="0"/>
+        </div>
+        <div class="field-row">
+          <label>Regen</label>
+          <input type="number" name="system.morale.recovery" value="{{system.morale.recovery}}" placeholder="0"/>
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="system.movement">Movement</label>
-      <input type="number" name="system.movement" value="{{system.movement}}" placeholder="0"/>
+  </div>
+</div>
+
+{{!-- Movement Bonuses --}}
+<div class="movement-bonuses-section">
+  <h3>Movement Bonuses</h3>
+  <div class="movement-grid">
+    <div class="field-row">
+      <label>Walk</label>
+      <input type="number" name="system.movement.walk" value="{{system.movement.walk}}" placeholder="0"/>
+    </div>
+    <div class="field-row">
+      <label>Swim</label>
+      <input type="number" name="system.movement.swim" value="{{system.movement.swim}}" placeholder="0"/>
+    </div>
+    <div class="field-row">
+      <label>Climb</label>
+      <input type="number" name="system.movement.climb" value="{{system.movement.climb}}" placeholder="0"/>
+    </div>
+    <div class="field-row">
+      <label>Fly</label>
+      <input type="number" name="system.movement.fly" value="{{system.movement.fly}}" placeholder="0"/>
     </div>
   </div>
 </div>

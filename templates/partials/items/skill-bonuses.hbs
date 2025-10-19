@@ -4,11 +4,20 @@
   {{#if system.attributes}}
   <div class="bonus-category">
     <h3>Attribute Bonuses</h3>
-    <div class="bonus-grid">
+    <div class="bonus-grid-compact">
       {{#each system.attributes as |bonus attr|}}
-      <div class="bonus-item">
-        <label>{{capitalize attr}}</label>
-        <input type="number" name="system.attributes.{{attr}}.add_talent" value="{{bonus.add_talent}}" placeholder="0"/>
+      <div class="bonus-card">
+        <h4>{{capitalize attr}}</h4>
+        <div class="bonus-fields">
+          <div class="field-row">
+            <label>Talent</label>
+            <input type="number" name="system.attributes.{{attr}}.add_talent" value="{{bonus.add_talent}}" placeholder="0"/>
+          </div>
+          <div class="field-row">
+            <label>Set To</label>
+            <input type="number" name="system.attributes.{{attr}}.set_talent" value="{{bonus.set_talent}}" placeholder="0"/>
+          </div>
+        </div>
       </div>
       {{/each}}
     </div>
@@ -19,11 +28,20 @@
   {{#if system.basic}}
   <div class="bonus-category">
     <h3>Basic Skill Bonuses</h3>
-    <div class="bonus-grid">
+    <div class="bonus-grid-4col">
       {{#each system.basic as |bonus skill|}}
-      <div class="bonus-item">
-        <label>{{capitalize skill}}</label>
-        <input type="number" name="system.basic.{{skill}}.add_bonus" value="{{bonus.add_bonus}}" placeholder="0"/>
+      <div class="bonus-card">
+        <h4>{{capitalize skill}}</h4>
+        <div class="bonus-fields">
+          <div class="field-row">
+            <label>Bonus</label>
+            <input type="number" name="system.basic.{{skill}}.add_bonus" value="{{bonus.add_bonus}}" placeholder="0"/>
+          </div>
+          <div class="field-row">
+            <label>Set To</label>
+            <input type="number" name="system.basic.{{skill}}.set_bonus" value="{{bonus.set_bonus}}" placeholder="0"/>
+          </div>
+        </div>
       </div>
       {{/each}}
     </div>
@@ -34,18 +52,26 @@
   {{#if system.weapon}}
   <div class="bonus-category">
     <h3>Weapon Skill Bonuses</h3>
-    <div class="weapon-bonus-grid">
+    <div class="bonus-grid-compact">
       {{#each system.weapon as |bonus skill|}}
-      <div class="weapon-bonus-item">
+      <div class="bonus-card">
         <h4>{{capitalize skill}}</h4>
-        <div class="bonus-inputs">
-          <div class="form-group">
+        <div class="bonus-fields">
+          <div class="field-row">
             <label>Bonus</label>
             <input type="number" name="system.weapon.{{skill}}.add_bonus" value="{{bonus.add_bonus}}" placeholder="0"/>
           </div>
-          <div class="form-group">
+          <div class="field-row">
+            <label>Set To</label>
+            <input type="number" name="system.weapon.{{skill}}.set_bonus" value="{{bonus.set_bonus}}" placeholder="0"/>
+          </div>
+          <div class="field-row">
             <label>Talent</label>
             <input type="number" name="system.weapon.{{skill}}.add_talent" value="{{bonus.add_talent}}" placeholder="0"/>
+          </div>
+          <div class="field-row">
+            <label>Set To</label>
+            <input type="number" name="system.weapon.{{skill}}.set_talent" value="{{bonus.set_talent}}" placeholder="0"/>
           </div>
         </div>
       </div>
@@ -58,18 +84,26 @@
   {{#if system.magic}}
   <div class="bonus-category">
     <h3>Magic Skill Bonuses</h3>
-    <div class="weapon-bonus-grid">
+    <div class="bonus-grid-compact">
       {{#each system.magic as |bonus skill|}}
-      <div class="weapon-bonus-item">
+      <div class="bonus-card">
         <h4>{{capitalize skill}}</h4>
-        <div class="bonus-inputs">
-          <div class="form-group">
+        <div class="bonus-fields">
+          <div class="field-row">
             <label>Bonus</label>
             <input type="number" name="system.magic.{{skill}}.add_bonus" value="{{bonus.add_bonus}}" placeholder="0"/>
           </div>
-          <div class="form-group">
+          <div class="field-row">
+            <label>Set To</label>
+            <input type="number" name="system.magic.{{skill}}.set_bonus" value="{{bonus.set_bonus}}" placeholder="0"/>
+          </div>
+          <div class="field-row">
             <label>Talent</label>
             <input type="number" name="system.magic.{{skill}}.add_talent" value="{{bonus.add_talent}}" placeholder="0"/>
+          </div>
+          <div class="field-row">
+            <label>Set To</label>
+            <input type="number" name="system.magic.{{skill}}.set_talent" value="{{bonus.set_talent}}" placeholder="0"/>
           </div>
         </div>
       </div>
@@ -82,18 +116,26 @@
   {{#if system.craft}}
   <div class="bonus-category">
     <h3>Crafting Skill Bonuses</h3>
-    <div class="weapon-bonus-grid">
+    <div class="bonus-grid-compact">
       {{#each system.craft as |bonus skill|}}
-      <div class="weapon-bonus-item">
+      <div class="bonus-card">
         <h4>{{capitalize skill}}</h4>
-        <div class="bonus-inputs">
-          <div class="form-group">
+        <div class="bonus-fields">
+          <div class="field-row">
             <label>Bonus</label>
             <input type="number" name="system.craft.{{skill}}.add_bonus" value="{{bonus.add_bonus}}" placeholder="0"/>
           </div>
-          <div class="form-group">
+          <div class="field-row">
+            <label>Set To</label>
+            <input type="number" name="system.craft.{{skill}}.set_bonus" value="{{bonus.set_bonus}}" placeholder="0"/>
+          </div>
+          <div class="field-row">
             <label>Talent</label>
             <input type="number" name="system.craft.{{skill}}.add_talent" value="{{bonus.add_talent}}" placeholder="0"/>
+          </div>
+          <div class="field-row">
+            <label>Set To</label>
+            <input type="number" name="system.craft.{{skill}}.set_talent" value="{{bonus.set_talent}}" placeholder="0"/>
           </div>
         </div>
       </div>

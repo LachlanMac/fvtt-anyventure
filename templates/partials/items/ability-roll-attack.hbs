@@ -1,0 +1,177 @@
+{{!-- Ability Roll/Attack Partial --}}
+<div class="ability-roll-attack-section">
+  <h3>Roll / Attack</h3>
+
+  {{!-- Roll Type Selector --}}
+  <div class="roll-type-selector">
+    <div class="form-group">
+      <label>Roll Type</label>
+      <select name="system.rollType" data-dtype="String" class="roll-type-select">
+        <option value="none" {{#if (eq system.rollType "none")}}selected{{/if}}>None</option>
+        <option value="attack" {{#if (eq system.rollType "attack")}}selected{{/if}}>Attack</option>
+        <option value="skill_check" {{#if (eq system.rollType "skill_check")}}selected{{/if}}>Skill Check</option>
+      </select>
+    </div>
+  </div>
+
+  {{!-- Attack Data Section --}}
+  <div class="attack-data-section {{#unless (eq system.rollType 'attack')}}hidden{{/unless}}">
+    <h4>Attack Data</h4>
+
+    <div class="form-group">
+      <label>Attack Roll</label>
+      <input type="text" name="system.roll" value="{{system.roll}}" placeholder="2d6"/>
+    </div>
+
+    {{!-- Primary Damage --}}
+    <div class="damage-subsection">
+      <h5>Primary Damage</h5>
+      <div class="damage-fields">
+        <div class="form-group">
+          <label>Base Damage</label>
+          <input type="text" name="system.damage" value="{{system.damage}}" placeholder="3"/>
+        </div>
+        <div class="form-group">
+          <label>Extra Damage</label>
+          <input type="text" name="system.damage_extra" value="{{system.damage_extra}}" placeholder="2"/>
+        </div>
+        <div class="form-group">
+          <label>Damage Type</label>
+          <select name="system.damage_type" data-dtype="String">
+            <option value="physical" {{#if (eq system.damage_type "physical")}}selected{{/if}}>Physical</option>
+            <option value="heat" {{#if (eq system.damage_type "heat")}}selected{{/if}}>Heat</option>
+            <option value="cold" {{#if (eq system.damage_type "cold")}}selected{{/if}}>Cold</option>
+            <option value="lightning" {{#if (eq system.damage_type "lightning")}}selected{{/if}}>Lightning</option>
+            <option value="dark" {{#if (eq system.damage_type "dark")}}selected{{/if}}>Dark</option>
+            <option value="divine" {{#if (eq system.damage_type "divine")}}selected{{/if}}>Divine</option>
+            <option value="arcane" {{#if (eq system.damage_type "arcane")}}selected{{/if}}>Arcane</option>
+            <option value="psychic" {{#if (eq system.damage_type "psychic")}}selected{{/if}}>Psychic</option>
+            <option value="toxic" {{#if (eq system.damage_type "toxic")}}selected{{/if}}>Toxic</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select name="system.category" data-dtype="String">
+            <option value="slash" {{#if (eq system.category "slash")}}selected{{/if}}>Slash</option>
+            <option value="pierce" {{#if (eq system.category "pierce")}}selected{{/if}}>Pierce</option>
+            <option value="blunt" {{#if (eq system.category "blunt")}}selected{{/if}}>Blunt</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Secondary Damage --}}
+    <div class="damage-subsection">
+      <h5>Secondary Damage (Optional)</h5>
+      <div class="damage-fields">
+        <div class="form-group">
+          <label>Base Damage</label>
+          <input type="text" name="system.secondary_damage" value="{{system.secondary_damage}}" placeholder="0"/>
+        </div>
+        <div class="form-group">
+          <label>Extra Damage</label>
+          <input type="text" name="system.secondary_damage_extra" value="{{system.secondary_damage_extra}}" placeholder="0"/>
+        </div>
+        <div class="form-group">
+          <label>Damage Type</label>
+          <select name="system.secondary_damage_type" data-dtype="String">
+            <option value="">None</option>
+            <option value="physical" {{#if (eq system.secondary_damage_type "physical")}}selected{{/if}}>Physical</option>
+            <option value="heat" {{#if (eq system.secondary_damage_type "heat")}}selected{{/if}}>Heat</option>
+            <option value="cold" {{#if (eq system.secondary_damage_type "cold")}}selected{{/if}}>Cold</option>
+            <option value="lightning" {{#if (eq system.secondary_damage_type "lightning")}}selected{{/if}}>Lightning</option>
+            <option value="dark" {{#if (eq system.secondary_damage_type "dark")}}selected{{/if}}>Dark</option>
+            <option value="divine" {{#if (eq system.secondary_damage_type "divine")}}selected{{/if}}>Divine</option>
+            <option value="arcane" {{#if (eq system.secondary_damage_type "arcane")}}selected{{/if}}>Arcane</option>
+            <option value="psychic" {{#if (eq system.secondary_damage_type "psychic")}}selected{{/if}}>Psychic</option>
+            <option value="toxic" {{#if (eq system.secondary_damage_type "toxic")}}selected{{/if}}>Toxic</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Range --}}
+    <div class="range-section">
+      <h5>Range</h5>
+      <div class="range-fields">
+        <div class="form-group">
+          <label>Min Range</label>
+          <input type="number" name="system.min_range" value="{{system.min_range}}" placeholder="1"/>
+        </div>
+        <div class="form-group">
+          <label>Max Range</label>
+          <input type="number" name="system.max_range" value="{{system.max_range}}" placeholder="1"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{!-- Skill Check Section --}}
+  <div class="skill-check-section {{#unless (eq system.rollType 'skill_check')}}hidden{{/unless}}">
+    <h4>Skill Check</h4>
+
+    <div class="skill-check-fields">
+      <div class="form-group">
+        <label>Skill</label>
+        <select name="system.checkSkill" data-dtype="String">
+          <optgroup label="Basic Skills">
+            <option value="fitness" {{#if (eq system.checkSkill "fitness")}}selected{{/if}}>Fitness</option>
+            <option value="deflection" {{#if (eq system.checkSkill "deflection")}}selected{{/if}}>Deflection</option>
+            <option value="might" {{#if (eq system.checkSkill "might")}}selected{{/if}}>Might</option>
+            <option value="endurance" {{#if (eq system.checkSkill "endurance")}}selected{{/if}}>Endurance</option>
+            <option value="evasion" {{#if (eq system.checkSkill "evasion")}}selected{{/if}}>Evasion</option>
+            <option value="stealth" {{#if (eq system.checkSkill "stealth")}}selected{{/if}}>Stealth</option>
+            <option value="coordination" {{#if (eq system.checkSkill "coordination")}}selected{{/if}}>Coordination</option>
+            <option value="thievery" {{#if (eq system.checkSkill "thievery")}}selected{{/if}}>Thievery</option>
+            <option value="resilience" {{#if (eq system.checkSkill "resilience")}}selected{{/if}}>Resilience</option>
+            <option value="concentration" {{#if (eq system.checkSkill "concentration")}}selected{{/if}}>Concentration</option>
+            <option value="senses" {{#if (eq system.checkSkill "senses")}}selected{{/if}}>Senses</option>
+            <option value="logic" {{#if (eq system.checkSkill "logic")}}selected{{/if}}>Logic</option>
+            <option value="wildcraft" {{#if (eq system.checkSkill "wildcraft")}}selected{{/if}}>Wildcraft</option>
+            <option value="academics" {{#if (eq system.checkSkill "academics")}}selected{{/if}}>Academics</option>
+            <option value="magic" {{#if (eq system.checkSkill "magic")}}selected{{/if}}>Magic</option>
+            <option value="medicine" {{#if (eq system.checkSkill "medicine")}}selected{{/if}}>Medicine</option>
+            <option value="expression" {{#if (eq system.checkSkill "expression")}}selected{{/if}}>Expression</option>
+            <option value="presence" {{#if (eq system.checkSkill "presence")}}selected{{/if}}>Presence</option>
+            <option value="insight" {{#if (eq system.checkSkill "insight")}}selected{{/if}}>Insight</option>
+            <option value="persuasion" {{#if (eq system.checkSkill "persuasion")}}selected{{/if}}>Persuasion</option>
+          </optgroup>
+          <optgroup label="Weapon Skills">
+            <option value="brawling" {{#if (eq system.checkSkill "brawling")}}selected{{/if}}>Brawling</option>
+            <option value="throwing" {{#if (eq system.checkSkill "throwing")}}selected{{/if}}>Throwing</option>
+            <option value="simple_melee" {{#if (eq system.checkSkill "simple_melee")}}selected{{/if}}>Simple Melee</option>
+            <option value="simple_ranged" {{#if (eq system.checkSkill "simple_ranged")}}selected{{/if}}>Simple Ranged</option>
+            <option value="complex_melee" {{#if (eq system.checkSkill "complex_melee")}}selected{{/if}}>Complex Melee</option>
+            <option value="complex_ranged" {{#if (eq system.checkSkill "complex_ranged")}}selected{{/if}}>Complex Ranged</option>
+          </optgroup>
+          <optgroup label="Magic Skills">
+            <option value="black" {{#if (eq system.checkSkill "black")}}selected{{/if}}>Black Magic</option>
+            <option value="primal" {{#if (eq system.checkSkill "primal")}}selected{{/if}}>Primal Magic</option>
+            <option value="metamagic" {{#if (eq system.checkSkill "metamagic")}}selected{{/if}}>Metamagic</option>
+            <option value="divine" {{#if (eq system.checkSkill "divine")}}selected{{/if}}>Divine Magic</option>
+            <option value="mysticism" {{#if (eq system.checkSkill "mysticism")}}selected{{/if}}>Mysticism</option>
+          </optgroup>
+          <optgroup label="Craft Skills">
+            <option value="engineering" {{#if (eq system.checkSkill "engineering")}}selected{{/if}}>Engineering</option>
+            <option value="fabrication" {{#if (eq system.checkSkill "fabrication")}}selected{{/if}}>Fabrication</option>
+            <option value="alchemy" {{#if (eq system.checkSkill "alchemy")}}selected{{/if}}>Alchemy</option>
+            <option value="cooking" {{#if (eq system.checkSkill "cooking")}}selected{{/if}}>Cooking</option>
+            <option value="glyphcraft" {{#if (eq system.checkSkill "glyphcraft")}}selected{{/if}}>Glyphcraft</option>
+            <option value="biosculpting" {{#if (eq system.checkSkill "biosculpting")}}selected{{/if}}>Biosculpting</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Bonus / Penalty Dice</label>
+        <input type="number" name="system.checkDiceModifier" value="{{system.checkDiceModifier}}" placeholder="0" min="-10" max="10"/>
+        <small>Positive for bonus dice, negative for penalty dice</small>
+      </div>
+
+      <div class="form-group">
+        <label>Target DC (Optional)</label>
+        <input type="number" name="system.checkDC" value="{{system.checkDC}}" placeholder="Leave blank if contested"/>
+      </div>
+    </div>
+  </div>
+</div>

@@ -301,7 +301,7 @@
             "value": 0,
             "talent": 0
           },
-          "bioshaping": {
+          "biosculpting": {
             "value": 0,
             "talent": 0
           }
@@ -654,15 +654,271 @@
         "max": 0,
         "recovery": 0
       },
-      "movement": 0,
-      "attributes": {},
-      "basic": {},
-      "weapon": {},
-      "magic": {},
-      "craft": {},
-      "mitigation": {},
-      "detections": {},
-      "immunities": {},
+      "morale": {
+        "max": 0,
+        "recovery": 0
+      },
+      "movement": {
+        "walk": 0,
+        "swim": 0,
+        "climb": 0,
+        "fly": 0
+      },
+      "attributes": {
+        "physique": {
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "finesse": {
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "mind": {
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "knowledge": {
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "social": {
+          "add_talent": 0,
+          "set_talent": 0
+        }
+      },
+      "basic": {
+        "fitness": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "deflection": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "might": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "endurance": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "evasion": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "stealth": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "coordination": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "thievery": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "resilience": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "concentration": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "senses": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "logic": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "wildcraft": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "academics": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "magic": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "medicine": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "expression": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "presence": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "insight": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        },
+        "persuasion": {
+          "add_bonus": 0,
+          "set_bonus": 0
+        }
+      },
+      "weapon": {
+        "brawling": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "throwing": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "simpleMeleeWeapons": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "simpleRangedWeapons": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "complexMeleeWeapons": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "complexRangedWeapons": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        }
+      },
+      "magic": {
+        "black": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "primal": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "metamagic": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "divine": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "mysticism": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        }
+      },
+      "craft": {
+        "engineering": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "fabrication": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "alchemy": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "cooking": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "glyphcraft": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "biosculpting": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        }
+      },
+      "mitigation": {
+        "physical": 0,
+        "heat": 0,
+        "cold": 0,
+        "electric": 0,
+        "dark": 0,
+        "divine": 0,
+        "aether": 0,
+        "psychic": 0,
+        "toxic": 0
+      },
+      "detections": {
+        "normal": 0,
+        "darksight": 0,
+        "infravision": 0,
+        "deadsight": 0,
+        "echolocation": 0,
+        "tremorsense": 0,
+        "truesight": 0,
+        "aethersight": 0
+      },
+      "immunities": {
+        "afraid": false,
+        "bleeding": false,
+        "blinded": false,
+        "broken": false,
+        "charmed": false,
+        "confused": false,
+        "dazed": false,
+        "deafened": false,
+        "diseased": false,
+        "hidden": false,
+        "ignited": false,
+        "impaired": false,
+        "incapacitated": false,
+        "maddened": false,
+        "muted": false,
+        "numbed": false,
+        "poisoned": false,
+        "prone": false,
+        "stunned": false,
+        "winded": false
+      },
       "effects": [],
       "properties": ""
     },
@@ -673,10 +929,31 @@
     },
     "action": {
       "templates": ["base", "ability", "attackData"],
-      "abilityType": "action"
+      "abilityType": "action",
+      "trigger": "",
+      "target": "",
+      "range": "",
+      "duration": "",
+      "requirements": "",
+      "effect": "",
+      "rollType": "none",
+      "checkSkill": "",
+      "checkDiceModifier": 0,
+      "checkDC": 0
     },
     "reaction": {
-      "templates": ["base", "ability", "attackData"]
+      "templates": ["base", "ability", "attackData"],
+      "abilityType": "reaction",
+      "trigger": "",
+      "target": "",
+      "range": "",
+      "duration": "",
+      "requirements": "",
+      "effect": "",
+      "rollType": "none",
+      "checkSkill": "",
+      "checkDiceModifier": 0,
+      "checkDC": 0
     },
     "passive": {
       "templates": ["base", "ability"]

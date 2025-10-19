@@ -2824,6 +2824,98 @@
   grid-template-columns: 1fr 1fr;
   gap: 4px;
 }
+.anyventure.item .bonus-category .bonus-grid-4col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.anyventure.item .bonus-category .bonus-grid-compact {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.anyventure.item .bonus-category .bonus-card {
+  background: rgba(45, 36, 56, 0.3);
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid rgba(155, 137, 179, 0.2);
+}
+.anyventure.item .bonus-category .bonus-card h4 {
+  color: #ffd700;
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  text-align: center;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+}
+.anyventure.item .bonus-category .bonus-card .bonus-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.anyventure.item .bonus-category .bonus-card .bonus-fields .field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+.anyventure.item .bonus-category .bonus-card .bonus-fields .field-row label {
+  font-size: 11px;
+  color: #e8e3f0;
+  flex: 0 0 auto;
+  min-width: 50px;
+}
+.anyventure.item .bonus-category .bonus-card .bonus-fields .field-row input {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+.anyventure.item .resource-bonuses-section {
+  margin-bottom: 12px;
+}
+.anyventure.item .resource-bonuses-section h3 {
+  color: #ffd700;
+  border-bottom: 2px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+  margin-bottom: 8px;
+}
+.anyventure.item .resource-grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.anyventure.item .resource-card {
+  background: rgba(45, 36, 56, 0.3);
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid rgba(155, 137, 179, 0.2);
+}
+.anyventure.item .resource-card h4 {
+  color: #ffd700;
+  text-align: center;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+  margin-bottom: 4px;
+}
+.anyventure.item .resource-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.anyventure.item .movement-bonuses-section {
+  margin-bottom: 12px;
+}
+.anyventure.item .movement-bonuses-section h3 {
+  color: #ffd700;
+  border-bottom: 2px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+  margin-bottom: 8px;
+}
+.anyventure.item .movement-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
 .anyventure.item .mitigation-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2880,6 +2972,113 @@
 }
 .anyventure.item .form-group.stacked {
   margin-bottom: 8px;
+}
+.anyventure.item .form-group.checkbox-group {
+  flex-direction: row;
+  align-items: center;
+}
+.anyventure.item .form-group.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  text-transform: none;
+  font-size: 12px;
+}
+.anyventure.item .form-group.checkbox-group label input[type=checkbox] {
+  margin: 0;
+  cursor: pointer;
+}
+.anyventure.item .form-group small {
+  color: rgba(232, 227, 240, 0.7);
+  font-size: 11px;
+  font-style: italic;
+}
+.anyventure {
+  /* ----------------------------------------- */
+  /*  Ability (Action/Reaction) Sheet Styles  */
+  /* ----------------------------------------- */
+}
+.anyventure .ability-basic-section h3,
+.anyventure .ability-properties-section h3,
+.anyventure .ability-roll-attack-section h3 {
+  color: #ffd700;
+  border-bottom: 2px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+  margin-bottom: 8px;
+}
+.anyventure .ability-basic-section h4,
+.anyventure .ability-properties-section h4,
+.anyventure .ability-roll-attack-section h4 {
+  color: #b8860b;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.2);
+  padding-bottom: 2px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+.anyventure .ability-basic-section h5,
+.anyventure .ability-properties-section h5,
+.anyventure .ability-roll-attack-section h5 {
+  color: #e8e3f0;
+  margin-top: 4px;
+  margin-bottom: 2px;
+  font-size: 12px;
+}
+.anyventure .ability-basic-fields,
+.anyventure .ability-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.anyventure .roll-type-selector {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.2);
+}
+.anyventure .attack-data-section,
+.anyventure .skill-check-section {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(45, 36, 56, 0.2);
+  border-radius: 4px;
+  border: 1px solid rgba(155, 137, 179, 0.2);
+}
+.anyventure .attack-data-section.hidden,
+.anyventure .skill-check-section.hidden {
+  display: none;
+}
+.anyventure .damage-subsection {
+  margin-top: 8px;
+  padding: 4px;
+  background: rgba(26, 21, 37, 0.3);
+  border-radius: 4px;
+}
+.anyventure .damage-fields {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  margin-top: 4px;
+}
+@media (max-width: 600px) {
+  .anyventure .damage-fields {
+    grid-template-columns: 1fr;
+  }
+}
+.anyventure .range-section {
+  margin-top: 8px;
+}
+.anyventure .range-fields {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+}
+.anyventure .skill-check-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.anyventure .hidden {
+  display: none !important;
 }
 .anyventure {
   /* ----------------------------------------- */
