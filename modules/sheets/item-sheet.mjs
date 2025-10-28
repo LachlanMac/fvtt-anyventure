@@ -141,15 +141,16 @@ export class AnyventureItemSheet extends foundry.appv1.sheets.ItemSheet {
    */
   _prepareSpellData(context) {
     context.magicTypes = [
-      'black', 'primal', 'metamagic', 'divine', 'mysticism'
+      'black', 'primal', 'meta', 'white', 'mysticism', 'arcane'
     ];
 
     context.spellSchools = {
       black: ['necromancy', 'witchcraft', 'fiend'],
       primal: ['elemental', 'nature', 'cosmic'],
-      metamagic: ['transmutation', 'illusion', 'fey'],
-      divine: ['abjuration', 'radiant', 'draconic'],
-      mysticism: ['spirit', 'divination', 'astral']
+      meta: ['transmutation', 'illusion', 'fey'],
+      white: ['abjuration', 'radiant', 'draconic'],
+      mysticism: ['spirit', 'divination', 'astral'],
+      arcane: ['enchantment', 'conjuration', 'chaos']
     };
 
     context.damageTypes = [

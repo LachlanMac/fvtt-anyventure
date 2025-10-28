@@ -79,13 +79,14 @@ export function createEmptyDelta() {
       complexRangedWeapons: { skill: 0, talent: 0, tier: 0 }
     },
 
-    // Magic Skills (YS1-YS5, YT1-YT5)
+    // Magic Skills (YS1-YS6, YT1-YT6)
     magicSkills: {
       black: { skill: 0, talent: 0, tier: 0 },
       primal: { skill: 0, talent: 0, tier: 0 },
-      metamagic: { skill: 0, talent: 0, tier: 0 },
-      divine: { skill: 0, talent: 0, tier: 0 },
-      mysticism: { skill: 0, talent: 0, tier: 0 }
+      meta: { skill: 0, talent: 0, tier: 0 },
+      white: { skill: 0, talent: 0, tier: 0 },
+      mysticism: { skill: 0, talent: 0, tier: 0 },
+      arcane: { skill: 0, talent: 0, tier: 0 }
     },
 
     // Crafting Skills (CS1-CS6, CT1-CT6)
@@ -418,9 +419,10 @@ function parseMagicEffect([_, type, code, valueStr], delta) {
   const magicMap = {
     '1': 'black',
     '2': 'primal',
-    '3': 'metamagic',
-    '4': 'divine',
-    '5': 'mysticism'
+    '3': 'meta',
+    '4': 'white',
+    '5': 'mysticism',
+    '6': 'arcane'
   };
 
   const magicName = magicMap[code];

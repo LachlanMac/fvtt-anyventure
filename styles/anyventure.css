@@ -3088,6 +3088,47 @@
 }
 .anyventure {
   /* ----------------------------------------- */
+  /*  Action/Reaction Sheet Styles            */
+  /* ----------------------------------------- */
+}
+.anyventure .action-basic-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.anyventure .action-checkboxes {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+.anyventure .attack-section,
+.anyventure .autoroll-section {
+  margin-bottom: 12px;
+}
+.anyventure .attack-section h3,
+.anyventure .autoroll-section h3 {
+  color: #ffd700;
+  border-bottom: 2px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+  margin-bottom: 8px;
+}
+.anyventure .attack-fields {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+@media (max-width: 600px) {
+  .anyventure .attack-fields {
+    grid-template-columns: 1fr;
+  }
+}
+.anyventure .autoroll-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.anyventure {
+  /* ----------------------------------------- */
   /*  Equipment Tab Styles                    */
   /* ----------------------------------------- */
 }

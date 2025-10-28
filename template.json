@@ -267,15 +267,19 @@
             "value": 0,
             "talent": 0
           },
-          "metamagic": {
+          "meta": {
             "value": 0,
             "talent": 0
           },
-          "divine": {
+          "white": {
             "value": 0,
             "talent": 0
           },
           "mysticism": {
+            "value": 0,
+            "talent": 0
+          },
+          "arcane": {
             "value": 0,
             "talent": 0
           }
@@ -429,7 +433,7 @@
     }
   },
   "Item": {
-    "types": ["module", "ancestry", "culture", "trait", "item", "spell", "song", "language", "action", "reaction", "passive", "injury", "training"],
+    "types": ["module", "ancestry", "culture", "trait", "item", "spell", "song", "language", "action", "reaction", "passive", "injury", "training", "body_part"],
     "templates": {
       "base": {
         "description": "",
@@ -448,7 +452,7 @@
         "magic": false
       },
       "attackData": {
-        "roll": "2d6",
+        "roll": "",
         "damage": "0",
         "damage_extra": "0",
         "damage_type": "physical",
@@ -629,7 +633,7 @@
         "energy": 0
       },
       "secondary": {
-        "roll": "2d6",
+        "roll": "0",
         "damage": "0",
         "damage_extra": "0",
         "damage_type": "physical",
@@ -819,19 +823,25 @@
           "add_talent": 0,
           "set_talent": 0
         },
-        "metamagic": {
+        "meta": {
           "add_bonus": 0,
           "set_bonus": 0,
           "add_talent": 0,
           "set_talent": 0
         },
-        "divine": {
+        "white": {
           "add_bonus": 0,
           "set_bonus": 0,
           "add_talent": 0,
           "set_talent": 0
         },
         "mysticism": {
+          "add_bonus": 0,
+          "set_bonus": 0,
+          "add_talent": 0,
+          "set_talent": 0
+        },
+        "arcane": {
           "add_bonus": 0,
           "set_bonus": 0,
           "add_talent": 0,
@@ -930,30 +940,16 @@
     "action": {
       "templates": ["base", "ability", "attackData"],
       "abilityType": "action",
-      "trigger": "",
-      "target": "",
-      "range": "",
-      "duration": "",
-      "requirements": "",
-      "effect": "",
-      "rollType": "none",
-      "checkSkill": "",
-      "checkDiceModifier": 0,
-      "checkDC": 0
+      "rollValue": "",
+      "singleRoll": false,
+      "checkSkill": ""
     },
     "reaction": {
       "templates": ["base", "ability", "attackData"],
       "abilityType": "reaction",
-      "trigger": "",
-      "target": "",
-      "range": "",
-      "duration": "",
-      "requirements": "",
-      "effect": "",
-      "rollType": "none",
-      "checkSkill": "",
-      "checkDiceModifier": 0,
-      "checkDC": 0
+      "rollValue": "",
+      "singleRoll": false,
+      "checkSkill": ""
     },
     "passive": {
       "templates": ["base", "ability"]
@@ -971,6 +967,21 @@
      "training": {
       "templates": ["base"],
       "data": ""
+    },
+     "body_part": {
+      "templates": ["base"],
+      "data": ""
+    },
+      "implant":{
+        "templates": ["base"],
+          "data": "",
+          "implant_data": {
+            "implant_type": "arm",
+            "pain_penalty": 2,
+            "health_penalty": 2,
+            "resolve_penalty": 1,
+            "rejection_check": 8
+          }
+      }
     }
-  }
 }

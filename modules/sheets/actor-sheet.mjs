@@ -871,10 +871,13 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       'primal': 'Primal Magic',
       'black_magic': 'Black Magic',
       'black': 'Black Magic',
-      'divine_magic': 'Divine Magic',
-      'divine': 'Divine Magic',
-      'metamagic': 'Meta Magic',
-      'mysticism': 'Mysticism'
+      'white_magic': 'White Magic',
+      'white': 'White Magic',
+      'meta_magic': 'Meta Magic',
+      'meta': 'Meta Magic',
+      'mysticism': 'Mysticism',
+      'arcane_magic': 'Arcane Magic',
+      'arcane': 'Arcane Magic'
     };
 
     if (magicCategories[attackData.category]) {
@@ -920,10 +923,13 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       'primal': 'primal',
       'black_magic': 'black',
       'black': 'black',
-      'metamagic': 'metamagic',
-      'divine_magic': 'divine',
-      'divine': 'divine',
-      'mysticism': 'mysticism'
+      'meta_magic': 'meta',
+      'meta': 'meta',
+      'white_magic': 'white',
+      'white': 'white',
+      'mysticism': 'mysticism',
+      'arcane_magic': 'arcane',
+      'arcane': 'arcane'
     };
 
     // Use rawCategory if available (unformatted), otherwise use category

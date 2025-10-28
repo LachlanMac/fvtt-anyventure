@@ -16,7 +16,12 @@
       "Bash(curl -s http://192.168.1.170:1234/v1/models)",
       "Bash(curl -s -X POST http://192.168.1.170:1234/v1/chat/completions )",
       "Bash(curl:*)",
-      "Read(//mnt/c/Users/lachl/OneDrive/Desktop/**)"
+      "Read(//mnt/c/Users/lachl/OneDrive/Desktop/**)",
+      "Bash(git restore templates/)",
+      "Bash(git restore --source=7111271 templates/)",
+      "Bash(git restore --source=7111271 modules/sheets/actor-sheet.mjs)",
+      "Bash(git restore --source=5890c2f modules/sheets/actor-sheet.mjs)",
+      "Bash(awk -F: '$1 > 1066 && $1 < 1400 {print $1}')"
     ],
     "deny": []
   }

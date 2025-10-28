@@ -118,9 +118,10 @@ export function formatCategory(category) {
   const magicCategories = {
     'primal_magic': 'Primal Magic',
     'black_magic': 'Black Magic',
-    'divine_magic': 'Divine Magic',
-    'meta_magic' : 'Meta Magic',
-    'mysticism_magic':'Mysticism Magic'
+    'white_magic': 'White Magic',
+    'meta_magic': 'Meta Magic',
+    'mysticism_magic':'Mysticism Magic',
+    'arcane_magic': 'Arcane Magic'
   };
 
   if (magicCategories[category]) {

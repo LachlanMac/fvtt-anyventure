@@ -7,8 +7,6 @@
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item active" data-tab="basic">Basic</a>
     <a class="item" data-tab="properties">Properties</a>
-    <a class="item" data-tab="roll">Roll / Attack</a>
-    <a class="item" data-tab="description">Description</a>
   </nav>
 
   {{!-- Sheet Body --}}
@@ -16,63 +14,164 @@
 
     {{!-- Basic Tab --}}
     <div class="tab active" data-group="primary" data-tab="basic">
-      <div class="ability-basic-section">
-        <h3>Basic Info</h3>
+      <div class="action-basic-section">
+        <div class="form-group">
+          <label>Energy Cost</label>
+          <input type="number" name="system.energy" value="{{system.energy}}" data-dtype="Number" min="0" max="10" placeholder="0"/>
+        </div>
 
-        <div class="ability-basic-fields">
-          <div class="form-group">
-            <label>Source</label>
-            <input type="text" name="system.source" value="{{system.source}}" placeholder="Default Actions"/>
-          </div>
-
-          <div class="form-group">
-            <label>Anyventure ID</label>
-            <input type="text" name="system.anyventure_id" value="{{system.anyventure_id}}" placeholder="default_action_sprint"/>
-            <small>Unique identifier for this ability</small>
-          </div>
-
-          <div class="form-group">
-            <label>Energy Cost</label>
-            <input type="number" name="system.energy" value="{{system.energy}}" data-dtype="Number" min="0" max="10" placeholder="0"/>
-          </div>
-
+        <div class="action-checkboxes">
           <div class="form-group checkbox-group">
             <label>
               <input type="checkbox" name="system.daily" {{#if system.daily}}checked{{/if}}/>
-              Daily Use (Limited to once per day)
+              Daily Use
             </label>
           </div>
-
-          <div class="form-group checkbox-group">
-            <label>
-              <input type="checkbox" name="system.used" {{#if system.used}}checked{{/if}}/>
-              Used (Track if daily ability was used)
-            </label>
-          </div>
-
           <div class="form-group checkbox-group">
             <label>
               <input type="checkbox" name="system.magic" {{#if system.magic}}checked{{/if}}/>
-              Magical Ability
+              Magical
             </label>
           </div>
+        </div>
+
+        {{!-- Description --}}
+        <div class="form-group stacked">
+          <label>Description</label>
+          <div class="editor">{{editor system.description target="system.description" button=true owner=owner editable=editable}}</div>
         </div>
       </div>
     </div>
 
     {{!-- Properties Tab --}}
     <div class="tab" data-group="primary" data-tab="properties">
-      {{> "systems/anyventure/templates/partials/items/ability-properties.hbs"}}
-    </div>
 
-    {{!-- Roll / Attack Tab --}}
-    <div class="tab" data-group="primary" data-tab="roll">
-      {{> "systems/anyventure/templates/partials/items/ability-roll-attack.hbs"}}
-    </div>
+      {{!-- Optional Attack Section --}}
+      <div class="attack-section">
+        <h3>Attack (Optional)</h3>
+        <div class="attack-fields">
+          <div class="form-group">
+            <label>Attack Roll</label>
+            <input type="text" name="system.roll" value="{{system.roll}}" placeholder="2d6"/>
+          </div>
 
-    {{!-- Description Tab --}}
-    <div class="tab" data-group="primary" data-tab="description">
-      {{> "systems/anyventure/templates/partials/items/description.hbs"}}
+          <div class="form-group">
+            <label>Base Damage</label>
+            <input type="text" name="system.damage" value="{{system.damage}}" placeholder="0"/>
+          </div>
+
+          <div class="form-group">
+            <label>Extra Damage</label>
+            <input type="text" name="system.damage_extra" value="{{system.damage_extra}}" placeholder="0"/>
+          </div>
+
+          <div class="form-group">
+            <label>Damage Type</label>
+            <select name="system.damage_type" data-dtype="String">
+              <option value="physical" {{#if (eq system.damage_type "physical")}}selected{{/if}}>Physical</option>
+              <option value="heat" {{#if (eq system.damage_type "heat")}}selected{{/if}}>Heat</option>
+              <option value="cold" {{#if (eq system.damage_type "cold")}}selected{{/if}}>Cold</option>
+              <option value="lightning" {{#if (eq system.damage_type "lightning")}}selected{{/if}}>Lightning</option>
+              <option value="dark" {{#if (eq system.damage_type "dark")}}selected{{/if}}>Dark</option>
+              <option value="divine" {{#if (eq system.damage_type "divine")}}selected{{/if}}>Divine</option>
+              <option value="arcane" {{#if (eq system.damage_type "arcane")}}selected{{/if}}>Arcane</option>
+              <option value="psychic" {{#if (eq system.damage_type "psychic")}}selected{{/if}}>Psychic</option>
+              <option value="toxic" {{#if (eq system.damage_type "toxic")}}selected{{/if}}>Toxic</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Category</label>
+            <select name="system.category" data-dtype="String">
+              <option value="slash" {{#if (eq system.category "slash")}}selected{{/if}}>Slash</option>
+              <option value="pierce" {{#if (eq system.category "pierce")}}selected{{/if}}>Pierce</option>
+              <option value="blunt" {{#if (eq system.category "blunt")}}selected{{/if}}>Blunt</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Min Range</label>
+            <input type="number" name="system.min_range" value="{{system.min_range}}" placeholder="1"/>
+          </div>
+
+          <div class="form-group">
+            <label>Max Range</label>
+            <input type="number" name="system.max_range" value="{{system.max_range}}" placeholder="1"/>
+          </div>
+        </div>
+      </div>
+
+      {{!-- Auto Roll Section --}}
+      <div class="autoroll-section">
+        <h3>Auto Roll</h3>
+        <div class="autoroll-fields">
+          <div class="form-group">
+            <label>Skill</label>
+            <select name="system.checkSkill" data-dtype="String">
+              <option value="">None</option>
+              <optgroup label="Basic Skills">
+                <option value="fitness" {{#if (eq system.checkSkill "fitness")}}selected{{/if}}>Fitness</option>
+                <option value="deflection" {{#if (eq system.checkSkill "deflection")}}selected{{/if}}>Deflection</option>
+                <option value="might" {{#if (eq system.checkSkill "might")}}selected{{/if}}>Might</option>
+                <option value="endurance" {{#if (eq system.checkSkill "endurance")}}selected{{/if}}>Endurance</option>
+                <option value="evasion" {{#if (eq system.checkSkill "evasion")}}selected{{/if}}>Evasion</option>
+                <option value="stealth" {{#if (eq system.checkSkill "stealth")}}selected{{/if}}>Stealth</option>
+                <option value="coordination" {{#if (eq system.checkSkill "coordination")}}selected{{/if}}>Coordination</option>
+                <option value="thievery" {{#if (eq system.checkSkill "thievery")}}selected{{/if}}>Thievery</option>
+                <option value="resilience" {{#if (eq system.checkSkill "resilience")}}selected{{/if}}>Resilience</option>
+                <option value="concentration" {{#if (eq system.checkSkill "concentration")}}selected{{/if}}>Concentration</option>
+                <option value="senses" {{#if (eq system.checkSkill "senses")}}selected{{/if}}>Senses</option>
+                <option value="logic" {{#if (eq system.checkSkill "logic")}}selected{{/if}}>Logic</option>
+                <option value="wildcraft" {{#if (eq system.checkSkill "wildcraft")}}selected{{/if}}>Wildcraft</option>
+                <option value="academics" {{#if (eq system.checkSkill "academics")}}selected{{/if}}>Academics</option>
+                <option value="magic" {{#if (eq system.checkSkill "magic")}}selected{{/if}}>Magic</option>
+                <option value="medicine" {{#if (eq system.checkSkill "medicine")}}selected{{/if}}>Medicine</option>
+                <option value="expression" {{#if (eq system.checkSkill "expression")}}selected{{/if}}>Expression</option>
+                <option value="presence" {{#if (eq system.checkSkill "presence")}}selected{{/if}}>Presence</option>
+                <option value="insight" {{#if (eq system.checkSkill "insight")}}selected{{/if}}>Insight</option>
+                <option value="persuasion" {{#if (eq system.checkSkill "persuasion")}}selected{{/if}}>Persuasion</option>
+              </optgroup>
+              <optgroup label="Weapon Skills">
+                <option value="brawling" {{#if (eq system.checkSkill "brawling")}}selected{{/if}}>Brawling</option>
+                <option value="throwing" {{#if (eq system.checkSkill "throwing")}}selected{{/if}}>Throwing</option>
+                <option value="simple_melee" {{#if (eq system.checkSkill "simple_melee")}}selected{{/if}}>Simple Melee</option>
+                <option value="simple_ranged" {{#if (eq system.checkSkill "simple_ranged")}}selected{{/if}}>Simple Ranged</option>
+                <option value="complex_melee" {{#if (eq system.checkSkill "complex_melee")}}selected{{/if}}>Complex Melee</option>
+                <option value="complex_ranged" {{#if (eq system.checkSkill "complex_ranged")}}selected{{/if}}>Complex Ranged</option>
+              </optgroup>
+              <optgroup label="Magic Skills">
+                <option value="black" {{#if (eq system.checkSkill "black")}}selected{{/if}}>Black Magic</option>
+                <option value="primal" {{#if (eq system.checkSkill "primal")}}selected{{/if}}>Primal Magic</option>
+                <option value="meta" {{#if (eq system.checkSkill "meta")}}selected{{/if}}>Meta Magic</option>
+                <option value="white" {{#if (eq system.checkSkill "white")}}selected{{/if}}>White Magic</option>
+                <option value="mysticism" {{#if (eq system.checkSkill "mysticism")}}selected{{/if}}>Mysticism</option>
+                <option value="arcane" {{#if (eq system.checkSkill "arcane")}}selected{{/if}}>Arcane Magic</option>
+              </optgroup>
+              <optgroup label="Craft Skills">
+                <option value="engineering" {{#if (eq system.checkSkill "engineering")}}selected{{/if}}>Engineering</option>
+                <option value="fabrication" {{#if (eq system.checkSkill "fabrication")}}selected{{/if}}>Fabrication</option>
+                <option value="alchemy" {{#if (eq system.checkSkill "alchemy")}}selected{{/if}}>Alchemy</option>
+                <option value="cooking" {{#if (eq system.checkSkill "cooking")}}selected{{/if}}>Cooking</option>
+                <option value="glyphcraft" {{#if (eq system.checkSkill "glyphcraft")}}selected{{/if}}>Glyphcraft</option>
+                <option value="biosculpting" {{#if (eq system.checkSkill "biosculpting")}}selected{{/if}}>Biosculpting</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Roll Value</label>
+            <input type="text" name="system.rollValue" value="{{system.rollValue}}" placeholder="e.g., 10"/>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label>
+              <input type="checkbox" name="system.singleRoll" {{#if system.singleRoll}}checked{{/if}}/>
+              Single Roll (1d)
+            </label>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </section>

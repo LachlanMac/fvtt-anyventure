@@ -6,11 +6,12 @@
     <div class="form-group">
       <label>School</label>
       <select name="system.school" data-dtype="String">
-        <option value="meta" {{#if (eq system.school "meta")}}selected{{/if}}>Metamagic</option>
+        <option value="meta" {{#if (eq system.school "meta")}}selected{{/if}}>Meta Magic</option>
         <option value="black" {{#if (eq system.school "black")}}selected{{/if}}>Black Magic</option>
-        <option value="divine" {{#if (eq system.school "divine")}}selected{{/if}}>Divine</option>
+        <option value="white" {{#if (eq system.school "white")}}selected{{/if}}>White Magic</option>
         <option value="mysticism" {{#if (eq system.school "mysticism")}}selected{{/if}}>Mysticism</option>
         <option value="primal" {{#if (eq system.school "primal")}}selected{{/if}}>Primal</option>
+        <option value="arcane" {{#if (eq system.school "arcane")}}selected{{/if}}>Arcane</option>
       </select>
     </div>
 
@@ -25,18 +26,22 @@
           <option value="fiend" {{#if (eq system.subschool "fiend")}}selected{{/if}}>Fiend</option>
           <option value="necromancy" {{#if (eq system.subschool "necromancy")}}selected{{/if}}>Necromancy</option>
           <option value="witchcraft" {{#if (eq system.subschool "witchcraft")}}selected{{/if}}>Witchcraft</option>
-        {{else if (eq system.school "divine")}}
-          <option value="celestial" {{#if (eq system.subschool "celestial")}}selected{{/if}}>Celestial</option>
+        {{else if (eq system.school "white")}}
+          <option value="abjuration" {{#if (eq system.subschool "abjuration")}}selected{{/if}}>Abjuration</option>
           <option value="radiant" {{#if (eq system.subschool "radiant")}}selected{{/if}}>Radiant</option>
-          <option value="protection" {{#if (eq system.subschool "protection")}}selected{{/if}}>Protection</option>
+          <option value="draconic" {{#if (eq system.subschool "draconic")}}selected{{/if}}>Draconic</option>
         {{else if (eq system.school "mysticism")}}
           <option value="spirit" {{#if (eq system.subschool "spirit")}}selected{{/if}}>Spirit</option>
           <option value="divination" {{#if (eq system.subschool "divination")}}selected{{/if}}>Divination</option>
-          <option value="cosmic" {{#if (eq system.subschool "cosmic")}}selected{{/if}}>Cosmic</option>
+          <option value="astral" {{#if (eq system.subschool "astral")}}selected{{/if}}>Astral</option>
         {{else if (eq system.school "primal")}}
-          <option value="draconic" {{#if (eq system.subschool "draconic")}}selected{{/if}}>Draconic</option>
           <option value="elemental" {{#if (eq system.subschool "elemental")}}selected{{/if}}>Elemental</option>
           <option value="nature" {{#if (eq system.subschool "nature")}}selected{{/if}}>Nature</option>
+          <option value="cosmic" {{#if (eq system.subschool "cosmic")}}selected{{/if}}>Cosmic</option>
+        {{else if (eq system.school "arcane")}}
+          <option value="enchantment" {{#if (eq system.subschool "enchantment")}}selected{{/if}}>Enchantment</option>
+          <option value="conjuration" {{#if (eq system.subschool "conjuration")}}selected{{/if}}>Conjuration</option>
+          <option value="chaos" {{#if (eq system.subschool "chaos")}}selected{{/if}}>Chaos</option>
         {{/if}}
       </select>
     </div>

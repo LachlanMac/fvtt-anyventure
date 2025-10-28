@@ -27,6 +27,7 @@ export class AnyventureItem extends Item {
   }
 
   async _preUpdate(changed, options, user) {
+    
     const stackLimitRaw = Number(this.system?.stack_limit);
     const stackLimit = Number.isFinite(stackLimitRaw) ? stackLimitRaw : 0;
 

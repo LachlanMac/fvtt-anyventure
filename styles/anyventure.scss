@@ -3683,6 +3683,50 @@
   }
 
   /* ----------------------------------------- */
+  /*  Action/Reaction Sheet Styles            */
+  /* ----------------------------------------- */
+
+  .action-basic-section {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  .action-checkboxes {
+    display: flex;
+    gap: $spacing-lg;
+    margin-top: $spacing-sm;
+  }
+
+  .attack-section,
+  .autoroll-section {
+    margin-bottom: $spacing-lg;
+
+    h3 {
+      color: $gold-bright;
+      border-bottom: 2px solid rgba($border-light, 0.3);
+      padding-bottom: $spacing-xs;
+      margin-bottom: $spacing-md;
+    }
+  }
+
+  .attack-fields {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-md;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .autoroll-fields {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  /* ----------------------------------------- */
   /*  Equipment Tab Styles                    */
   /* ----------------------------------------- */
 
