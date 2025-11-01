@@ -1903,6 +1903,38 @@
   flex-direction: column;
   gap: 4px;
 }
+.anyventure .spells-section .spell-school-header {
+  margin-top: 8px;
+  margin-bottom: 2px;
+  padding: 2px 4px;
+  background: linear-gradient(90deg, rgba(218, 165, 32, 0.2), transparent);
+  border-left: 3px solid #daa520;
+}
+.anyventure .spells-section .spell-school-header .school-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.anyventure .spells-section .spell-school-header h3 {
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #ffd700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.anyventure .spells-section .spell-school-header .casting-formula {
+  font-size: 0.95em;
+  color: rgba(255, 215, 0, 0.8);
+  font-weight: 500;
+  padding: 2px 8px;
+  background: rgba(45, 36, 56, 0.4);
+  border-radius: 3px;
+  border: 1px solid rgba(218, 165, 32, 0.3);
+}
+.anyventure .spells-section .spell-school-header:first-child {
+  margin-top: 0;
+}
 .anyventure .spells-section .anyventure-spell-card {
   display: grid;
   grid-template-columns: 32px 1fr 80px auto;
@@ -4973,6 +5005,38 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+.spells-container .spells-section .spell-school-header {
+  margin-top: 8px;
+  margin-bottom: 2px;
+  padding: 2px 4px;
+  background: linear-gradient(90deg, rgba(218, 165, 32, 0.2), transparent);
+  border-left: 3px solid #daa520;
+}
+.spells-container .spells-section .spell-school-header .school-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.spells-container .spells-section .spell-school-header h3 {
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #ffd700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.spells-container .spells-section .spell-school-header .casting-formula {
+  font-size: 0.95em;
+  color: rgba(255, 215, 0, 0.8);
+  font-weight: 500;
+  padding: 2px 8px;
+  background: rgba(45, 36, 56, 0.4);
+  border-radius: 3px;
+  border: 1px solid rgba(218, 165, 32, 0.3);
+}
+.spells-container .spells-section .spell-school-header:first-child {
+  margin-top: 0;
 }
 .spells-container .spells-section .anyventure-spell-card {
   display: grid;

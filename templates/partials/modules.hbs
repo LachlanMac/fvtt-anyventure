@@ -361,6 +361,73 @@
           {{/each}}
         </div>
       </div>
+
+      {{!-- Implants Section --}}
+      <div class="moves-section">
+        <div class="section-header">
+          <h3>Implants</h3>
+        </div>
+        <div class="moves-list">
+          {{#each implantCards as |implant|}}
+          <div class="ability-item implant-item" data-item-id="{{implant.id}}">
+            <div class="ability-icon">
+              <img src="{{implant.icon}}" alt="{{implant.name}}" />
+            </div>
+            <div class="ability-content">
+              <div class="ability-header">
+                <h4 class="ability-name">{{implant.name}}</h4>
+                <div class="implant-info">
+                  <span class="implant-type">{{capitalize implant.implantType}}</span>
+                  {{#if (gt implant.rejectionCheck 0)}}
+                  <span class="rejection-check">RC: {{implant.rejectionCheck}}</span>
+                  {{/if}}
+                </div>
+              </div>
+              <div class="implant-penalties">
+                {{#if (gt implant.painPenalty 0)}}
+                <span class="implant-penalty pain">Pain: +{{implant.painPenalty}}</span>
+                {{/if}}
+                {{#if (gt implant.healthPenalty 0)}}
+                <span class="implant-penalty health">Health: -{{implant.healthPenalty}}</span>
+                {{/if}}
+                {{#if (gt implant.resolvePenalty 0)}}
+                <span class="implant-penalty resolve">Resolve: -{{implant.resolvePenalty}}</span>
+                {{/if}}
+              </div>
+              {{#if implant.description}}
+              <p class="ability-description">{{implant.description}}</p>
+              {{/if}}
+            </div>
+            <div class="ability-controls">
+              {{#if (gt implant.rejectionCheck 0)}}
+              <a class="implant-roll-btn"
+                 data-dc="{{implant.rejectionCheck}}"
+                 data-implant-id="{{implant.id}}"
+                 title="Roll Rejection Check">
+                <i class="fas fa-dice-d20"></i>
+              </a>
+              {{/if}}
+              <a class="item-control item-edit"
+                 data-item-id="{{implant.id}}"
+                 title="Edit Implant">
+                <i class="fas fa-edit"></i>
+              </a>
+              <a class="item-control item-delete"
+                 data-item-id="{{implant.id}}"
+                 title="Remove Implant">
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
+          </div>
+          {{else}}
+          <div class="empty-message">
+            <i class="fas fa-cogs"></i>
+            <p>No implants</p>
+            <p class="empty-hint">Implants will appear here when added to this character</p>
+          </div>
+          {{/each}}
+        </div>
+      </div>
     </div>
 
     {{!-- Injuries Tab --}}

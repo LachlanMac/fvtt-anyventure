@@ -12,6 +12,9 @@
     {{#if (eq system.itemType "weapon")}}
       <a class="item" data-tab="weapon">Weapon</a>
     {{/if}}
+    {{#if (eq system.itemType "implant")}}
+      <a class="item" data-tab="implant">Implant</a>
+    {{/if}}
     <a class="item" data-tab="bonuses">Bonuses</a>
     <a class="item" data-tab="mitigation">Mitigation</a>
     <a class="item" data-tab="special">Special</a>
@@ -49,6 +52,7 @@
                   <option value="consumable" {{#if (eq system.itemType "consumable")}}selected{{/if}}>Consumable</option>
                   <option value="crafting" {{#if (eq system.itemType "crafting")}}selected{{/if}}>Crafting Material</option>
                   <option value="treasure" {{#if (eq system.itemType "treasure")}}selected{{/if}}>Treasure</option>
+                  <option value="implant" {{#if (eq system.itemType "implant")}}selected{{/if}}>Implant</option>
                   <option value="misc" {{#if (eq system.itemType "misc")}}selected{{/if}}>Miscellaneous</option>
                 </optgroup>
               </select>
@@ -396,6 +400,58 @@
                 <option value="psychic" {{#if (eq system.secondary.secondary_damage_type "psychic")}}selected{{/if}}>Psychic</option>
                 <option value="toxic" {{#if (eq system.secondary.secondary_damage_type "toxic")}}selected{{/if}}>Toxic</option>
               </select>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    {{/if}}
+
+    {{!-- Implant Tab --}}
+    {{#if (eq system.itemType "implant")}}
+    <div class="tab" data-group="primary" data-tab="implant">
+      <div class="implant-properties">
+
+        <div class="implant-section">
+          <h3>Implant Properties</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Implant Type</label>
+              <select name="system.implant_data.implant_type">
+                <option value="arm" {{#if (eq system.implant_data.implant_type "arm")}}selected{{/if}}>Arm</option>
+                <option value="leg" {{#if (eq system.implant_data.implant_type "leg")}}selected{{/if}}>Leg</option>
+                <option value="eye" {{#if (eq system.implant_data.implant_type "eye")}}selected{{/if}}>Eye</option>
+                <option value="ear" {{#if (eq system.implant_data.implant_type "ear")}}selected{{/if}}>Ear</option>
+                <option value="heart" {{#if (eq system.implant_data.implant_type "heart")}}selected{{/if}}>Heart</option>
+                <option value="lung" {{#if (eq system.implant_data.implant_type "lung")}}selected{{/if}}>Lung</option>
+                <option value="brain" {{#if (eq system.implant_data.implant_type "brain")}}selected{{/if}}>Brain</option>
+                <option value="spine" {{#if (eq system.implant_data.implant_type "spine")}}selected{{/if}}>Spine</option>
+                <option value="skin" {{#if (eq system.implant_data.implant_type "skin")}}selected{{/if}}>Skin</option>
+                <option value="organ" {{#if (eq system.implant_data.implant_type "organ")}}selected{{/if}}>Organ</option>
+                <option value="augmentation" {{#if (eq system.implant_data.implant_type "augmentation")}}selected{{/if}}>Augmentation</option>
+                <option value="other" {{#if (eq system.implant_data.implant_type "other")}}selected{{/if}}>Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Pain Penalty</label>
+              <input type="number" name="system.implant_data.pain_penalty" value="{{system.implant_data.pain_penalty}}" min="0" step="1"/>
+            </div>
+
+            <div class="form-group">
+              <label>Health Penalty</label>
+              <input type="number" name="system.implant_data.health_penalty" value="{{system.implant_data.health_penalty}}" min="0" step="1"/>
+            </div>
+
+            <div class="form-group">
+              <label>Resolve Penalty</label>
+              <input type="number" name="system.implant_data.resolve_penalty" value="{{system.implant_data.resolve_penalty}}" min="0" step="1"/>
+            </div>
+
+            <div class="form-group">
+              <label>Rejection Check DC (0 = no check)</label>
+              <input type="number" name="system.implant_data.rejection_check" value="{{system.implant_data.rejection_check}}" min="0" step="1"/>
             </div>
           </div>
         </div>

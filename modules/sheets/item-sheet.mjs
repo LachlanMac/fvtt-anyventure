@@ -89,6 +89,9 @@ export class AnyventureItemSheet extends foundry.appv1.sheets.ItemSheet {
       case 'injury':
         this._prepareInjuryData(context);
         break;
+      case 'implant':
+        this._prepareImplantData(context);
+        break;
     }
   }
 
@@ -280,6 +283,26 @@ export class AnyventureItemSheet extends foundry.appv1.sheets.ItemSheet {
   _prepareInjuryData(context) {
     // No additional context needed for injuries
     // All data is provided by the template and base context
+  }
+
+  /**
+   * Prepare implant-specific data
+   */
+  _prepareImplantData(context) {
+    context.implantTypes = [
+      { value: 'arm', label: 'Arm' },
+      { value: 'leg', label: 'Leg' },
+      { value: 'eye', label: 'Eye' },
+      { value: 'ear', label: 'Ear' },
+      { value: 'heart', label: 'Heart' },
+      { value: 'lung', label: 'Lung' },
+      { value: 'brain', label: 'Brain' },
+      { value: 'spine', label: 'Spine' },
+      { value: 'skin', label: 'Skin' },
+      { value: 'organ', label: 'Organ' },
+      { value: 'augmentation', label: 'Augmentation' },
+      { value: 'other', label: 'Other' }
+    ];
   }
 
   /* -------------------------------------------- */

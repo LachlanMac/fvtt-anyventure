@@ -2292,6 +2292,43 @@
       gap: $spacing-sm;
     }
 
+    .spell-school-header {
+      margin-top: $spacing-md;
+      margin-bottom: $spacing-xs;
+      padding: $spacing-xs $spacing-sm;
+      background: linear-gradient(90deg, rgba($gold-medium, 0.2), transparent);
+      border-left: 3px solid $gold-medium;
+
+      .school-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 1.1em;
+        font-weight: 600;
+        color: $gold-bright;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .casting-formula {
+        font-size: 0.95em;
+        color: rgba($gold-bright, 0.8);
+        font-weight: 500;
+        padding: 2px 8px;
+        background: rgba($purple-dark, 0.4);
+        border-radius: 3px;
+        border: 1px solid rgba($gold-medium, 0.3);
+      }
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
     .anyventure-spell-card {
       display: grid;
       grid-template-columns: 32px 1fr 80px auto; // icon | content | side (check) | controls
@@ -5825,6 +5862,43 @@
       display: flex;
       flex-direction: column;
       gap: $spacing-sm;
+    }
+
+    .spell-school-header {
+      margin-top: $spacing-md;
+      margin-bottom: $spacing-xs;
+      padding: $spacing-xs $spacing-sm;
+      background: linear-gradient(90deg, rgba($gold-medium, 0.2), transparent);
+      border-left: 3px solid $gold-medium;
+
+      .school-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 1.1em;
+        font-weight: 600;
+        color: $gold-bright;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .casting-formula {
+        font-size: 0.95em;
+        color: rgba($gold-bright, 0.8);
+        font-weight: 500;
+        padding: 2px 8px;
+        background: rgba($purple-dark, 0.4);
+        border-radius: 3px;
+        border: 1px solid rgba($gold-medium, 0.3);
+      }
+
+      &:first-child {
+        margin-top: 0;
+      }
     }
 
     .anyventure-spell-card {

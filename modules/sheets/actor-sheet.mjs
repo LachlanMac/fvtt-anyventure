@@ -177,6 +177,14 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       context.injuryCards = [];
     }
 
+    // Prepare implants for display
+    try {
+      context.implantCards = this._prepareImplants();
+    } catch (error) {
+      console.warn("Error preparing implants:", error);
+      context.implantCards = [];
+    }
+
     return context;
   }
 
@@ -472,6 +480,58 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
 
 
+    // Sort spells by school (primary) then by checkToCast (secondary)
+    spells.sort((a, b) => {
+      // Primary sort: by school
+      const schoolA = (a.system?.school || '').toLowerCase();
+      const schoolB = (b.system?.school || '').toLowerCase();
+
+      if (schoolA < schoolB) return -1;
+      if (schoolA > schoolB) return 1;
+
+      // Secondary sort: by checkToCast (ascending)
+      const checkA = Number(a.system?.checkToCast) || 0;
+      const checkB = Number(b.system?.checkToCast) || 0;
+
+      return checkA - checkB;
+    });
+
+    // Group spells by school for display with headers
+    const spellsBySchool = {};
+    for (const spell of spells) {
+      const school = spell.system?.school || 'other';
+      if (!spellsBySchool[school]) {
+        spellsBySchool[school] = [];
+      }
+      spellsBySchool[school].push(spell);
+    }
+
+    // Convert to array format for template with school names
+    const spellGroups = Object.entries(spellsBySchool).map(([school, spellList]) => {
+      // Capitalize school name properly
+      const schoolNameMap = {
+        'black': 'Black Magic',
+        'primal': 'Primal Magic',
+        'meta': 'Metamagic',
+        'white': 'Divine Magic',
+        'mysticism': 'Mysticism',
+        'arcane': 'Arcane Magic',
+        'other': 'Other Spells'
+      };
+
+      // Get the casting formula from the first spell in the group (all spells in same school use same formula)
+      const castingFormula = spellList.length > 0 && spellList[0].system?.castingFormula
+        ? spellList[0].system.castingFormula
+        : null;
+
+      return {
+        school: school,
+        schoolName: schoolNameMap[school.toLowerCase()] || school.charAt(0).toUpperCase() + school.slice(1),
+        castingFormula: castingFormula,
+        spells: spellList
+      };
+    });
+
     // Find character essentials
     const ancestry = context.items.find(i => i.type === 'ancestry');
     const culture = context.items.find(i => i.type === 'culture');
@@ -482,6 +542,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     context.gear = gear;
     context.modules = modules;
     context.spells = spells;
+    context.spellGroups = spellGroups;
     context.songs = songs;
     context.ancestry = ancestry;
     context.culture = culture;
@@ -670,6 +731,47 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     return injuries;
+  }
+
+  /**
+   * Prepare implants for display
+   * @returns {Array} Array of implant card data
+   * @private
+   */
+  _prepareImplants() {
+    const implants = [];
+
+    // Get all implant items from the actor (checking system.itemType since implants are type "item")
+    const implantItems = this.actor.items.filter(item => item.type === 'item' && item.system.itemType === 'implant');
+
+    for (const implant of implantItems) {
+      try {
+        const implantData = implant.system;
+        const implant_data = implantData.implant_data || {};
+        const rejectionCheck = Number(implant_data.rejection_check) || 0;
+
+        const implantCard = {
+          id: implant.id,
+          name: implant.name,
+          icon: implant.img || "icons/svg/upgrade.svg",
+          description: implantData.description || "",
+          implantType: implant_data.implant_type || "augmentation",
+          painPenalty: Number(implant_data.pain_penalty) || 0,
+          healthPenalty: Number(implant_data.health_penalty) || 0,
+          resolvePenalty: Number(implant_data.resolve_penalty) || 0,
+          rejectionCheck: rejectionCheck,
+          canRoll: rejectionCheck > 0,
+          isEditable: true
+        };
+
+        implants.push(implantCard);
+      } catch (error) {
+        console.warn("Error processing implant item:", implant, error);
+        continue;
+      }
+    }
+
+    return implants;
   }
 
   /**
@@ -876,6 +978,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       'meta_magic': 'Meta Magic',
       'meta': 'Meta Magic',
       'mysticism': 'Mysticism',
+      'mysticism_magic': 'Mysticism',
       'arcane_magic': 'Arcane Magic',
       'arcane': 'Arcane Magic'
     };
@@ -928,6 +1031,7 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
       'white_magic': 'white',
       'white': 'white',
       'mysticism': 'mysticism',
+      'mysticism_magic': 'mysticism',
       'arcane_magic': 'arcane',
       'arcane': 'arcane'
     };

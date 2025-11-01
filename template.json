@@ -433,7 +433,7 @@
     }
   },
   "Item": {
-    "types": ["module", "ancestry", "culture", "trait", "item", "spell", "song", "language", "action", "reaction", "passive", "injury", "training", "body_part"],
+    "types": ["module", "ancestry", "culture", "trait", "item", "spell", "song", "language", "action", "reaction", "passive", "injury", "training"],
     "templates": {
       "base": {
         "description": "",
@@ -930,7 +930,14 @@
         "winded": false
       },
       "effects": [],
-      "properties": ""
+      "properties": "",
+      "implant_data": {
+        "implant_type": "augmentation",
+        "pain_penalty": 0,
+        "health_penalty": 0,
+        "resolve_penalty": 0,
+        "rejection_check": 0
+      }
     },
     "language": {
       "templates": ["base"],
