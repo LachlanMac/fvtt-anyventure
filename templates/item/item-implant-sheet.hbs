@@ -19,18 +19,12 @@
         <div class="form-group">
           <label>Implant Type</label>
           <select name="system.implant_data.implant_type">
+            <option value="arm" {{#if (eq system.implant_data.implant_type "claw")}}selected{{/if}}>Arm</option>
             <option value="arm" {{#if (eq system.implant_data.implant_type "arm")}}selected{{/if}}>Arm</option>
             <option value="leg" {{#if (eq system.implant_data.implant_type "leg")}}selected{{/if}}>Leg</option>
             <option value="eye" {{#if (eq system.implant_data.implant_type "eye")}}selected{{/if}}>Eye</option>
-            <option value="ear" {{#if (eq system.implant_data.implant_type "ear")}}selected{{/if}}>Ear</option>
-            <option value="heart" {{#if (eq system.implant_data.implant_type "heart")}}selected{{/if}}>Heart</option>
-            <option value="lung" {{#if (eq system.implant_data.implant_type "lung")}}selected{{/if}}>Lung</option>
-            <option value="brain" {{#if (eq system.implant_data.implant_type "brain")}}selected{{/if}}>Brain</option>
-            <option value="spine" {{#if (eq system.implant_data.implant_type "spine")}}selected{{/if}}>Spine</option>
             <option value="skin" {{#if (eq system.implant_data.implant_type "skin")}}selected{{/if}}>Skin</option>
             <option value="organ" {{#if (eq system.implant_data.implant_type "organ")}}selected{{/if}}>Organ</option>
-            <option value="augmentation" {{#if (eq system.implant_data.implant_type "augmentation")}}selected{{/if}}>Augmentation</option>
-            <option value="other" {{#if (eq system.implant_data.implant_type "other")}}selected{{/if}}>Other</option>
           </select>
         </div>
 
