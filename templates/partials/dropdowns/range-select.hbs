@@ -1,0 +1,55 @@
+{{!-- Range Dropdown Partial
+  Parameters:
+    - minName: The name attribute for min range select (for dual range mode)
+    - maxName: The name attribute for max range select (for dual range mode)
+    - name: The name attribute for single range select (for single range mode)
+    - minValue: The current selected min value (for dual range mode)
+    - maxValue: The current selected max value (for dual range mode)
+    - value: The current selected value (for single range mode)
+    - label: Optional label text (default: "Range")
+    - includeLabel: Whether to show the label (default: true)
+    - mode: "dual" for min-max, "single" for one dropdown (default: "single")
+--}}
+{{#if (or includeLabel (eq includeLabel undefined))}}
+<div class="form-group">
+  <label>{{#if label}}{{label}}{{else}}Range{{/if}}</label>
+{{/if}}
+  {{#if (eq mode "dual")}}
+  <div style="display: flex; gap: 5px;">
+    <select name="{{minName}}" style="flex: 1;">
+      <option value="1" {{#if (eq minValue "1")}}selected{{/if}}>Adjacent</option>
+      <option value="2" {{#if (eq minValue "2")}}selected{{/if}}>Nearby</option>
+      <option value="3" {{#if (eq minValue "3")}}selected{{/if}}>Very Short</option>
+      <option value="4" {{#if (eq minValue "4")}}selected{{/if}}>Short</option>
+      <option value="5" {{#if (eq minValue "5")}}selected{{/if}}>Moderate</option>
+      <option value="6" {{#if (eq minValue "6")}}selected{{/if}}>Far</option>
+      <option value="7" {{#if (eq minValue "7")}}selected{{/if}}>Very Far</option>
+      <option value="8" {{#if (eq minValue "8")}}selected{{/if}}>Distant</option>
+    </select>
+    <span style="align-self: center;">-</span>
+    <select name="{{maxName}}" style="flex: 1;">
+      <option value="1" {{#if (eq maxValue "1")}}selected{{/if}}>Adjacent</option>
+      <option value="2" {{#if (eq maxValue "2")}}selected{{/if}}>Nearby</option>
+      <option value="3" {{#if (eq maxValue "3")}}selected{{/if}}>Very Short</option>
+      <option value="4" {{#if (eq maxValue "4")}}selected{{/if}}>Short</option>
+      <option value="5" {{#if (eq maxValue "5")}}selected{{/if}}>Moderate</option>
+      <option value="6" {{#if (eq maxValue "6")}}selected{{/if}}>Far</option>
+      <option value="7" {{#if (eq maxValue "7")}}selected{{/if}}>Very Far</option>
+      <option value="8" {{#if (eq maxValue "8")}}selected{{/if}}>Distant</option>
+    </select>
+  </div>
+  {{else}}
+  <select name="{{name}}">
+    <option value="1" {{#if (eq value "1")}}selected{{/if}}>Adjacent</option>
+    <option value="2" {{#if (eq value "2")}}selected{{/if}}>Nearby</option>
+    <option value="3" {{#if (eq value "3")}}selected{{/if}}>Very Short</option>
+    <option value="4" {{#if (eq value "4")}}selected{{/if}}>Short</option>
+    <option value="5" {{#if (eq value "5")}}selected{{/if}}>Moderate</option>
+    <option value="6" {{#if (eq value "6")}}selected{{/if}}>Far</option>
+    <option value="7" {{#if (eq value "7")}}selected{{/if}}>Very Far</option>
+    <option value="8" {{#if (eq value "8")}}selected{{/if}}>Distant</option>
+  </select>
+  {{/if}}
+{{#if (or includeLabel (eq includeLabel undefined))}}
+</div>
+{{/if}}

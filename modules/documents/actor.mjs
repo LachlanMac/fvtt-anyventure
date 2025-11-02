@@ -104,6 +104,8 @@ export class AnyventureActor extends Actor {
     this._calculateTrainingSkills(systemData);
     // Apply equipment bonuses (weapons, armor, etc.)
     this._applyEquipmentBonuses(systemData);
+    // Apply implant bonuses and penalties
+    this._applyImplantBonuses(systemData);
     // Apply injury effects
     this._applyInjuries(systemData);
     // Apply conditions and temporary effects
@@ -115,12 +117,160 @@ export class AnyventureActor extends Actor {
   }
 
   /**
+   * Helper function to parse item bonuses (shared by equipment and implants)
+   * @private
+   */
+  _parseItemBonuses(itemSystem, bonuses, setToOverrides) {
+    // Helper function to process basic skill bonuses (only have bonuses, no talents)
+    const processBasicSkillBonuses = (skillData, bonusCategory, setToCategory) => {
+      if (skillData && typeof skillData === 'object') {
+        for (const [skill, data] of Object.entries(skillData)) {
+          if (data && typeof data === 'object') {
+            const addBonus = Number(data.add_bonus || 0);
+            const setBonus = Number(data.set_bonus || 0);
+
+            if (addBonus !== 0) {
+              bonusCategory[skill] = (bonusCategory[skill] || 0) + addBonus;
+            }
+            if (setBonus !== 0) {
+              setToCategory[skill] = Math.max(setToCategory[skill] || 0, setBonus);
+            }
+          }
+        }
+      }
+    };
+
+    // Helper function to process weapon/magic/craft skill bonuses (have both bonuses and talents)
+    const processAdvancedSkillBonuses = (skillData, bonusCategory, setToCategory) => {
+      if (skillData && typeof skillData === 'object') {
+        for (const [skill, data] of Object.entries(skillData)) {
+          if (data && typeof data === 'object') {
+            const addBonus = Number(data.add_bonus || 0);
+            const setBonus = Number(data.set_bonus || 0);
+            const addTalent = Number(data.add_talent || 0);
+            const setTalent = Number(data.set_talent || 0);
+
+            if (addBonus !== 0) {
+              bonusCategory.bonuses[skill] = (bonusCategory.bonuses[skill] || 0) + addBonus;
+            }
+            if (addTalent !== 0) {
+              bonusCategory.talents[skill] = (bonusCategory.talents[skill] || 0) + addTalent;
+            }
+
+            if (setBonus !== 0) {
+              setToCategory.bonuses[skill] = Math.max(setToCategory.bonuses[skill] || 0, setBonus);
+            }
+            if (setTalent !== 0) {
+              setToCategory.talents[skill] = Math.max(setToCategory.talents[skill] || 0, setTalent);
+            }
+          }
+        }
+      }
+    };
+
+    // Health bonuses
+    if (itemSystem.health) {
+      bonuses.resources.health.max += Number(itemSystem.health.max || 0);
+      bonuses.resources.health.recovery += Number(itemSystem.health.recovery || 0);
+    }
+
+    // Energy bonuses
+    if (itemSystem.energy) {
+      bonuses.resources.energy.max += Number(itemSystem.energy.max || 0);
+      bonuses.resources.energy.recovery += Number(itemSystem.energy.recovery || 0);
+    }
+
+    // Resolve bonuses
+    if (itemSystem.resolve) {
+      bonuses.resources.resolve.max += Number(itemSystem.resolve.max || 0);
+      bonuses.resources.resolve.recovery += Number(itemSystem.resolve.recovery || 0);
+    }
+
+    // Morale bonuses
+    if (itemSystem.morale) {
+      bonuses.resources.morale.max += Number(itemSystem.morale.max || 0);
+      bonuses.resources.morale.recovery += Number(itemSystem.morale.recovery || 0);
+    }
+
+    // Movement bonuses
+    if (itemSystem.movement && typeof itemSystem.movement === 'object') {
+      for (const moveType of ['walk', 'swim', 'climb', 'fly']) {
+        const bonus = Number(itemSystem.movement[moveType] || 0);
+        if (bonus !== 0) bonuses.movement[moveType] += bonus;
+      }
+    }
+
+    // Attribute bonuses
+    if (itemSystem.attributes && typeof itemSystem.attributes === 'object') {
+      for (const [attr, attrData] of Object.entries(itemSystem.attributes)) {
+        if (attrData && typeof attrData === 'object') {
+          const addTalent = Number(attrData.add_talent || 0);
+          const setTalent = Number(attrData.set_talent || 0);
+
+          if (addTalent !== 0) {
+            bonuses.attributes[attr] = (bonuses.attributes[attr] || 0) + addTalent;
+          }
+          if (setTalent !== 0) {
+            setToOverrides.attributes[attr] = Math.max(setToOverrides.attributes[attr] || 0, setTalent);
+          }
+        }
+      }
+    }
+
+    // Process all skill categories
+    processBasicSkillBonuses(itemSystem.basic, bonuses.basic, setToOverrides.basic);
+    processAdvancedSkillBonuses(itemSystem.weapon, bonuses.weapon, setToOverrides.weapon);
+    processAdvancedSkillBonuses(itemSystem.magic, bonuses.magic, setToOverrides.magic);
+    processAdvancedSkillBonuses(itemSystem.craft, bonuses.craft, setToOverrides.craft);
+
+    // Mitigation bonuses
+    if (itemSystem.mitigation && typeof itemSystem.mitigation === 'object') {
+      for (const [type, value] of Object.entries(itemSystem.mitigation)) {
+        if (value != null && value !== '') {
+          const bonus = Number(value);
+          if (!Number.isNaN(bonus) && bonus !== 0) {
+            bonuses.mitigation[type] = (bonuses.mitigation[type] || 0) + bonus;
+          }
+        }
+      }
+    }
+
+    // Detection bonuses
+    if (itemSystem.detections && typeof itemSystem.detections === 'object') {
+      for (const [detection, value] of Object.entries(itemSystem.detections)) {
+        if (value != null && value !== '') {
+          const bonus = Number(value);
+          if (!Number.isNaN(bonus) && bonus !== 0) {
+            bonuses.detections[detection] = (bonuses.detections[detection] || 0) + bonus;
+          }
+        }
+      }
+    }
+
+    // Immunities
+    if (itemSystem.immunities && typeof itemSystem.immunities === 'object') {
+      for (const [immunity, enabled] of Object.entries(itemSystem.immunities)) {
+        if (enabled === true && !bonuses.immunities.includes(immunity)) {
+          bonuses.immunities.push(immunity);
+        }
+      }
+    }
+
+    // Effects
+    if (itemSystem.effects && Array.isArray(itemSystem.effects)) {
+      for (const effect of itemSystem.effects) {
+        if (effect && effect !== null && effect !== '') {
+          bonuses.effects.push(effect);
+        }
+      }
+    }
+  }
+
+  /**
    * Apply equipment bonuses (weapons, armor, etc.)
    * This runs in prepareDerivedData after module effects are applied
    */
   _applyEquipmentBonuses(systemData) {
-    // Skeleton: iterate equipped items and log their slot + name.
-    // Skip ephemeral overlays while building the baseline during Recalculate
     if (this._blockOverlays) return;
     try {
       const equipment = systemData.equipment || {};
@@ -130,7 +280,6 @@ export class AnyventureActor extends Actor {
         'mainhand', 'offhand', 'extra1', 'extra2', 'extra3'
       ];
 
-      // Initialize equipment bonuses
       let encumbrancePenalty = 0;
       const equipmentBonuses = {
         resources: {
@@ -151,196 +300,24 @@ export class AnyventureActor extends Actor {
         effects: []
       };
 
-      // Track "Set To" overrides separately - these override final values after all additions
-      // Highest value wins if multiple items have "Set To" for the same skill
       const setToOverrides = {
-        attributes: {},        // attr -> highest set_talent value
-        basic: {},             // skill -> highest set_bonus value
-        weapon: { bonuses: {}, talents: {} },  // skill -> highest set_bonus/set_talent values
+        attributes: {},
+        basic: {},
+        weapon: { bonuses: {}, talents: {} },
         magic: { bonuses: {}, talents: {} },
         craft: { bonuses: {}, talents: {} }
       };
 
       // Parse equipped items
       for (const slot of slotNames) {
-        const slotData = equipment[slot];
-        const equipped = slotData?.item;
+        const equipped = equipment[slot]?.item;
         if (equipped) {
-          const name = equipped.name || '(unnamed)';
-          const type = equipped.system?.itemType || equipped.type || 'unknown';
-
           // Encumbrance penalty
           const pen = Number(equipped.system?.encumbrance_penalty || 0);
           if (!Number.isNaN(pen)) encumbrancePenalty += pen;
 
-          // Parse item bonuses
-          const itemSystem = equipped.system || {};
-
-          // Health bonuses
-          if (itemSystem.health) {
-            const healthMax = Number(itemSystem.health.max || 0);
-            const healthRecovery = Number(itemSystem.health.recovery || 0);
-            equipmentBonuses.resources.health.max += healthMax;
-            equipmentBonuses.resources.health.recovery += healthRecovery;
-          }
-
-          // Energy bonuses
-          if (itemSystem.energy) {
-            const energyMax = Number(itemSystem.energy.max || 0);
-            const energyRecovery = Number(itemSystem.energy.recovery || 0);
-            equipmentBonuses.resources.energy.max += energyMax;
-            equipmentBonuses.resources.energy.recovery += energyRecovery;
-          }
-
-          // Resolve bonuses
-          if (itemSystem.resolve) {
-            const resolveMax = Number(itemSystem.resolve.max || 0);
-            const resolveRecovery = Number(itemSystem.resolve.recovery || 0);
-            equipmentBonuses.resources.resolve.max += resolveMax;
-            equipmentBonuses.resources.resolve.recovery += resolveRecovery;
-          }
-
-          // Morale bonuses
-          if (itemSystem.morale) {
-            const moraleMax = Number(itemSystem.morale.max || 0);
-            const moraleRecovery = Number(itemSystem.morale.recovery || 0);
-            equipmentBonuses.resources.morale.max += moraleMax;
-            equipmentBonuses.resources.morale.recovery += moraleRecovery;
-          }
-
-          // Movement bonuses (object with walk/swim/climb/fly)
-          if (itemSystem.movement && typeof itemSystem.movement === 'object') {
-            const movementTypes = ['walk', 'swim', 'climb', 'fly'];
-            for (const moveType of movementTypes) {
-              const bonus = Number(itemSystem.movement[moveType] || 0);
-              if (bonus !== 0) {
-                equipmentBonuses.movement[moveType] += bonus;
-              }
-            }
-          }
-
-          // Attribute bonuses (nested objects with add_talent/set_talent)
-          if (itemSystem.attributes && typeof itemSystem.attributes === 'object') {
-            for (const [attr, attrData] of Object.entries(itemSystem.attributes)) {
-              if (attrData && typeof attrData === 'object') {
-                const addTalent = Number(attrData.add_talent || 0);
-                const setTalent = Number(attrData.set_talent || 0);
-
-                // Accumulate additive bonuses
-                if (addTalent !== 0) {
-                  equipmentBonuses.attributes[attr] = (equipmentBonuses.attributes[attr] || 0) + addTalent;
-                }
-
-                // Track "Set To" values - highest one wins
-                if (setTalent !== 0) {
-                  setToOverrides.attributes[attr] = Math.max(setToOverrides.attributes[attr] || 0, setTalent);
-                }
-              }
-            }
-          }
-
-          // Helper function to process basic skill bonuses (only have bonuses, no talents)
-          const processBasicSkillBonuses = (skillData, bonusCategory, setToCategory) => {
-            if (skillData && typeof skillData === 'object') {
-              for (const [skill, data] of Object.entries(skillData)) {
-                if (data && typeof data === 'object') {
-                  const addBonus = Number(data.add_bonus || 0);
-                  const setBonus = Number(data.set_bonus || 0);
-
-                  // Accumulate additive bonuses
-                  if (addBonus !== 0) {
-                    bonusCategory[skill] = (bonusCategory[skill] || 0) + addBonus;
-                  }
-
-                  // Track "Set To" values - highest one wins
-                  if (setBonus !== 0) {
-                    setToCategory[skill] = Math.max(setToCategory[skill] || 0, setBonus);
-                  }
-                }
-              }
-            }
-          };
-
-          // Helper function to process weapon/magic/craft skill bonuses (have both bonuses and talents)
-          const processAdvancedSkillBonuses = (skillData, bonusCategory, setToCategory) => {
-            if (skillData && typeof skillData === 'object') {
-              for (const [skill, data] of Object.entries(skillData)) {
-                if (data && typeof data === 'object') {
-                  const addBonus = Number(data.add_bonus || 0);
-                  const setBonus = Number(data.set_bonus || 0);
-                  const addTalent = Number(data.add_talent || 0);
-                  const setTalent = Number(data.set_talent || 0);
-
-                  // Accumulate additive bonuses
-                  if (addBonus !== 0) {
-                    bonusCategory.bonuses[skill] = (bonusCategory.bonuses[skill] || 0) + addBonus;
-                  }
-                  if (addTalent !== 0) {
-                    bonusCategory.talents[skill] = (bonusCategory.talents[skill] || 0) + addTalent;
-                  }
-
-                  // Track "Set To" values - highest one wins
-                  if (setBonus !== 0) {
-                    setToCategory.bonuses[skill] = Math.max(setToCategory.bonuses[skill] || 0, setBonus);
-                  }
-                  if (setTalent !== 0) {
-                    setToCategory.talents[skill] = Math.max(setToCategory.talents[skill] || 0, setTalent);
-                  }
-                }
-              }
-            }
-          };
-
-          // Process all skill categories
-          processBasicSkillBonuses(itemSystem.basic, equipmentBonuses.basic, setToOverrides.basic);
-          processAdvancedSkillBonuses(itemSystem.weapon, equipmentBonuses.weapon, setToOverrides.weapon);
-          processAdvancedSkillBonuses(itemSystem.magic, equipmentBonuses.magic, setToOverrides.magic);
-          processAdvancedSkillBonuses(itemSystem.craft, equipmentBonuses.craft, setToOverrides.craft);
-
-          // Mitigation bonuses (flat numeric values)
-          if (itemSystem.mitigation && typeof itemSystem.mitigation === 'object') {
-            for (const [type, value] of Object.entries(itemSystem.mitigation)) {
-              if (value != null && value !== '') {
-                const bonus = Number(value);
-                if (!Number.isNaN(bonus) && bonus !== 0) {
-                  equipmentBonuses.mitigation[type] = (equipmentBonuses.mitigation[type] || 0) + bonus;
-                }
-              }
-            }
-          }
-
-          // Detection bonuses (flat numeric values)
-          if (itemSystem.detections && typeof itemSystem.detections === 'object') {
-            for (const [detection, value] of Object.entries(itemSystem.detections)) {
-              if (value != null && value !== '') {
-                const bonus = Number(value);
-                if (!Number.isNaN(bonus) && bonus !== 0) {
-                  equipmentBonuses.detections[detection] = (equipmentBonuses.detections[detection] || 0) + bonus;
-                }
-              }
-            }
-          }
-
-          // Immunities (object with boolean values, not array)
-          if (itemSystem.immunities && typeof itemSystem.immunities === 'object') {
-            for (const [immunity, enabled] of Object.entries(itemSystem.immunities)) {
-              if (enabled === true) {
-                if (!equipmentBonuses.immunities.includes(immunity)) {
-                  equipmentBonuses.immunities.push(immunity);
-                }
-              }
-            }
-          }
-
-          // Effects (arrays - should work as before)
-          if (itemSystem.effects && Array.isArray(itemSystem.effects)) {
-            for (const effect of itemSystem.effects) {
-              if (effect && effect !== null && effect !== '') {
-                equipmentBonuses.effects.push(effect);
-              }
-            }
-          }
-
+          // Parse item bonuses using shared helper
+          this._parseItemBonuses(equipped.system || {}, equipmentBonuses, setToOverrides);
         }
       }
 
@@ -500,6 +477,184 @@ export class AnyventureActor extends Actor {
 
     } catch (err) {
       logWarning('Equipment parsing encountered an error:', err);
+    }
+  }
+
+  /**
+   * Apply implant bonuses and penalties
+   * This runs in prepareDerivedData after equipment bonuses are applied
+   */
+  _applyImplantBonuses(systemData) {
+    // Skip ephemeral overlays while building the baseline during Recalculate
+    if (this._blockOverlays) return;
+
+    try {
+      // Get all implant items from the actor
+      const implants = this.items.filter(item => item.system.itemType === 'implant');
+      if (implants.length === 0) return;
+
+      // Initialize implant bonuses (same structure as equipment)
+      const implantBonuses = {
+        resources: {
+          health: { max: 0, recovery: 0 },
+          energy: { max: 0, recovery: 0 },
+          resolve: { max: 0, recovery: 0 },
+          morale: { max: 0, recovery: 0 }
+        },
+        movement: { walk: 0, swim: 0, climb: 0, fly: 0 },
+        attributes: {},
+        basic: {},
+        weapon: { bonuses: {}, talents: {} },
+        magic: { bonuses: {}, talents: {} },
+        craft: { bonuses: {}, talents: {} },
+        mitigation: {},
+        detections: {},
+        immunities: [],
+        effects: []
+      };
+
+      // Track "Set To" overrides separately
+      const setToOverrides = {
+        attributes: {},
+        basic: {},
+        weapon: { bonuses: {}, talents: {} },
+        magic: { bonuses: {}, talents: {} },
+        craft: { bonuses: {}, talents: {} }
+      };
+
+      // Track implant-specific penalties
+      let totalPainPenalty = 0;
+      let totalHealthPenalty = 0;
+      let totalResolvePenalty = 0;
+
+      // Parse each implant
+      for (const implant of implants) {
+        const itemSystem = implant.system || {};
+
+        // Parse implant_data for direct penalties
+        if (itemSystem.implant_data && typeof itemSystem.implant_data === 'object') {
+          const implantData = itemSystem.implant_data;
+
+          totalPainPenalty += Number(implantData.pain_penalty || 0);
+          totalHealthPenalty += Number(implantData.health_penalty || 0);
+          totalResolvePenalty += Number(implantData.resolve_penalty || 0);
+
+          // Note: rejection_check is tracked but not applied automatically
+          // It would be used in manual rejection check rolls
+        }
+
+        // Parse standard bonuses using shared helper
+        this._parseItemBonuses(itemSystem, implantBonuses, setToOverrides);
+      }
+
+      // Ensure _base exists
+      if (!systemData._base) {
+        systemData._base = foundry.utils?.duplicate ? foundry.utils.duplicate(systemData) : JSON.parse(JSON.stringify(systemData));
+      }
+
+      // Apply implant bonuses to character stats (overlay from base)
+      // Resources
+      systemData.resources.health.max += implantBonuses.resources.health.max - totalHealthPenalty;
+      systemData.resources.energy.max += implantBonuses.resources.energy.max;
+      systemData.resources.resolve.max += implantBonuses.resources.resolve.max - totalResolvePenalty;
+      systemData.resources.morale.max += implantBonuses.resources.morale.max;
+
+      // Movement
+      if (systemData.movement && typeof systemData.movement === 'object') {
+        const movementTypes = ['walk', 'swim', 'climb', 'fly'];
+        for (const moveType of movementTypes) {
+          const bonus = implantBonuses.movement[moveType] || 0;
+          systemData.movement[moveType] += bonus;
+        }
+      }
+
+      // Helper function to apply bonuses
+      const applyBonuses = (bonusCategory, systemCategory, categoryName, valueProperty = 'value') => {
+        for (const [key, bonus] of Object.entries(bonusCategory)) {
+          if (systemCategory?.[key] !== undefined) {
+            systemCategory[key][valueProperty] += bonus;
+          }
+        }
+      };
+
+      // Apply bonuses to all categories
+      applyBonuses(implantBonuses.attributes, systemData.attributes, 'Attribute');
+      applyBonuses(implantBonuses.basic, systemData.basic, 'Basic skill');
+      applyBonuses(implantBonuses.weapon.bonuses, systemData.weapon, 'Weapon skill', 'value');
+      applyBonuses(implantBonuses.weapon.talents, systemData.weapon, 'Weapon skill', 'talent');
+      applyBonuses(implantBonuses.magic.bonuses, systemData.magic, 'Magic skill', 'value');
+      applyBonuses(implantBonuses.magic.talents, systemData.magic, 'Magic skill', 'talent');
+      applyBonuses(implantBonuses.craft.bonuses, systemData.crafting, 'Craft skill', 'value');
+      applyBonuses(implantBonuses.craft.talents, systemData.crafting, 'Craft skill', 'talent');
+
+      // Apply "Set To" overrides
+      for (const [attr, setValue] of Object.entries(setToOverrides.attributes)) {
+        if (systemData.attributes?.[attr] !== undefined) {
+          systemData.attributes[attr].value = setValue;
+        }
+      }
+
+      for (const [skill, setValue] of Object.entries(setToOverrides.basic)) {
+        if (systemData.basic?.[skill] !== undefined) {
+          systemData.basic[skill].value = setValue;
+        }
+      }
+
+      for (const [skill, setValue] of Object.entries(setToOverrides.weapon.bonuses)) {
+        if (systemData.weapon?.[skill] !== undefined) {
+          systemData.weapon[skill].value = setValue;
+        }
+      }
+      for (const [skill, setValue] of Object.entries(setToOverrides.weapon.talents)) {
+        if (systemData.weapon?.[skill] !== undefined) {
+          systemData.weapon[skill].talent = setValue;
+        }
+      }
+
+      for (const [skill, setValue] of Object.entries(setToOverrides.magic.bonuses)) {
+        if (systemData.magic?.[skill] !== undefined) {
+          systemData.magic[skill].value = setValue;
+        }
+      }
+      for (const [skill, setValue] of Object.entries(setToOverrides.magic.talents)) {
+        if (systemData.magic?.[skill] !== undefined) {
+          systemData.magic[skill].talent = setValue;
+        }
+      }
+
+      for (const [skill, setValue] of Object.entries(setToOverrides.craft.bonuses)) {
+        if (systemData.crafting?.[skill] !== undefined) {
+          systemData.crafting[skill].value = setValue;
+        }
+      }
+      for (const [skill, setValue] of Object.entries(setToOverrides.craft.talents)) {
+        if (systemData.crafting?.[skill] !== undefined) {
+          systemData.crafting[skill].talent = setValue;
+        }
+      }
+
+      // Mitigation
+      for (const [type, bonus] of Object.entries(implantBonuses.mitigation)) {
+        if (systemData.mitigation?.[type] !== undefined) {
+          systemData.mitigation[type] += bonus;
+        }
+      }
+
+      // Store implant bonuses and penalties for reference
+      systemData._implantBonuses = implantBonuses;
+      systemData._implantPenalties = {
+        pain: totalPainPenalty,
+        health: totalHealthPenalty,
+        resolve: totalResolvePenalty
+      };
+
+      // Apply pain penalty to the pain resource
+      if (systemData.resources.pain) {
+        systemData.resources.pain.value = (systemData.resources.pain.value || 0) + totalPainPenalty;
+      }
+
+    } catch (err) {
+      logWarning('Implant parsing encountered an error:', err);
     }
   }
 
@@ -1288,7 +1443,7 @@ export class AnyventureActor extends Actor {
 
     // Import the roll dialog
     const { AnyventureRollDialog } = await import('../sheets/roll-dialog.mjs');
-    
+
     // Show the roll dialog
     return AnyventureRollDialog.show({
       title: `${skillName.charAt(0).toUpperCase() + skillName.slice(1)} Check`,
@@ -1296,7 +1451,8 @@ export class AnyventureActor extends Actor {
       baseDice: baseDice,
       diceType: diceType,
       actor: this,
-      initialPenaltyDice: initialPenaltyDice,
+      initialPenaltyDice: options.initialPenaltyDice || initialPenaltyDice,
+      initialBonusDice: options.initialBonusDice || 0,
       conditionNotes: conditionNotes,
       rollCallback: (roll, data) => {
         // Optional callback for additional processing

@@ -1,0 +1,29 @@
+{{!-- Damage Type Dropdown Partial
+  Parameters:
+    - name: The name attribute for the select element (required)
+    - value: The current selected value (required)
+    - label: Optional label text (default: "Damage Type")
+    - includeLabel: Whether to show the label (default: true)
+    - includeNone: Whether to include a "None" option at the top (default: false)
+--}}
+{{#if (or includeLabel (eq includeLabel undefined))}}
+<div class="form-group">
+  <label>{{#if label}}{{label}}{{else}}Damage Type{{/if}}</label>
+{{/if}}
+  <select name="{{name}}" data-dtype="String">
+    {{#if includeNone}}
+    <option value="" {{#unless value}}selected{{/unless}}>None</option>
+    {{/if}}
+    <option value="physical" {{#if (eq value "physical")}}selected{{/if}}>Physical</option>
+    <option value="heat" {{#if (eq value "heat")}}selected{{/if}}>Heat</option>
+    <option value="cold" {{#if (eq value "cold")}}selected{{/if}}>Cold</option>
+    <option value="lightning" {{#if (eq value "lightning")}}selected{{/if}}>Lightning</option>
+    <option value="dark" {{#if (eq value "dark")}}selected{{/if}}>Dark</option>
+    <option value="divine" {{#if (eq value "divine")}}selected{{/if}}>Divine</option>
+    <option value="arcane" {{#if (eq value "arcane")}}selected{{/if}}>Arcane</option>
+    <option value="psychic" {{#if (eq value "psychic")}}selected{{/if}}>Psychic</option>
+    <option value="toxic" {{#if (eq value "toxic")}}selected{{/if}}>Toxic</option>
+  </select>
+{{#if (or includeLabel (eq includeLabel undefined))}}
+</div>
+{{/if}}

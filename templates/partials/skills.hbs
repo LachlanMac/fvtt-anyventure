@@ -244,7 +244,7 @@
       </h3>
       <div class="specialized-grid">
         {{#each skillCategories.music as |skill key|}}
-          <div class="specialized-skill" data-music-key="{{key}}">
+          <div class="specialized-skill rollable" data-music-key="{{key}}" data-talent="{{skill.talent}}">
             <span class="skill-name">
               {{!-- Instrument icon per key --}}
               {{#if (eq key 'brass')}}

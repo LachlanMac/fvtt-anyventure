@@ -3505,6 +3505,24 @@
     display: flex;
     flex-direction: column;
     gap: $spacing-xs;
+
+    .field-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-xs;
+
+      label {
+        font-size: $font-size-small;
+        color: $text-light;
+        text-align: center;
+      }
+
+      input {
+        width: 100%;
+        text-align: center;
+      }
+    }
   }
 
   // Movement bonuses section
@@ -3523,6 +3541,24 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: $spacing-md;
+
+    .field-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-xs;
+
+      label {
+        font-size: $font-size-small;
+        color: $text-light;
+        text-align: center;
+      }
+
+      input {
+        width: 100%;
+        text-align: center;
+      }
+    }
   }
 
   // Mitigation grid
@@ -5056,6 +5092,45 @@
       &:last-child {
         margin-bottom: 0;
       }
+    }
+  }
+}
+
+// Trait Card Styling for Chat Messages
+.chat-message:has(.anyventure-trait-card) .dice-roll,
+.chat-message:has(.anyventure-trait-card) .message-content {
+  padding: 0;
+}
+
+.anyventure-trait-card {
+  background: rgba($purple-darkest, 0.9);
+  border: 1px solid $border-light;
+  border-radius: $border-radius-md;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  padding: $spacing-sm;
+  border-left: 4px solid $gold-bright; // Gold left border for traits
+
+  .trait-card-header {
+    text-align: center;
+    border-bottom: 1px solid rgba($border-light, 0.3);
+    padding-bottom: $spacing-xs;
+    margin-bottom: $spacing-sm;
+
+    .trait-card-name {
+      font-size: $font-size-large;
+      color: $gold-bright;
+      margin: 0;
+      font-weight: bold;
+    }
+  }
+
+  .trait-card-body {
+    .trait-card-description {
+      color: $text-light;
+      font-size: $font-size-normal;
+      line-height: 1.4;
+      margin: 0;
+      white-space: pre-wrap;
     }
   }
 }

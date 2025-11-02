@@ -1,0 +1,69 @@
+{{!-- Skill Dropdown Partial
+  Parameters:
+    - name: The name attribute for the select element (required)
+    - value: The current selected value (required)
+    - label: Optional label text (default: "Skill")
+    - includeLabel: Whether to show the label (default: true)
+    - includeNone: Whether to include a "None" option at the top (default: true)
+    - includeAllSkills: Whether to include weapon/magic/craft skills (default: false, only basic skills)
+--}}
+{{#if (or includeLabel (eq includeLabel undefined))}}
+<div class="form-group">
+  <label>{{#if label}}{{label}}{{else}}Skill{{/if}}</label>
+{{/if}}
+  <select name="{{name}}" data-dtype="String">
+    {{#if (or includeNone (eq includeNone undefined))}}
+    <option value="">None</option>
+    {{/if}}
+    <optgroup label="Basic Skills">
+      <option value="fitness" {{#if (eq value "fitness")}}selected{{/if}}>Fitness</option>
+      <option value="deflection" {{#if (eq value "deflection")}}selected{{/if}}>Deflection</option>
+      <option value="might" {{#if (eq value "might")}}selected{{/if}}>Might</option>
+      <option value="endurance" {{#if (eq value "endurance")}}selected{{/if}}>Endurance</option>
+      <option value="evasion" {{#if (eq value "evasion")}}selected{{/if}}>Evasion</option>
+      <option value="stealth" {{#if (eq value "stealth")}}selected{{/if}}>Stealth</option>
+      <option value="coordination" {{#if (eq value "coordination")}}selected{{/if}}>Coordination</option>
+      <option value="thievery" {{#if (eq value "thievery")}}selected{{/if}}>Thievery</option>
+      <option value="resilience" {{#if (eq value "resilience")}}selected{{/if}}>Resilience</option>
+      <option value="concentration" {{#if (eq value "concentration")}}selected{{/if}}>Concentration</option>
+      <option value="senses" {{#if (eq value "senses")}}selected{{/if}}>Senses</option>
+      <option value="logic" {{#if (eq value "logic")}}selected{{/if}}>Logic</option>
+      <option value="wildcraft" {{#if (eq value "wildcraft")}}selected{{/if}}>Wildcraft</option>
+      <option value="academics" {{#if (eq value "academics")}}selected{{/if}}>Academics</option>
+      <option value="magic" {{#if (eq value "magic")}}selected{{/if}}>Magic</option>
+      <option value="medicine" {{#if (eq value "medicine")}}selected{{/if}}>Medicine</option>
+      <option value="expression" {{#if (eq value "expression")}}selected{{/if}}>Expression</option>
+      <option value="presence" {{#if (eq value "presence")}}selected{{/if}}>Presence</option>
+      <option value="insight" {{#if (eq value "insight")}}selected{{/if}}>Insight</option>
+      <option value="persuasion" {{#if (eq value "persuasion")}}selected{{/if}}>Persuasion</option>
+    </optgroup>
+    {{#if includeAllSkills}}
+    <optgroup label="Weapon Skills">
+      <option value="brawling" {{#if (eq value "brawling")}}selected{{/if}}>Brawling</option>
+      <option value="throwing" {{#if (eq value "throwing")}}selected{{/if}}>Throwing</option>
+      <option value="simple_melee" {{#if (eq value "simple_melee")}}selected{{/if}}>Simple Melee</option>
+      <option value="simple_ranged" {{#if (eq value "simple_ranged")}}selected{{/if}}>Simple Ranged</option>
+      <option value="complex_melee" {{#if (eq value "complex_melee")}}selected{{/if}}>Complex Melee</option>
+      <option value="complex_ranged" {{#if (eq value "complex_ranged")}}selected{{/if}}>Complex Ranged</option>
+    </optgroup>
+    <optgroup label="Magic Skills">
+      <option value="black" {{#if (eq value "black")}}selected{{/if}}>Black Magic</option>
+      <option value="primal" {{#if (eq value "primal")}}selected{{/if}}>Primal Magic</option>
+      <option value="meta" {{#if (eq value "meta")}}selected{{/if}}>Meta Magic</option>
+      <option value="white" {{#if (eq value "white")}}selected{{/if}}>White Magic</option>
+      <option value="mysticism" {{#if (eq value "mysticism")}}selected{{/if}}>Mysticism</option>
+      <option value="arcane" {{#if (eq value "arcane")}}selected{{/if}}>Arcane Magic</option>
+    </optgroup>
+    <optgroup label="Craft Skills">
+      <option value="engineering" {{#if (eq value "engineering")}}selected{{/if}}>Engineering</option>
+      <option value="fabrication" {{#if (eq value "fabrication")}}selected{{/if}}>Fabrication</option>
+      <option value="alchemy" {{#if (eq value "alchemy")}}selected{{/if}}>Alchemy</option>
+      <option value="cooking" {{#if (eq value "cooking")}}selected{{/if}}>Cooking</option>
+      <option value="glyphcraft" {{#if (eq value "glyphcraft")}}selected{{/if}}>Glyphcraft</option>
+      <option value="biosculpting" {{#if (eq value "biosculpting")}}selected{{/if}}>Biosculpting</option>
+    </optgroup>
+    {{/if}}
+  </select>
+{{#if (or includeLabel (eq includeLabel undefined))}}
+</div>
+{{/if}}

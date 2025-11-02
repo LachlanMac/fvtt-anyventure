@@ -16,17 +16,9 @@
     <div class="tab active" data-group="primary" data-tab="details">
       <div class="implant-details">
 
-        <div class="form-group">
-          <label>Implant Type</label>
-          <select name="system.implant_data.implant_type">
-            <option value="arm" {{#if (eq system.implant_data.implant_type "claw")}}selected{{/if}}>Arm</option>
-            <option value="arm" {{#if (eq system.implant_data.implant_type "arm")}}selected{{/if}}>Arm</option>
-            <option value="leg" {{#if (eq system.implant_data.implant_type "leg")}}selected{{/if}}>Leg</option>
-            <option value="eye" {{#if (eq system.implant_data.implant_type "eye")}}selected{{/if}}>Eye</option>
-            <option value="skin" {{#if (eq system.implant_data.implant_type "skin")}}selected{{/if}}>Skin</option>
-            <option value="organ" {{#if (eq system.implant_data.implant_type "organ")}}selected{{/if}}>Organ</option>
-          </select>
-        </div>
+        {{> "systems/anyventure/templates/partials/dropdowns/implant-type-select.hbs"
+            name="system.implant_data.implant_type"
+            value=system.implant_data.implant_type}}
 
         <div class="form-group-row">
           <div class="form-group">

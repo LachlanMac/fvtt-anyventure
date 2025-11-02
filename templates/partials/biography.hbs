@@ -36,21 +36,4 @@
     </div>
   </div>
 
-  <div class="languages-section">
-    <h3>Languages</h3>
-    {{#each skillCategories.language as |language key|}}
-    <div class="language flexrow">
-      <label class="language-name">{{capitalize key}}</label>
-      <input type="number" name="system.language.{{key}}.value" value="{{language.value}}" data-dtype="Number" min="0" max="3"/>
-      <span class="language-level">
-        {{#if (eq language.value 0)}}Unknown{{/if}}
-        {{#if (eq language.value 1)}}Basic{{/if}}
-        {{#if (eq language.value 2)}}Fluent{{/if}}
-        {{#if (eq language.value 3)}}Mastery{{/if}}
-      </span>
-    </div>
-    {{/each}}
-  </div>
-
-
 </div>

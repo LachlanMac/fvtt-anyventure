@@ -5,8 +5,9 @@
 export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
 
   constructor(options = {}) {
-    // Use penalty values passed from rollSkill
+    // Use penalty/bonus values passed from rollSkill
     const initialPenaltyDice = options.initialPenaltyDice || 0;
+    const initialBonusDice = options.initialBonusDice || 0;
     const conditionNotes = options.conditionNotes || [];
 
     super({
@@ -20,12 +21,12 @@ export class AnyventureRollDialog extends foundry.applications.api.DialogV2 {
             <h3>${options.skillName || "Skill"} Check</h3>
             <p><strong>Base Roll:</strong> ${options.baseDice}${options.diceType}</p>
           </div>
-          
+
           <div class="form-group">
             <label for="bonus-dice">Bonus Dice:</label>
-            <input type="number" id="bonus-dice" name="bonusDice" value="0" min="0" max="10" />
+            <input type="number" id="bonus-dice" name="bonusDice" value="${initialBonusDice}" min="0" max="10" />
           </div>
-          
+
           <div class="form-group">
             <label for="penalty-dice">Penalty Dice:</label>
             <input type="number" id="penalty-dice" name="penaltyDice" value="${initialPenaltyDice}" min="0" max="10" />

@@ -1,0 +1,29 @@
+{{!-- Implant Type Dropdown Partial
+  Parameters:
+    - name: The name attribute for the select element (required)
+    - value: The current selected value (required)
+    - label: Optional label text (default: "Implant Type")
+    - includeLabel: Whether to show the label (default: true)
+--}}
+{{#if (or includeLabel (eq includeLabel undefined))}}
+<div class="form-group">
+  <label>{{#if label}}{{label}}{{else}}Implant Type{{/if}}</label>
+{{/if}}
+  <select name="{{name}}">
+    <option value="claw" {{#if (eq value "claw")}}selected{{/if}}>Claw</option>
+    <option value="arm" {{#if (eq value "arm")}}selected{{/if}}>Arm</option>
+    <option value="leg" {{#if (eq value "leg")}}selected{{/if}}>Leg</option>
+    <option value="eye" {{#if (eq value "eye")}}selected{{/if}}>Eye</option>
+    <option value="ear" {{#if (eq value "ear")}}selected{{/if}}>Ear</option>
+    <option value="heart" {{#if (eq value "heart")}}selected{{/if}}>Heart</option>
+    <option value="lung" {{#if (eq value "lung")}}selected{{/if}}>Lung</option>
+    <option value="brain" {{#if (eq value "brain")}}selected{{/if}}>Brain</option>
+    <option value="spine" {{#if (eq value "spine")}}selected{{/if}}>Spine</option>
+    <option value="skin" {{#if (eq value "skin")}}selected{{/if}}>Skin</option>
+    <option value="organ" {{#if (eq value "organ")}}selected{{/if}}>Organ</option>
+    <option value="augmentation" {{#if (eq value "augmentation")}}selected{{/if}}>Augmentation</option>
+    <option value="other" {{#if (eq value "other")}}selected{{/if}}>Other</option>
+  </select>
+{{#if (or includeLabel (eq includeLabel undefined))}}
+</div>
+{{/if}}

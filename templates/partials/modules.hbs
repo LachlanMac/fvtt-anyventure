@@ -144,7 +144,7 @@
   <div class="trait-list">
     {{#each items as |item|}}
       {{#if (eq item.type 'trait')}}
-      <div class="trait-item">
+      <div class="trait-item rollable" data-trait-name="{{item.name}}" data-trait-description="{{item.system.description}}">
         <div class="trait-content">
           <h5 class="trait-name">{{item.name}}</h5>
           {{#if item.system.description}}<p class="trait-description">{{item.system.description}}</p>{{/if}}
@@ -166,7 +166,7 @@
         </h4>
         <div class="trait-list">
           {{#each ancestryTraits as |trait|}}
-          <div class="trait-item">
+          <div class="trait-item rollable" data-trait-name="{{trait.name}}" data-trait-description="{{trait.description}}">
             <div class="trait-content">
               <h5 class="trait-name">{{trait.name}}</h5>
               <p class="trait-description">{{trait.description}}</p>
@@ -186,7 +186,7 @@
         </h4>
         <div class="trait-list">
           {{#each culturalTraits as |trait|}}
-          <div class="trait-item">
+          <div class="trait-item rollable" data-trait-name="{{trait.name}}" data-trait-description="{{trait.description}}">
             <div class="trait-content">
               <h5 class="trait-name">{{trait.name}}</h5>
               <p class="trait-description">{{trait.description}}</p>
@@ -206,7 +206,7 @@
         </h4>
         <div class="trait-list">
           {{#each generalTraits as |trait|}}
-          <div class="trait-item">
+          <div class="trait-item rollable" data-trait-name="{{trait.name}}" data-trait-description="{{trait.description}}">
             <div class="trait-content">
               <h5 class="trait-name">{{trait.name}}</h5>
               <p class="trait-description">{{trait.description}}</p>
@@ -226,7 +226,7 @@
         </h4>
         <div class="trait-list">
           {{#each craftingTraits as |trait|}}
-          <div class="trait-item">
+          <div class="trait-item rollable" data-trait-name="{{trait.name}}" data-trait-description="{{trait.description}}">
             <div class="trait-content">
               <h5 class="trait-name">{{trait.name}}</h5>
               <p class="trait-description">{{trait.description}}</p>
@@ -246,7 +246,7 @@
         </h4>
         <div class="trait-list">
           {{#each personalityTraits as |trait|}}
-          <div class="trait-item">
+          <div class="trait-item rollable" data-trait-name="{{trait.name}}" data-trait-description="{{trait.description}}">
             <div class="trait-content">
               <h5 class="trait-name">{{trait.name}}</h5>
               <p class="trait-description">{{trait.description}}</p>

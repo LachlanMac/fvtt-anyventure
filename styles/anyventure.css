@@ -2940,6 +2940,21 @@
   flex-direction: column;
   gap: 2px;
 }
+.anyventure.item .resource-fields .field-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.anyventure.item .resource-fields .field-row label {
+  font-size: 11px;
+  color: #e8e3f0;
+  text-align: center;
+}
+.anyventure.item .resource-fields .field-row input {
+  width: 100%;
+  text-align: center;
+}
 .anyventure.item .movement-bonuses-section {
   margin-bottom: 12px;
 }
@@ -2953,6 +2968,21 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
+}
+.anyventure.item .movement-grid .field-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.anyventure.item .movement-grid .field-row label {
+  font-size: 11px;
+  color: #e8e3f0;
+  text-align: center;
+}
+.anyventure.item .movement-grid .field-row input {
+  width: 100%;
+  text-align: center;
 }
 .anyventure.item .mitigation-grid {
   display: grid;
@@ -4318,6 +4348,39 @@
 }
 .anyventure-rest-card .rest-details .detail-line:last-child {
   margin-bottom: 0;
+}
+
+.chat-message:has(.anyventure-trait-card) .dice-roll,
+.chat-message:has(.anyventure-trait-card) .message-content {
+  padding: 0;
+}
+
+.anyventure-trait-card {
+  background: rgba(26, 21, 37, 0.9);
+  border: 1px solid rgba(155, 137, 179, 0.3);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  padding: 4px;
+  border-left: 4px solid #ffd700;
+}
+.anyventure-trait-card .trait-card-header {
+  text-align: center;
+  border-bottom: 1px solid rgba(155, 137, 179, 0.3);
+  padding-bottom: 2px;
+  margin-bottom: 4px;
+}
+.anyventure-trait-card .trait-card-header .trait-card-name {
+  font-size: 16px;
+  color: #ffd700;
+  margin: 0;
+  font-weight: bold;
+}
+.anyventure-trait-card .trait-card-body .trait-card-description {
+  color: #e8e3f0;
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 0;
+  white-space: pre-wrap;
 }
 
 .anyventure-attack-card,

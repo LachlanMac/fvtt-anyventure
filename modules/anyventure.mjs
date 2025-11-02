@@ -668,7 +668,12 @@ async function preloadHandlebarsTemplates() {
     "systems/anyventure/templates/partials/items/module-properties.hbs",
     "systems/anyventure/templates/partials/items/spell-properties.hbs",
     "systems/anyventure/templates/partials/items/song-properties.hbs",
-    
+
+    // Dropdown Partial templates
+    "systems/anyventure/templates/partials/dropdowns/damage-type-select.hbs",
+    "systems/anyventure/templates/partials/dropdowns/implant-type-select.hbs",
+    "systems/anyventure/templates/partials/dropdowns/range-select.hbs",
+    "systems/anyventure/templates/partials/dropdowns/skill-select.hbs",
 
     // UI templates
     "systems/anyventure/templates/partials/npc-skills.hbs",

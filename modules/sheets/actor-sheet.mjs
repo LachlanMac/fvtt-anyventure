@@ -1248,6 +1248,11 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     html.find('[data-action="toggle-wonder"]').click(this._onToggleWonder.bind(this));
     html.find('[data-action="toggle-woe"]').click(this._onToggleWoe.bind(this));
 
+    // Trait clicks to show in chat (available even in readonly mode)
+    const traitItems = html.find('.trait-item.rollable');
+    console.log(`Binding ${traitItems.length} trait click handlers`);
+    traitItems.on('click', this._onTraitClick.bind(this));
+
     // -------------------------------------------------------------
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
@@ -1312,6 +1317,9 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
     
     // Skill rolls
     html.find('.skill-roll').click(this._onSkillRoll.bind(this));
+
+    // Music skill clicks (roll Expression check with instrument modifier)
+    html.find('.specialized-skill.rollable[data-music-key]').click(this._onMusicSkillRoll.bind(this));
 
     // Language star clicking
     html.find('.language-star').click(this._onLanguageStarClick.bind(this));
@@ -1692,6 +1700,45 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   /**
+   * Handle clicking a trait to display it in chat
+   * @param {Event} event   The originating click event
+   * @private
+   */
+  async _onTraitClick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const traitElement = event.currentTarget;
+    const traitName = traitElement.dataset.traitName;
+    const traitDescription = traitElement.dataset.traitDescription;
+
+    console.log("Trait clicked:", traitName, traitDescription);
+
+    if (!traitName) {
+      console.warn("No trait name found");
+      return;
+    }
+
+    // Build the chat card content
+    let cardContent = `<div class="anyventure-trait-card">`;
+    cardContent += `<div class="trait-card-header">`;
+    cardContent += `<h3 class="trait-card-name">${traitName}</h3>`;
+    cardContent += `</div>`;
+    cardContent += `<div class="trait-card-body">`;
+    cardContent += `<p class="trait-card-description">${traitDescription || 'No description'}</p>`;
+    cardContent += `</div>`;
+    cardContent += `</div>`;
+
+    // Create and send the chat message
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      content: cardContent,
+      type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+      rollMode: game.settings.get('core', 'rollMode'),
+    });
+  }
+
+  /**
    * Fall Unconscious placeholder
    */
   _onFallUnconscious() {
@@ -1799,6 +1846,42 @@ export class AnyventureActorSheet extends foundry.appv1.sheets.ActorSheet {
 
       return this.actor.rollSkill(category, skill);
     }
+  }
+
+  /**
+   * Handle music skill roll - rolls Expression check with instrument talent modifier
+   * @param {Event} event   The originating click event
+   * @private
+   */
+  async _onMusicSkillRoll(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const musicElement = event.currentTarget;
+    const instrumentKey = musicElement.dataset.musicKey;
+    const talent = parseInt(musicElement.dataset.talent) || 0;
+
+    if (!instrumentKey) {
+      ui.notifications.warn('Instrument not found');
+      return;
+    }
+
+    // Calculate modifier: talent - 1
+    // 0 talent = -1 penalty, 1 = neutral, 2 = +1 bonus, 3 = +2 bonus
+    const modifier = talent - 1;
+
+    const options = {};
+    if (modifier > 0) {
+      options.initialBonusDice = modifier;
+    } else if (modifier < 0) {
+      options.initialPenaltyDice = Math.abs(modifier);
+    }
+
+    // Capitalize instrument name
+    const instrumentName = instrumentKey.charAt(0).toUpperCase() + instrumentKey.slice(1);
+    options.flavorSuffix = ` (${instrumentName})`;
+
+    return this.actor.rollSkill('basic', 'expression', options);
   }
 
   /**

@@ -6,9 +6,6 @@
   {{!-- Sheet Tab Navigation --}}
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item active" data-tab="basic">Basic</a>
-    {{#if (or (eq system.itemType "body") (eq system.itemType "headwear") (eq system.itemType "gloves") (eq system.itemType "boots") (eq system.itemType "accessory") (eq system.itemType "cloak"))}}
-      <a class="item" data-tab="equipment">Equipment</a>
-    {{/if}}
     {{#if (eq system.itemType "weapon")}}
       <a class="item" data-tab="weapon">Weapon</a>
     {{/if}}
@@ -17,7 +14,6 @@
     {{/if}}
     <a class="item" data-tab="bonuses">Bonuses</a>
     <a class="item" data-tab="mitigation">Mitigation</a>
-    <a class="item" data-tab="special">Special</a>
   </nav>
 
   {{!-- Sheet Body --}}
@@ -130,28 +126,22 @@
         </div>
         {{/if}}
 
-      </div>
-    </div>
-
-    {{!-- Equipment Tab (for armor/equipment types) --}}
-    {{#if (or (eq system.itemType "body") (eq system.itemType "headwear") (eq system.itemType "gloves") (eq system.itemType "boots") (eq system.itemType "accessory") (eq system.itemType "cloak"))}}
-    <div class="tab" data-group="primary" data-tab="equipment">
-      <div class="equipment-properties">
-
-        <div class="equipment-section">
-          <h3>Equipment Properties</h3>
-          <div class="form-grid">
+        {{!-- Encumbrance Penalty (for equipment, shields, and weapons) --}}
+        {{#if (or (eq system.itemType "body") (eq system.itemType "headwear") (eq system.itemType "gloves") (eq system.itemType "boots") (eq system.itemType "accessory") (eq system.itemType "cloak") (eq system.itemType "shield") (eq system.itemType "weapon"))}}
+        <div class="encumbrance-section" style="display: block; margin-top: 20px;">
+          <h3 style="text-align: center; margin-bottom: 15px;">Encumbrance</h3>
+          <div style="max-width: 500px; margin: 0 auto;">
             <div class="form-group">
               <label>Encumbrance Penalty</label>
-              <input type="number" name="system.encumbrance_penalty" value="{{system.encumbrance_penalty}}" placeholder="0"/>
-              <small>Movement penalty when worn</small>
+              <input type="number" name="system.encumbrance_penalty" value="{{system.encumbrance_penalty}}" placeholder="0" style="width: 100%;"/>
+              <small>Movement penalty when worn/equipped</small>
             </div>
           </div>
         </div>
+        {{/if}}
 
       </div>
     </div>
-    {{/if}}
 
     {{!-- Weapon Tab (for weapon items) --}}
     {{#if (eq system.itemType "weapon")}}
@@ -216,32 +206,13 @@
               <label>Energy</label>
               <input type="number" name="system.primary.energy" value="{{system.primary.energy}}" placeholder="0"/>
             </div>
-            <div class="form-group">
-              <label>Range</label>
-              <div style="display: flex; gap: 5px;">
-                <select name="system.primary.min_range" style="flex: 1;">
-                  <option value="1" {{#if (eq system.primary.min_range "1")}}selected{{/if}}>Adjacent</option>
-                  <option value="2" {{#if (eq system.primary.min_range "2")}}selected{{/if}}>Nearby</option>
-                  <option value="3" {{#if (eq system.primary.min_range "3")}}selected{{/if}}>Very Short</option>
-                  <option value="4" {{#if (eq system.primary.min_range "4")}}selected{{/if}}>Short</option>
-                  <option value="5" {{#if (eq system.primary.min_range "5")}}selected{{/if}}>Moderate</option>
-                  <option value="6" {{#if (eq system.primary.min_range "6")}}selected{{/if}}>Far</option>
-                  <option value="7" {{#if (eq system.primary.min_range "7")}}selected{{/if}}>Very Far</option>
-                  <option value="8" {{#if (eq system.primary.min_range "8")}}selected{{/if}}>Distant</option>
-                </select>
-                <span style="align-self: center;">-</span>
-                <select name="system.primary.max_range" style="flex: 1;">
-                  <option value="1" {{#if (eq system.primary.max_range "1")}}selected{{/if}}>Adjacent</option>
-                  <option value="2" {{#if (eq system.primary.max_range "2")}}selected{{/if}}>Nearby</option>
-                  <option value="3" {{#if (eq system.primary.max_range "3")}}selected{{/if}}>Very Short</option>
-                  <option value="4" {{#if (eq system.primary.max_range "4")}}selected{{/if}}>Short</option>
-                  <option value="5" {{#if (eq system.primary.max_range "5")}}selected{{/if}}>Moderate</option>
-                  <option value="6" {{#if (eq system.primary.max_range "6")}}selected{{/if}}>Far</option>
-                  <option value="7" {{#if (eq system.primary.max_range "7")}}selected{{/if}}>Very Far</option>
-                  <option value="8" {{#if (eq system.primary.max_range "8")}}selected{{/if}}>Distant</option>
-                </select>
-              </div>
-            </div>
+            {{> "systems/anyventure/templates/partials/dropdowns/range-select.hbs"
+                minName="system.primary.min_range"
+                maxName="system.primary.max_range"
+                minValue=system.primary.min_range
+                maxValue=system.primary.max_range
+                label="Range"
+                mode="dual"}}
 
             {{!-- Row 2: Damage, Extra Damage, Damage Type --}}
             <div class="form-group">
@@ -252,20 +223,9 @@
               <label>Extra Damage</label>
               <input type="number" name="system.primary.damage_extra" value="{{system.primary.damage_extra}}" placeholder="0"/>
             </div>
-            <div class="form-group">
-              <label>Damage Type</label>
-              <select name="system.primary.damage_type">
-                <option value="physical" {{#if (eq system.primary.damage_type "physical")}}selected{{/if}}>Physical</option>
-                <option value="heat" {{#if (eq system.primary.damage_type "heat")}}selected{{/if}}>Heat</option>
-                <option value="cold" {{#if (eq system.primary.damage_type "cold")}}selected{{/if}}>Cold</option>
-                <option value="lightning" {{#if (eq system.primary.damage_type "lightning")}}selected{{/if}}>Lightning</option>
-                <option value="dark" {{#if (eq system.primary.damage_type "dark")}}selected{{/if}}>Dark</option>
-                <option value="divine" {{#if (eq system.primary.damage_type "divine")}}selected{{/if}}>Divine</option>
-                <option value="arcane" {{#if (eq system.primary.damage_type "arcane")}}selected{{/if}}>Arcane</option>
-                <option value="psychic" {{#if (eq system.primary.damage_type "psychic")}}selected{{/if}}>Psychic</option>
-                <option value="toxic" {{#if (eq system.primary.damage_type "toxic")}}selected{{/if}}>Toxic</option>
-              </select>
-            </div>
+            {{> "systems/anyventure/templates/partials/dropdowns/damage-type-select.hbs"
+                name="system.primary.damage_type"
+                value=system.primary.damage_type}}
 
             {{!-- Row 3: Secondary Damage Header (spans all 3 columns) --}}
             <div style="grid-column: 1 / -1; margin-top: 10px;">
@@ -281,21 +241,10 @@
               <label>Extra Damage</label>
               <input type="number" name="system.primary.secondary_damage_extra" value="{{system.primary.secondary_damage_extra}}" placeholder="0"/>
             </div>
-            <div class="form-group">
-              <label>Damage Type</label>
-              <select name="system.primary.secondary_damage_type">
-                <option value="" {{#unless system.primary.secondary_damage_type}}selected{{/unless}}>None</option>
-                <option value="physical" {{#if (eq system.primary.secondary_damage_type "physical")}}selected{{/if}}>Physical</option>
-                <option value="heat" {{#if (eq system.primary.secondary_damage_type "heat")}}selected{{/if}}>Heat</option>
-                <option value="cold" {{#if (eq system.primary.secondary_damage_type "cold")}}selected{{/if}}>Cold</option>
-                <option value="lightning" {{#if (eq system.primary.secondary_damage_type "lightning")}}selected{{/if}}>Lightning</option>
-                <option value="dark" {{#if (eq system.primary.secondary_damage_type "dark")}}selected{{/if}}>Dark</option>
-                <option value="divine" {{#if (eq system.primary.secondary_damage_type "divine")}}selected{{/if}}>Divine</option>
-                <option value="arcane" {{#if (eq system.primary.secondary_damage_type "arcane")}}selected{{/if}}>Arcane</option>
-                <option value="psychic" {{#if (eq system.primary.secondary_damage_type "psychic")}}selected{{/if}}>Psychic</option>
-                <option value="toxic" {{#if (eq system.primary.secondary_damage_type "toxic")}}selected{{/if}}>Toxic</option>
-              </select>
-            </div>
+            {{> "systems/anyventure/templates/partials/dropdowns/damage-type-select.hbs"
+                name="system.primary.secondary_damage_type"
+                value=system.primary.secondary_damage_type
+                includeNone=true}}
           </div>
         </div>
 
@@ -323,32 +272,13 @@
               <label>Energy</label>
               <input type="number" name="system.secondary.energy" value="{{system.secondary.energy}}" placeholder="0"/>
             </div>
-            <div class="form-group">
-              <label>Range</label>
-              <div style="display: flex; gap: 5px;">
-                <select name="system.secondary.min_range" style="flex: 1;">
-                  <option value="1" {{#if (eq system.secondary.min_range "1")}}selected{{/if}}>Adjacent</option>
-                  <option value="2" {{#if (eq system.secondary.min_range "2")}}selected{{/if}}>Nearby</option>
-                  <option value="3" {{#if (eq system.secondary.min_range "3")}}selected{{/if}}>Very Short</option>
-                  <option value="4" {{#if (eq system.secondary.min_range "4")}}selected{{/if}}>Short</option>
-                  <option value="5" {{#if (eq system.secondary.min_range "5")}}selected{{/if}}>Moderate</option>
-                  <option value="6" {{#if (eq system.secondary.min_range "6")}}selected{{/if}}>Far</option>
-                  <option value="7" {{#if (eq system.secondary.min_range "7")}}selected{{/if}}>Very Far</option>
-                  <option value="8" {{#if (eq system.secondary.min_range "8")}}selected{{/if}}>Distant</option>
-                </select>
-                <span style="align-self: center;">-</span>
-                <select name="system.secondary.max_range" style="flex: 1;">
-                  <option value="1" {{#if (eq system.secondary.max_range "1")}}selected{{/if}}>Adjacent</option>
-                  <option value="2" {{#if (eq system.secondary.max_range "2")}}selected{{/if}}>Nearby</option>
-                  <option value="3" {{#if (eq system.secondary.max_range "3")}}selected{{/if}}>Very Short</option>
-                  <option value="4" {{#if (eq system.secondary.max_range "4")}}selected{{/if}}>Short</option>
-                  <option value="5" {{#if (eq system.secondary.max_range "5")}}selected{{/if}}>Moderate</option>
-                  <option value="6" {{#if (eq system.secondary.max_range "6")}}selected{{/if}}>Far</option>
-                  <option value="7" {{#if (eq system.secondary.max_range "7")}}selected{{/if}}>Very Far</option>
-                  <option value="8" {{#if (eq system.secondary.max_range "8")}}selected{{/if}}>Distant</option>
-                </select>
-              </div>
-            </div>
+            {{> "systems/anyventure/templates/partials/dropdowns/range-select.hbs"
+                minName="system.secondary.min_range"
+                maxName="system.secondary.max_range"
+                minValue=system.secondary.min_range
+                maxValue=system.secondary.max_range
+                label="Range"
+                mode="dual"}}
 
             {{!-- Row 2: Damage, Extra Damage, Damage Type --}}
             <div class="form-group">
@@ -359,20 +289,9 @@
               <label>Extra Damage</label>
               <input type="number" name="system.secondary.damage_extra" value="{{system.secondary.damage_extra}}" placeholder="0"/>
             </div>
-            <div class="form-group">
-              <label>Damage Type</label>
-              <select name="system.secondary.damage_type">
-                <option value="physical" {{#if (eq system.secondary.damage_type "physical")}}selected{{/if}}>Physical</option>
-                <option value="heat" {{#if (eq system.secondary.damage_type "heat")}}selected{{/if}}>Heat</option>
-                <option value="cold" {{#if (eq system.secondary.damage_type "cold")}}selected{{/if}}>Cold</option>
-                <option value="lightning" {{#if (eq system.secondary.damage_type "lightning")}}selected{{/if}}>Lightning</option>
-                <option value="dark" {{#if (eq system.secondary.damage_type "dark")}}selected{{/if}}>Dark</option>
-                <option value="divine" {{#if (eq system.secondary.damage_type "divine")}}selected{{/if}}>Divine</option>
-                <option value="arcane" {{#if (eq system.secondary.damage_type "arcane")}}selected{{/if}}>Arcane</option>
-                <option value="psychic" {{#if (eq system.secondary.damage_type "psychic")}}selected{{/if}}>Psychic</option>
-                <option value="toxic" {{#if (eq system.secondary.damage_type "toxic")}}selected{{/if}}>Toxic</option>
-              </select>
-            </div>
+            {{> "systems/anyventure/templates/partials/dropdowns/damage-type-select.hbs"
+                name="system.secondary.damage_type"
+                value=system.secondary.damage_type}}
 
             {{!-- Row 3: Secondary Damage Header (spans all 3 columns) --}}
             <div style="grid-column: 1 / -1; margin-top: 10px;">
@@ -388,21 +307,10 @@
               <label>Extra Damage</label>
               <input type="number" name="system.secondary.secondary_damage_extra" value="{{system.secondary.secondary_damage_extra}}" placeholder="0"/>
             </div>
-            <div class="form-group">
-              <label>Damage Type</label>
-              <select name="system.secondary.secondary_damage_type">
-                <option value="" {{#unless system.secondary.secondary_damage_type}}selected{{/unless}}>None</option>
-                <option value="physical" {{#if (eq system.secondary.secondary_damage_type "physical")}}selected{{/if}}>Physical</option>
-                <option value="heat" {{#if (eq system.secondary.secondary_damage_type "heat")}}selected{{/if}}>Heat</option>
-                <option value="cold" {{#if (eq system.secondary.secondary_damage_type "cold")}}selected{{/if}}>Cold</option>
-                <option value="lightning" {{#if (eq system.secondary.secondary_damage_type "lightning")}}selected{{/if}}>Lightning</option>
-                <option value="dark" {{#if (eq system.secondary.secondary_damage_type "dark")}}selected{{/if}}>Dark</option>
-                <option value="divine" {{#if (eq system.secondary.secondary_damage_type "divine")}}selected{{/if}}>Divine</option>
-                <option value="arcane" {{#if (eq system.secondary.secondary_damage_type "arcane")}}selected{{/if}}>Arcane</option>
-                <option value="psychic" {{#if (eq system.secondary.secondary_damage_type "psychic")}}selected{{/if}}>Psychic</option>
-                <option value="toxic" {{#if (eq system.secondary.secondary_damage_type "toxic")}}selected{{/if}}>Toxic</option>
-              </select>
-            </div>
+            {{> "systems/anyventure/templates/partials/dropdowns/damage-type-select.hbs"
+                name="system.secondary.secondary_damage_type"
+                value=system.secondary.secondary_damage_type
+                includeNone=true}}
           </div>
         </div>
 
@@ -418,17 +326,9 @@
         <div class="implant-section">
           <h3>Implant Properties</h3>
           <div class="form-grid">
-            <div class="form-group">
-              <label>Implant Type</label>
-                      <select name="system.implant_data.implant_type">
-            <option value="arm" {{#if (eq system.implant_data.implant_type "claw")}}selected{{/if}}>Arm</option>
-            <option value="arm" {{#if (eq system.implant_data.implant_type "arm")}}selected{{/if}}>Arm</option>
-            <option value="leg" {{#if (eq system.implant_data.implant_type "leg")}}selected{{/if}}>Leg</option>
-            <option value="eye" {{#if (eq system.implant_data.implant_type "eye")}}selected{{/if}}>Eye</option>
-            <option value="skin" {{#if (eq system.implant_data.implant_type "skin")}}selected{{/if}}>Skin</option>
-            <option value="organ" {{#if (eq system.implant_data.implant_type "organ")}}selected{{/if}}>Organ</option>
-          </select>
-            </div>
+            {{> "systems/anyventure/templates/partials/dropdowns/implant-type-select.hbs"
+                name="system.implant_data.implant_type"
+                value=system.implant_data.implant_type}}
 
             <div class="form-group">
               <label>Pain Penalty</label>
@@ -563,61 +463,6 @@
               <input type="checkbox" name="system.immunities.stunned" {{#if system.immunities.stunned}}checked{{/if}}/>
               <span>Stunned</span>
             </label>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    {{!-- Special Tab --}}
-    <div class="tab" data-group="primary" data-tab="special">
-      <div class="special-content">
-
-        <div class="special-properties-section">
-          <h3>Special Properties</h3>
-          <div class="form-group">
-            <label>Properties Text</label>
-            <textarea name="system.properties" placeholder="Special properties, abilities, or notes" rows="4">{{system.properties}}</textarea>
-          </div>
-        </div>
-
-        <div class="item-effects-section">
-          <h3>Item Effects</h3>
-          <div class="effects-container">
-            {{#each system.effects as |effect index|}}
-            <div class="effect-item" data-index="{{index}}">
-              <div class="effect-header">
-                <input type="text" name="system.effects.{{index}}.name" value="{{effect.name}}" placeholder="Effect Name"/>
-                <button type="button" class="effect-delete" title="Delete Effect">×</button>
-              </div>
-              <div class="effect-fields">
-                <div class="form-grid-3col">
-                  <div class="form-group">
-                    <label>Type</label>
-                    <select name="system.effects.{{index}}.type">
-                      <option value="passive" {{#if (eq effect.type "passive")}}selected{{/if}}>Passive</option>
-                      <option value="active" {{#if (eq effect.type "active")}}selected{{/if}}>Active</option>
-                      <option value="triggered" {{#if (eq effect.type "triggered")}}selected{{/if}}>Triggered</option>
-                      <option value="consumable" {{#if (eq effect.type "consumable")}}selected{{/if}}>Consumable</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label>Duration</label>
-                    <input type="text" name="system.effects.{{index}}.duration" value="{{effect.duration}}" placeholder="Duration"/>
-                  </div>
-                  <div class="form-group">
-                    <label>Data String</label>
-                    <input type="text" name="system.effects.{{index}}.data" value="{{effect.data}}" placeholder="Mechanical data"/>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label>Description</label>
-                  <textarea name="system.effects.{{index}}.description" placeholder="Effect description" rows="2">{{effect.description}}</textarea>
-                </div>
-              </div>
-            </div>
-            {{/each}}
-            <button type="button" class="add-effect" data-action="add-item-effect">Add New Effect</button>
           </div>
         </div>
 
